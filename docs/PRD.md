@@ -1,0 +1,224 @@
+# PRD — Mock Audit Agent
+
+> **Superseded where it differs** by [proposal.md](proposal.md) (approved MVP, 2026-10-15) and [the spec](../specs/2026-10-15-mock-audit-mvp.md). Kept as background.
+
+
+Status: draft for app-architect · Owner: Chirag · Date: 2026-10-15 (updated by kickoff)
+Companion docs: `handover.md` (start here), `research.md` (domain, prior art, data), `architecture.md` (agent design, a preference the architect may challenge).
+
+---
+
+## 1. Summary
+
+The Mock Audit Agent plays a skeptical SOC 2 Type II auditor against a company's controls and evidence. It predicts the exceptions a real auditor would raise **before fieldwork starts**, and writes each one up in auditor format with cited evidence.
+
+It is a **portfolio demo** built to support job outreach to **Hyperproof** (a GRC platform). It must show three things in one artifact:
+
+1. We understand Hyperproof's product: audit module, evidence linked to controls, and AI evidence validation.
+2. We can build production-style agentic AI.
+3. We evaluate it rigorously, with measured accuracy rather than assumed accuracy.
+
+**Positioning:** this extends Hyperproof's existing *Evidence Collection and Validation* guided experience into a full audit simulation. It is the **customer-side, pre-audit** counterpart to auditor-side AI such as Thoropass's. It is not a claim to a brand-new category.
+
+---
+
+## 2. Problem
+
+- Companies face several compliance audits a year (SOC 2, ISO 27001, PCI, etc.), and most exceptions are found by the external auditor during fieldwork, when they are expensive to fix.
+- In Thoropass's 2026 survey, **91%** of respondents said they must resubmit audit evidence at least sometimes because of miscommunication or shifting auditor expectations.
+- The most common SOC 2 exception areas are business approvals/reviews (16.5%), user access reviews (15.6%), terminations (12%) and change management (11.7%) (2024 SOC benchmark study).
+- Today's GRC AI (Hyperproof, Vanta, Drata) mostly validates **individual pieces of evidence**. None publicly simulates what an auditor actually does: population completeness, sampling, walkthrough follow-ups and auditor-style findings.
+
+---
+
+## 3. Users
+
+| Persona | Need | What they get |
+| --- | --- | --- |
+| **GRC lead** (primary) | Know where the audit will hurt, weeks early | Findings report, per-control coverage, remediation tasks |
+| **Control owner** | Know exactly what to fix or provide | One precise finding with the evidence it is based on |
+| **External auditor** (indirect) | Clean, complete populations | Fewer resubmissions |
+| **Hyperproof hiring team** (demo audience) | Proof the candidate can build this | Live demo, 2-minute video, repo, evaluation report |
+
+---
+
+## 4. Goals and non-goals
+
+**Goals (v1)**
+
+- G1: Run a mock SOC 2 Type II audit over 12 controls for one synthetic company.
+- G2: Catch at least 8 of 10 planted gaps, with every finding citing real records.
+- G3: Produce auditor-format findings (condition, criteria, cause, effect, recommendation) with rule-based severity.
+- G4: A human reviews and approves each finding in the UI before it reaches the report.
+- G5: Publish an evaluation report with measured recall, precision, citation faithfulness and the skeptic's value.
+
+**Non-goals (v1)**
+
+- Live integrations (Okta, AWS, GitHub). Their exports are simulated.
+- Frameworks other than SOC 2. Multi-framework is a roadmap item.
+- Issuing an audit opinion or any "pass" badge. The output is readiness, never attestation.
+- An LLM planner that writes test recipes. Recipes are hand-written in v1.
+- Production hardening: auth, multi-tenancy, scaling.
+
+---
+
+## 5. User stories
+
+1. As a GRC lead, I start a mock audit for a chosen period and see per-control progress live.
+2. As a GRC lead, I see each control's result: population size, completeness, the sample tested, and findings.
+3. As a GRC lead, I open a finding and see the exact records it cites, the agent's reasoning and the skeptic's verdict.
+4. As a GRC lead, I approve or reject each finding, with an optional note.
+5. As a GRC lead, I see findings the agents could not agree on, flagged as "unresolved".
+6. As a GRC lead, I export a report with approved findings, coverage per control and remediation tasks.
+7. As a reviewer of the demo, I browse the published runs on GitHub Pages: findings, cited evidence, skeptic verdicts, the report, evaluation results (skeptic on vs off) and a trace summary per control.
+
+---
+
+## 6. Functional requirements
+
+### 6.1 Inputs
+
+- **FR-1** Controls are defined in `controls.yaml` and validated into `ControlSpec` objects (schema in `architecture.md`). Every control has its own spec: same schema, different values.
+- **FR-2** Each spec carries a **test recipe**: ordered steps, each with `check` (a named code function, or null), `params` and `judge` (`none` or `llm`).
+- **FR-3** Evidence comes from a synthetic company ("Ledgerly") generated by a seeded script: CSV/JSON exports, Markdown policies, a few screenshot images, and scripted control-owner answers.
+
+### 6.2 Audit execution
+
+- **FR-4** Each control runs as its own **async** job: `ControlSpec` in, validated `ControlResult` out, saved per control. Concurrency is capped (default 4), with a timeout per control. One failure must not stop the others.
+- **FR-5** The population check (code) verifies completeness against an independent source and lists missing items.
+- **FR-6** The sampler (code) picks a seeded sample sized by frequency, risk and automated flag (see sample-size table in `research.md`).
+- **FR-7** The evidence tester (LLM, a **cheap Qwen-family model via OpenRouter**, run as a LangGraph tool loop) runs the recipe. Code checks do all counting, dates and SLAs; the LLM interprets results, reads documents and screenshots, and may call `ask_owner` for follow-ups.
+- **FR-8** Every finding must cite ≥1 `record_id`. A code citation check drops findings whose citations do not exist.
+
+### 6.3 Review
+
+- **FR-9** A **separate skeptic pass** (LLM, a **cheap model from a different family than the tester**, via OpenRouter) reviews each finding asynchronously. It gets the finding, the control spec and the cited records **fetched by code**. It returns `keep`, `revise` or `reject` with a reason.
+- **FR-10** On `revise`, only the affected controls rerun, and only their tester step, via `agent.revise(spec, prior, feedback)`. Population and sample are reused. Only revised findings are re-reviewed. Maximum 2 rounds; then the finding goes to human review flagged **unresolved**.
+- **FR-11** Rejected findings go to a rejected log used in evaluation.
+- **FR-12** Severity is **rule-based** and deterministic (see `architecture.md` §6). Neither the tester nor the skeptic sets it.
+
+### 6.4 Human review and output
+
+- **FR-13** The UI lists findings with cited evidence, agent reasoning and skeptic verdict. The user approves or rejects each, with an optional note. Decisions are stored.
+- **FR-14** The report contains approved findings in auditor format, a **coverage statement** per control (tested, not tested, why) and a remediation task per finding (owner, due date placeholder). There is **no pass badge or single readiness score shown alone**.
+- **FR-15** Export as Markdown and JSON.
+
+### 6.5 Evaluation
+
+- **FR-16** A scorer compares findings with the answer key by control ID and cited record IDs (code, not LLM).
+- **FR-17** Metrics: gap recall, precision, clean-control accuracy, citation faithfulness, write-up quality (LLM judge with rubric), stability over 5 runs, skeptic on vs off, cost and time per audit.
+- **FR-18** The generator can re-plant gaps in random combinations (number of variants set by the US$10 budget); results are reported as averages.
+- **FR-19** Audits and evaluation run locally; `export-showcase` writes the selected runs as JSON into the frontend. CI (GitHub Actions) runs unit tests and validates the exported JSON on every push (no LLM calls), and deploys the static site to GitHub Pages on push to `main`.
+
+### 6.6 Observability
+
+- **FR-20** Every LLM call, tool call and check is traced in MLflow; each `ControlResult` stores its `run_id`.
+
+---
+
+## 7. Non-functional requirements
+
+| Area | Requirement |
+| --- | --- |
+| Reproducibility | Same dataset + seed → same population and sample; findings ≥ 90% identical across 5 runs |
+| Latency | Full 12-control audit in under 10 minutes on the demo dataset (target, to be measured) |
+| Cost | Report tokens and cost per audit; no hard target for the POC |
+| Model portability | Tester and skeptic models set in config; either can be swapped without code changes |
+| Extensibility | New control agents, reviewers and checks added by registration only (`AGENTS`, `REVIEWERS`, `CHECKS`) |
+| Setup | One command to run locally (Docker Compose) |
+| Deployment | Audits run **offline (locally)**; pre-computed results published as a **static site on GitHub Pages**. Code on GitHub |
+| Secrets | OpenRouter key only in the local `.env`; CI and the published site need no secrets |
+| Budget | **US$10 total** OpenRouter spend, paid cheap models throughout; cost per audit reported |
+| Reproducibility | Every published run records dataset variant, seed, model IDs, prompt versions and git commit |
+| Data | Synthetic only; no real company data |
+
+---
+
+## 8. Scope: the 12 controls
+
+| # | Control | TSC | Frequency | Clean or gapped |
+| --- | --- | --- | --- | --- |
+| C1 | New access approved before granted | CC6.2 | Event | Clean |
+| C2 | Terminated users lose access within 24h | CC6.3 | Event | Gaps G1, G2 |
+| C3 | User access reviewed quarterly with sign-off | CC6.2 | Quarterly | Gap G3 |
+| C4 | MFA enforced for all users | CC6.1 | Automated | Clean |
+| C5 | Privileged access reviewed quarterly | CC6.3 | Quarterly | Gap G4 |
+| C6 | Production changes approved by someone other than the author | CC8.1 | Event | Gap G5 |
+| C7 | Emergency changes approved retroactively within 2 business days | CC8.1 | Event | Gap G6 |
+| C8 | Weekly vulnerability scans; criticals fixed within 30 days | CC7.1 | Weekly | Gaps G7, G8 |
+| C9 | Security incidents logged with post-incident review | CC7.4 | Event | Clean |
+| C10 | Security training within 30 days of hire and annually | CC1.4 | Event + annual | Gap G9 |
+| C11 | Critical vendors risk-reviewed annually | CC9.2 | Annual | Clean |
+| C12 | Backup restore tested annually | A1.3 | Annual | Gap G10 |
+
+The planted gaps are listed in `research.md` §6.
+
+---
+
+## 9. UX: main screens (Next.js)
+
+The Next.js app runs in two modes. **Live mode** (local) talks to FastAPI and can start and review audits. **Showcase mode** (GitHub Pages, static export) shows pre-computed runs, with their review decisions, and has no start button.
+
+
+1. **Start audit:** pick the dataset or variant, observation period and models; click run.
+2. **Audit progress:** 12 control cards updating live (queued → running → tested → reviewed), with errors shown per card.
+3. **Control detail:** population (size, complete?, missing items), sample, recipe steps with check results, findings.
+4. **Finding review:** condition/criteria/cause/effect/recommendation, cited records rendered inline (rows, policy excerpt, screenshot), skeptic verdict and reason, approve/reject buttons and a note.
+5. **Report:** approved findings, coverage per control, remediation tasks, export.
+6. **Evaluation:** metrics table, skeptic on vs off comparison, links to MLflow traces.
+
+---
+
+## 10. Success metrics (POC targets, our own bar)
+
+| Metric | Target |
+| --- | --- |
+| Gap recall | ≥ 8 of 10 |
+| Precision | ≥ 80% |
+| Clean-control accuracy | 4 of 4 |
+| Citation faithfulness | 100% |
+| Severity agreement with answer key | ≥ 80% |
+| Write-up quality (judge, 1–5) | Average ≥ 4 |
+| Stability (repeated runs, count set by budget) | ≥ 90% overlap |
+| Outreach | Email sent with video and repo link |
+
+---
+
+## 11. Milestones (≈ one week of evenings each)
+
+| Week | Deliverable | Gate |
+| --- | --- | --- |
+| 1 | Schemas, `controls.yaml` (12 specs + recipes), Ledgerly generator, answer key | Dataset loads; gaps verifiable by hand |
+| 2 | `CHECKS` registry + unit tests | Checks alone surface G1, G2, G7, G8 |
+| 3 | Async runner, LangGraph Qwen-family tester with `run()`/`revise()`, cross-family skeptic pass (both via OpenRouter), revision loop, MLflow | 3 controls end to end, including one revise round |
+| 4 | All 12 controls, scorer, judge, variants, skeptic on/off, CI | Recall ≥ 8/10, citations 100% |
+| 5 | FastAPI + Next.js UI with review and report export; showcase export and GitHub Pages deploy; README, 2-minute video, email | Pages site live; email sent |
+
+Next.js adds UI work compared with Streamlit. If week 5 slips, the fallback is to ship the API plus a minimal UI (progress, review, report) and leave the evaluation screen to the README.
+
+---
+
+## 12. Risks
+
+| Risk | Mitigation |
+| --- | --- |
+| Hallucinated findings | Mandatory citations, code citation check, cross-model skeptic, human approval |
+| LLM math errors | All counting, dates and SLAs in code checks |
+| Self-grading bias | Skeptic and judge from a different model family than the Qwen-family tester |
+| US$10 budget exhausted | Measure cost per audit early; size variant and stability runs to fit; stop at a spend threshold |
+| Cheap models weak at tool use | Code does all counting; tight tool schemas; report honestly if a target is missed |
+| Synthetic data too easy | Noisy exports, clean controls, re-planted variants |
+| False confidence ("we passed") | Coverage statement, no pass badge, readiness wording |
+| Over-building in 5 weeks | Plain dicts for registries; tester as a simple tool loop; LangGraph only where it earns its place |
+| Next.js time cost | Fallback scope in §11 |
+| Domain inaccuracy | Sample sizes from published auditor guidance; ask a GRC practitioner to review the report |
+
+---
+
+## 13. Open questions for the architect
+
+1. Exact OpenRouter model IDs for tester and skeptic (verify tool calling and structured-output support for each).
+2. How much of the flow lives in LangGraph: tester loop only, or the per-control subgraph including checks (see `architecture.md` §9).
+3. How to stream progress to the UI: polling or server-sent events.
+4. Showcase export format and which runs to publish (baseline + variants, skeptic on/off).
+5. Repo visibility: public (needed for free Pages and for the outreach link).

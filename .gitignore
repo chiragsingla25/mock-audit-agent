@@ -1,0 +1,26 @@
+# secrets
+.env
+.env.*
+!.env.example
+
+# runtime output
+runs/
+*.db
+*.db-journal
+
+# python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# node / next
+node_modules/
+.next/
+out/
+
+# os
+.DS_Store
+Thumbs.db
