@@ -108,7 +108,7 @@ class TesterScript:
                                            if cid in self.bogus_cites else [x for c in cs for x in c["citations"]])})
         for j in judgment:
             bad = [i for i in j["items"] if i in self.flag]
-            if bad:
+            if bad and not (revise and self.dismiss_on_revise):
                 findings.append({"test_step": j["test_step"], "candidate_ids": [], "condition": f"{prefix}{bad} fail",
                                  "criteria": j["requirement"], "effect": "risk", "recommendation": "fix it",
                                  "citations": [{"source": j["source"], "record_id": i} for i in bad]})

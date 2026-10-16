@@ -23,8 +23,21 @@ def matches(finding, gap: dict) -> bool:
     return finding.control_id == gap["control_id"] and bool(cited_ids(finding) & set(gap["record_ids"]))
 
 
-def score(results: list[ControlResult], key: dict, index: set[tuple[str, str]] | None = None) -> dict:
-    findings = [f for r in results for f in r.findings if f.status in KEPT]
+SKEPTIC_OFF = "skeptic_off"
+
+
+def counted(f, view) -> bool:
+    """KEPT view: what the report keeps. Skeptic-off view: everything the tester raised, as if the skeptic hadn't run
+    (rejected findings, and findings dropped only because the skeptic asked for a revision, count again)."""
+    if view == SKEPTIC_OFF:
+        on_revision = any(s.text == "tester dismissed this finding's items on revision" for s in f.reasoning)
+        return f.status in KEPT | {"rejected"} or (f.status == "dismissed" and on_revision)
+    return f.status in view
+
+
+def score(results: list[ControlResult], key: dict, index: set[tuple[str, str]] | None = None,
+          kept=KEPT) -> dict:
+    findings = [f for r in results for f in r.findings if counted(f, kept)]
     gaps, traps, clean = key["gaps"], key["traps"], key["clean_controls"]
 
     matched_gaps = [g for g in gaps if any(matches(f, g) for f in findings)]

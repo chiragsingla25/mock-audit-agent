@@ -61,6 +61,9 @@ def main(argv: list[str] | None = None) -> int:
 
     ev = sub.add_parser("eval", help="score a run against its answer key")
     ev.add_argument("--run", default="latest", help="run id, or 'latest'")
+    ev.add_argument("--all", action="store_true", help="full evaluation: agent on base/a/b + stability, checks-only, skeptic-off")
+    ev.add_argument("--rescore", metavar="EVAL_ID", help="re-score an existing evaluation from its runs (no LLM calls)")
+    ev.add_argument("--data-root", type=Path, default=DATA_ROOT)
     ev.add_argument("--runs-dir", type=Path, default=RUNS_DIR)
     args = parser.parse_args(argv)
 
@@ -103,6 +106,24 @@ def main(argv: list[str] | None = None) -> int:
             models = OpenRouterModels()
         out = asyncio.run(resume_audit(run_dir, json.loads(args.decisions.read_text()), models))
         print_summary(out, "review")
+    elif args.cmd == "eval" and args.rescore:
+        from mockaudit.evaluation import render, rescore
+        print(render(rescore(args.runs_dir, args.rescore, args.data_root)))
+    elif args.cmd == "eval" and args.all:
+        import asyncio
+
+        from mockaudit.evaluation import render, run_eval_all
+        load_env()
+        from mockaudit.llm import OpenRouterModels
+        base_cfg = {"max_concurrency": int(os.environ.get("MAX_CONCURRENCY", "4")),
+                    "control_timeout_s": int(os.environ.get("CONTROL_TIMEOUT_S", "420")),
+                    "run_spend_cap_usd": float(os.environ.get("RUN_SPEND_CAP_USD", "1.00"))}
+        models = OpenRouterModels()
+        base_cfg |= {"tester_model": models.tester_name, "skeptic_model": models.skeptic_name}
+        result = asyncio.run(run_eval_all(args.data_root, args.runs_dir, models, args.runs_dir / "spend.jsonl", base_cfg,
+                                          float(os.environ.get("EVAL_SPEND_CAP_USD", "2.00"))))
+        print(render(result))
+        print(f"wrote {args.runs_dir / result['eval_id']}/eval.json and eval.md")
     elif args.cmd == "eval":
         from mockaudit.scoring import evaluate_run, table
         print(table(evaluate_run(resolve_run(args.runs_dir, args.run))))

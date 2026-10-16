@@ -139,11 +139,21 @@ Clarified 2026-10-16 (Phase 3 clarify pass, ruled by Chirag):
 Verify: `uv run mockaudit run --variant base --review skip` → `runs/<id>/` is complete, the cost is printed, and the trace is visible in LangSmith.
 
 ### Phase 4: Evaluation and CI (end of Milestone 1)
-- [ ] `mockaudit eval --all` runs base + variants A and B (agent), skeptic-off (from the same runs, with no extra calls), checks-only, and 3 stability runs on base. It writes `eval.json` and a Markdown table.
-- [ ] Reports recall, precision, clean-control accuracy, citation validity, severity agreement, stability overlap, agent vs checks-only, skeptic on vs off, and US$ and tokens per audit.
-- [ ] Total evaluation spend ≤ US$2.00 (from `spend.jsonl`).
+- [x] `mockaudit eval --all` runs base + variants A and B (agent), skeptic-off (from the same runs, with no extra calls), checks-only, and 3 stability runs on base. It writes `eval.json` and a Markdown table.
+- [x] Reports recall, precision, clean-control accuracy, citation validity, severity agreement, stability overlap, agent vs checks-only, skeptic on vs off, and US$ and tokens per audit.
+- [x] Total evaluation spend ≤ US$2.00 (from `spend.jsonl`).
 - [ ] `.github/workflows/ci.yml`: ruff + pytest + showcase JSON validation, with no secrets and no LLM calls.
-- [ ] Targets are reported honestly. Missing one is not a fail; hiding it is.
+- [x] Targets are reported honestly. Missing one is not a fail; hiding it is.
+
+Clarified 2026-10-16 (Phase 4 clarify pass, ruled by Chirag):
+- Stability: 3 base agent runs in total (the main base run plus 2). Overlap is the mean pairwise Jaccard of each run's kept-finding keys `(control_id, test_step)`, and recall per run is shown alongside.
+- The showcase-JSON validation step in CI moves to Phase 6, where `export-showcase` creates the JSON. Phase 4's ci.yml runs ruff + pytest.
+- CI is verified for real: create a public GitHub repo with `gh` under Chirag's account, push `main`, and check the Actions run.
+- Defaults (builder, stated):
+  - **Skeptic-off view:** the same agent runs scored as if the skeptic hadn't run. Every finding the tester raised counts, whatever the skeptic said (rejected and unresolved included). A revised finding counts in its revised form. There are no extra calls.
+  - **Checks-only:** runs on base, a and b (free).
+  - **Eval cap:** `EVAL_SPEND_CAP_USD=2.00`. Before each agent run, the harness stops if eval spend so far plus the dearest run so far would exceed the cap, and records the skipped runs.
+  - **Outputs:** `runs/eval-<ts>/eval.json` and `eval.md`, plus the printed table. Each target is marked met or missed, and a missed target is shown, never hidden.
 
 Verify: `uv run mockaudit eval --all` → `eval.json` + table; CI is green on push.
 
@@ -218,3 +228,12 @@ Golden answer key with code-scored metrics (proposal §7), unit tests per criter
   - **Smaller notes, all fixed:** spend totals survive a resume (Spend reloads its run's lines); an edited `review_request.json` isn't overwritten, and reviewer notes are saved to `review_decisions.json` and shown in the report; the coverage table says "no exceptions found", never a bare "pass"; a skeptic error is labelled "the review could not complete"; `mockaudit review` on a checks-only run needs no model env vars.
 - [phase 3 / review gate] `RetryPolicy` is now used as CLAUDE.md lists it: the `tester` node retries once on transient provider errors (429/5xx/network, matched by class name). Phase 0 saw an upstream 429. Schema failures and the spend cap are not retried.
 - [phase 3 → 4] RULING on the skeptic's reasoning limit — Chirag first chose `reasoning.max_tokens: 3000`, but the OpenRouter SDK behind `ChatOpenRouter` drops it: the chat request type has only `effort`/`summary`, so the SDK sent `reasoning: {}`, and a C6 check run had reasoning silently off (`audit-base-20261016T094943841`) — library gap, the same family as the phase 0 `enabled: false` drop — re-ruled by Chirag 2026-10-16: skeptic `effort: minimal`, total `max_tokens` 12,000 (was low / 6,000). Verified on a real C6 run: the request body carried `{effort: minimal}`, and the skeptic used 901 reasoning tokens and answered `keep` (was unresolved). The tester is unchanged (`low`).
+- [phase 4] Real `eval --all` (`runs/eval-20261016T101938Z`, re-scored with the fixed skeptic-off view): every target met.
+  - **Agent, base run 1:** recall 10/10, precision 10/10, clean controls 4/4, citations 25/25, severity 10/10.
+  - **Variants a and b:** 7/7 each, with clean controls 6/6.
+  - **Stability:** 93% (pairs 90/100/90%; recall per run 100/90/100%).
+  - **Checks-only:** recall 80%/86%/86%, precision 80%/75%/67%, all 4 traps raised in every variant.
+  - **Cost:** US$0.032 and about 129k tokens per audit. Evaluation total US$0.16 of the US$2.00 cap.
+- [phase 4] The skeptic added no precision on this data, and cost one true positive. In base run 2 it sent C3-signoff (G3) for revision, arguing the Q3 review might still be inside its 10-business-day window (deadline 2026-10-14). The tester then dropped it, so recall fell to 9/10 (the skeptic-off view keeps 10/10). This is also the first real revise round on base (criterion 3) — **dataset gap, open for Chirag:** no artifact states when the evidence was collected, so the skeptic's objection is defensible.
+- [phase 4] The C6 skeptic ran away again at `effort: minimal`: 12,000 reasoning tokens and no answer, in 1 of 4 base-family runs (other runs used 714–3,821) — `effort` doesn't bound DeepSeek on this finding — **open for Chirag.**
+- [phase 4] Builder bug in my own default: the skeptic-off view excluded findings dropped after a skeptic-requested revision, which hid exactly the harm it measures. It now counts them. `mockaudit eval --rescore <eval_id>` rebuilds an evaluation from runs on disk with no LLM calls, and the real evaluation was re-scored that way.
