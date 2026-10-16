@@ -233,3 +233,68 @@ async def test_tester_schema_failure_twice_errors_the_control(tmp_path, data_roo
     r = results(run_dir)
     assert r["C2"].status == "error" and "StructuredOutputValidationError" in r["C2"].error
     assert r["C8"].status == "exceptions"
+
+
+# ---------- Phase 3 review fixes (specs/reviews/2026-10-16-phase3-review.md) ----------
+
+async def test_control_error_during_revise_leaves_finding_unresolved_and_recorded(tmp_path, data_root, key):
+    tester = good_tester(key)
+    tester.fail_on_revise = True
+    skeptic = SkepticScript(lambda fid, rnd: "revise" if fid == "C2-timeliness" else "keep")
+    _, run_dir = await run(tmp_path, data_root, "revfail", StubModels(tester, skeptic), controls=["C2"])
+    c2 = results(run_dir)["C2"]
+    f = next(f for f in c2.findings if f.finding_id == "C2-timeliness")
+    assert f.status == "unresolved" and any("revision failed" in s.text for s in f.reasoning)
+    assert any(n.startswith("revise round failed: RuntimeError") for n in c2.notes)
+    assert skeptic.seen["C2-timeliness"] == 1                      # the stale draft was not re-reviewed
+    assert "the review could not complete" in (run_dir / "report.md").read_text()
+
+
+async def test_revised_finding_whose_items_are_dismissed_is_dismissed(tmp_path, data_root, key):
+    tester = good_tester(key)
+    tester.dismiss_on_revise = True
+    skeptic = SkepticScript(lambda fid, rnd: "revise" if fid == "C2-timeliness" and rnd == 0 else "keep")
+    _, run_dir = await run(tmp_path, data_root, "revdismiss", StubModels(tester, skeptic), controls=["C2"])
+    c2 = results(run_dir)["C2"]
+    assert next(f for f in c2.findings if f.finding_id == "C2-timeliness").status == "dismissed"
+    assert {"C2-timeliness-E1055", "C2-timeliness-E1109"} <= {d.candidate_id for d in c2.dismissals}
+    assert "C2-timeliness" not in [f["finding_id"] for f in json.loads((run_dir / "report.json").read_text())["findings"]]
+
+
+async def test_tester_finding_with_invalid_citations_keeps_its_exceptions(tmp_path, data_root, key):
+    tester = good_tester(key)
+    tester.bogus_cites = {"C6"}
+    _, run_dir = await run(tmp_path, data_root, "bogus", StubModels(tester), controls=["C6"])
+    c6 = results(run_dir)["C6"]
+    f = next(f for f in c6.findings if f.test_step == "segregation")
+    assert f.exceptions == 4 and {c.record_id for c in f.citations} == set(next(
+        g for g in key["gaps"] if g["id"] == "G5")["record_ids"])
+    assert [c.record_id for c in c6.dropped_citations] == ["E-DOES-NOT-EXIST"]
+
+
+async def test_transient_tester_error_is_retried_by_retry_policy(tmp_path, data_root, key):
+    tester = good_tester(key)
+    tester.transient_once = {"C2"}
+    _, run_dir = await run(tmp_path, data_root, "transient", StubModels(tester), controls=["C2"])
+    assert results(run_dir)["C2"].status == "exceptions" and tester.raised_transient == {"C2"}
+
+
+async def test_resume_keeps_run_cost_and_saves_reviewer_notes(tmp_path, data_root, key):
+    models = StubModels(good_tester(key), cost=0.01)
+    _, run_dir = await run(tmp_path, data_root, "notes", models, review_mode="human", controls=["C8"])
+    before = sum(json.loads(x)["cost"] for x in (tmp_path / "spend.jsonl").read_text().splitlines())
+    request = json.loads((run_dir / "review_request.json").read_text())
+    for d in request["decisions"]:
+        d["decision"], d["note"] = "approve", "confirmed with the Security Lead"
+    (run_dir / "review_request.json").write_text(json.dumps(request))
+    done = await resume_audit(run_dir, request, models)
+    assert round(done["cost_usd"], 4) == round(before, 4) > 0
+    assert json.loads((run_dir / "review_request.json").read_text()) == request      # not clobbered on resume
+    assert "confirmed with the Security Lead" in (run_dir / "report.md").read_text()
+    assert json.loads((run_dir / "review_decisions.json").read_text())
+
+
+async def test_report_never_shows_a_bare_pass(full_run):
+    _, run_dir, _ = full_run
+    md = (run_dir / "report.md").read_text()
+    assert "| pass |" not in md and "no exceptions found" in md

@@ -95,10 +95,13 @@ def main(argv: list[str] | None = None) -> int:
         import json
 
         from mockaudit.runner import resume_audit
-        load_env()
-        from mockaudit.llm import OpenRouterModels
         run_dir = resolve_run(args.runs_dir, args.run, need="config.json")
-        out = asyncio.run(resume_audit(run_dir, json.loads(args.decisions.read_text()), OpenRouterModels()))
+        models = None
+        if json.loads((run_dir / "config.json").read_text())["config"]["mode"] != "checks_only":
+            load_env()
+            from mockaudit.llm import OpenRouterModels
+            models = OpenRouterModels()
+        out = asyncio.run(resume_audit(run_dir, json.loads(args.decisions.read_text()), models))
         print_summary(out, "review")
     elif args.cmd == "eval":
         from mockaudit.scoring import evaluate_run, table

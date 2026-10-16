@@ -27,6 +27,16 @@ class Spend:
         self.path, self.run_id, self.run_cap, self.project_cap = Path(path), run_id, run_cap, project_cap
         self.run_cost, self.run_tokens, self.calls = 0.0, 0, 0
         self.by_control: dict[str, list[float]] = {}
+        if self.path.exists():          # a resumed run continues its own totals (and its cap)
+            for line in self.path.read_text().splitlines():
+                x = json.loads(line) if line.strip() else {}
+                if x.get("run") == run_id:
+                    self.run_cost += x["cost"]
+                    self.run_tokens += x["tokens"]
+                    self.calls += 1
+                    c = self.by_control.setdefault(x.get("control", ""), [0.0, 0])
+                    c[0] += x["cost"]
+                    c[1] += x["tokens"]
 
     def project_total(self) -> float:
         if not self.path.exists():

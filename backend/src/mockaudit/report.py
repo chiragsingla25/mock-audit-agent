@@ -41,9 +41,12 @@ def write_run(state: dict, ctx) -> dict:
     rejected = sorted((f for f in findings if f.status == "rejected"), key=lambda f: f.finding_id)
     totals = {"cost_usd": round(spend.run_cost, 6) if spend else 0.0, "tokens": spend.run_tokens if spend else 0,
               "llm_calls": spend.calls if spend else 0}
+    decisions = state.get("decisions") or {}
+    if decisions:
+        (run_dir / "review_decisions.json").write_text(json.dumps(decisions, indent=2))
     report = {"run_id": cfg["run_id"], "variant": cfg["variant"], "mode": cfg["mode"], "review_mode": cfg["review_mode"],
               "statement": "Readiness forecast from synthetic evidence. Not an audit opinion.",
-              "findings": [f.model_dump() for f in shown],
+              "findings": [{**f.model_dump(), "review_note": decisions.get(f.finding_id, {}).get("note", "")} for f in shown],
               "rejected_by_skeptic": [f.finding_id for f in rejected],
               "coverage": [{"control_id": r.control_id, "status": r.status, "error": r.error, "tested": r.coverage.tested,
                             "not_tested": r.coverage.not_tested, "population_size": r.population_size,
@@ -64,17 +67,20 @@ def render_md(rep: dict, results: list[ControlResult]) -> str:
            f"_{rep['statement']}_ Mode: {rep['mode']}, review: {rep['review_mode']}.", "",
            "## Coverage", "", "| Control | Status | Steps tested | Not tested | Notes |", "|---|---|---|---|---|"]
     for c in rep["coverage"]:
-        status = f"error ({c['error']})" if c["status"] == "error" else c["status"]
+        status = {"error": f"error ({c['error']})", "pass": "no exceptions found"}.get(c["status"], c["status"])
         nt = ", ".join(f"{x['step_id']} ({x['reason']})" for x in c["not_tested"]) or "—"
         out.append(f"| {c['control_id']} | {status} | {', '.join(c['tested']) or '—'} | {nt} | {'; '.join(c['notes'])[:120] or '—'} |")
     out += ["", f"## Findings ({len(rep['findings'])})", ""]
     for f in rep["findings"]:
         cites = ", ".join(f"{c['source']}/{c['record_id']}" for c in f["citations"][:12])
-        flag = " — **unresolved** (reviewer and tester disagree)" if f["status"] == "unresolved" else ""
+        failed = any(w in s["text"] for s in f["reasoning"][-2:] for w in ("revision failed", ": error"))
+        flag = "" if f["status"] != "unresolved" else (" — **unresolved** (the review could not complete)" if failed
+                                                       else " — **unresolved** (reviewer and tester disagree)")
         out += [f"### {f['finding_id']} · {f['severity']} · {f['exceptions']} of {f['tested']}{flag}", "",
                 f"- **Condition:** {f['condition']}", f"- **Criteria:** {f['criteria']}",
                 f"- **Cause:** {f['cause'] or 'not determined'}", f"- **Effect:** {f['effect']}",
-                f"- **Recommendation:** {f['recommendation']}", f"- **Evidence:** {cites}", ""]
+                f"- **Recommendation:** {f['recommendation']}", f"- **Evidence:** {cites}"]
+        out += [f"- **Reviewer note:** {f['review_note']}", ""] if f.get("review_note") else [""]
     if rep["rejected_by_skeptic"]:
         out += ["## Rejected by the skeptic", "", ", ".join(rep["rejected_by_skeptic"]), ""]
     out += ["## Remediation tasks", ""] + [f"- [{t['severity']}] {t['finding_id']}: {t['task']}" for t in rep["remediation_tasks"]]

@@ -52,23 +52,35 @@ def _call(name: str, args: dict, i: int = 1) -> AIMessage:
     return AIMessage(content="", tool_calls=[{"name": name, "args": args, "id": f"call_{name}_{i}", "type": "tool_call"}])
 
 
+class TooManyRequestsResponseError(Exception):
+    """Same class name as the OpenRouter SDK's 429 error."""
+
+
 class TesterScript:
     __test__ = False
     """Raises every candidate except `dismiss` record ids; flags judgment items in `flag`."""
 
-    def __init__(self, dismiss=(), flag=(), fail=(), slow=(), invalid_first=False, always_invalid=()):
+    def __init__(self, dismiss=(), flag=(), fail=(), slow=(), invalid_first=False, always_invalid=(),
+                 fail_on_revise=False, dismiss_on_revise=False, bogus_cites=(), transient_once=()):
         self.dismiss, self.flag, self.fail, self.slow = set(dismiss), set(flag), set(fail), set(slow)
         self.invalid_first, self.always_invalid = invalid_first, set(always_invalid)
+        self.fail_on_revise, self.dismiss_on_revise = fail_on_revise, dismiss_on_revise
+        self.bogus_cites, self.transient_once, self.raised_transient = set(bogus_cites), set(transient_once), set()
 
     def __call__(self, messages) -> AIMessage:
         system = next(m.content for m in messages if isinstance(m, SystemMessage))
         cid = re.search(r"testing control (C\d+)", system).group(1)
         if cid in self.fail:
             raise RuntimeError(f"stub tester exploded on {cid}")
+        if cid in self.transient_once and cid not in self.raised_transient:
+            self.raised_transient.add(cid)
+            raise TooManyRequestsResponseError("429 upstream rate limit (stub)")
         human = next(m.content for m in messages if isinstance(m, HumanMessage))
         cands = _block(human, "CANDIDATES_JSON") or []
         judgment = _block(human, "JUDGMENT_STEPS_JSON") or []
         revise = _block(human, "REVISE_JSON")
+        if revise and self.fail_on_revise:
+            raise RuntimeError("stub tester failed during revise")
         tools = [m for m in messages if isinstance(m, ToolMessage)]
         if not tools:                                  # look at one record first, like a real tester
             if cands:
@@ -81,7 +93,7 @@ class TesterScript:
                                                          "citations": []}]}, 9 + len(retries))
         decisions, findings, by_step = [], [], {}
         for c in cands:
-            dismiss = c["record_id"] in self.dismiss
+            dismiss = c["record_id"] in self.dismiss or bool(revise and self.dismiss_on_revise)
             decisions.append({"candidate_id": c["candidate_id"], "decision": "dismiss" if dismiss else "raise",
                               "reason": "documented explanation" if dismiss else "no valid explanation",
                               "citations": c["citations"]})
@@ -92,14 +104,15 @@ class TesterScript:
             findings.append({"test_step": step, "candidate_ids": [c["candidate_id"] for c in cs],
                              "condition": f"{prefix}{len(cs)} exceptions in {step}", "criteria": "policy",
                              "effect": "risk", "recommendation": "fix it",
-                             "citations": [x for c in cs for x in c["citations"]]})
+                             "citations": ([{"source": "hr_roster", "record_id": "E-DOES-NOT-EXIST"}]
+                                           if cid in self.bogus_cites else [x for c in cs for x in c["citations"]])})
         for j in judgment:
             bad = [i for i in j["items"] if i in self.flag]
             if bad:
                 findings.append({"test_step": j["test_step"], "candidate_ids": [], "condition": f"{prefix}{bad} fail",
                                  "criteria": j["requirement"], "effect": "risk", "recommendation": "fix it",
                                  "citations": [{"source": j["source"], "record_id": i} for i in bad]})
-        if revise:   # also try to rewrite a finding that wasn't asked for; code must ignore it
+        if revise and not self.dismiss_on_revise:   # also try to rewrite a finding that wasn't asked for; code must ignore it
             findings.append({"test_step": "completeness", "candidate_ids": [], "condition": "SHOULD NOT APPEAR",
                              "criteria": "x", "effect": "x", "recommendation": "x",
                              "citations": [{"source": "hr_roster", "record_id": "E1001"}]})

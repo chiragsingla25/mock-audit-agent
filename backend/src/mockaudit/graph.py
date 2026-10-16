@@ -19,7 +19,7 @@ from typing import Annotated, Any, TypedDict
 
 from langgraph.graph import END, START, StateGraph
 from langgraph.runtime import Runtime
-from langgraph.types import Send, interrupt
+from langgraph.types import RetryPolicy, Send, interrupt
 
 from mockaudit.checks import run_control_checks
 from mockaudit.checks_only import findings_from_candidates
@@ -88,6 +88,8 @@ class ControlState(TypedDict, total=False):
     spec: dict
     config: dict
     revise: dict                   # finding_id → {test_step, reason, condition} (revise re-entry)
+    prior_drafts: dict             # finding_id → the draft being revised
+    prior_result: dict             # the control's result from the first pass
     candidates: list[dict]
     notes: list[str]
     check_results: list[dict]
@@ -199,6 +201,13 @@ def tester_findings(spec: ControlSpec, out: TesterOutput, cands: list[Candidate]
             n = len(samples[step])
         else:
             continue
+        cites = list(fd.citations)
+        if recipe[step].check:          # add the code-verified citations of the covered candidates
+            seen = {(c.source, c.record_id) for c in cites}
+            for c in cands:
+                if c.candidate_id in ids:
+                    cites += [x for x in c.citations if (x.source, x.record_id) not in seen
+                              and not seen.add((x.source, x.record_id))]
         fid = revise_by_step.get(step) or f"{spec.control_id}-{step}"
         if any(f.finding_id == fid for f in findings):
             fid = f"{fid}-{sum(f.finding_id.startswith(fid) for f in findings) + 1}"
@@ -206,7 +215,7 @@ def tester_findings(spec: ControlSpec, out: TesterOutput, cands: list[Candidate]
         findings.append(Finding(
             finding_id=fid, control_id=spec.control_id, test_step=step, gap_type=recipe[step].gap_type,
             exceptions=exceptions, tested=n, condition=fd.condition, criteria=fd.criteria, cause=fd.cause,
-            effect=fd.effect, recommendation=fd.recommendation, citations=fd.citations, severity=sev,
+            effect=fd.effect, recommendation=fd.recommendation, citations=cites, severity=sev,
             severity_rule=rule, status="draft", reasoning=list(steps)))
     if not revise:      # raised candidates the tester didn't write up still become findings (code template)
         for step in recipe:
@@ -282,6 +291,10 @@ def finalize(state: ControlState, runtime: Runtime[AuditContext]) -> dict:
             d.citations = kept
             dismissals[d.candidate_id] = d.model_dump()
     if state.get("revise"):
+        for fid, f in (state.get("prior_drafts") or {}).items():
+            if fid not in findings:
+                step = ReasoningStep(kind="llm", text="tester dismissed this finding's items on revision").model_dump()
+                findings[fid] = dict(f, status="dismissed", reasoning=f["reasoning"] + [step])
         return {"findings": findings, "dismissals": dismissals,
                 "result": {"dropped_citations": [c.model_dump() for c in dropped], "revision_round": 1}}
     cands = [Candidate.model_validate(c) for c in state.get("candidates", [])]
@@ -303,12 +316,21 @@ def finalize(state: ControlState, runtime: Runtime[AuditContext]) -> dict:
     return {"findings": findings, "dismissals": dismissals, "result": result.model_dump(exclude={"findings", "dismissals"})}
 
 
+TRANSIENT = {"TooManyRequestsResponseError", "InternalServerResponseError", "ServiceUnavailableResponseError",
+             "BadGatewayResponseError", "GatewayTimeoutResponseError", "ConnectError", "ReadTimeout", "RemoteProtocolError"}
+
+
+def is_transient(exc: Exception) -> bool:
+    """Provider rate limits and network blips are retried; schema failures and the spend cap are not."""
+    return type(exc).__name__ in TRANSIENT
+
+
 def build_control_graph():
     g = StateGraph(ControlState, context_schema=AuditContext)
     g.add_node("population_check", population_check)
     g.add_node("run_checks", run_checks)
     g.add_node("sample", sample)
-    g.add_node("tester", tester)
+    g.add_node("tester", tester, retry_policy=RetryPolicy(max_attempts=2, initial_interval=2.0, retry_on=is_transient))
     g.add_node("finalize", finalize)
     g.add_conditional_edges(START, lambda s: "tester" if s.get("revise") else "population_check",
                             ["tester", "population_check"])
@@ -356,8 +378,12 @@ async def control(state: ControlState, runtime: Runtime[AuditContext]) -> dict:
         else:
             error = f"{name}: {str(e)[:300]}"
         log.warning("control %s failed: %s", cid, error)
-        if state.get("revise"):
-            return {}                   # revised findings stay draft; route_after_skeptic marks them unresolved
+        if state.get("revise"):         # keep the first-pass result; the revised drafts become unresolved
+            step = ReasoningStep(kind="rule", text=f"revision failed ({error}); left unresolved").model_dump()
+            prior = state.get("prior_result") or {}
+            return {"findings": {fid: dict(f, status="unresolved", reasoning=f["reasoning"] + [step])
+                                 for fid, f in (state.get("prior_drafts") or {}).items()},
+                    "results": {cid: dict(prior, notes=prior.get("notes", []) + [f"revise round failed: {error}"])}}
         return {"results": {cid: _error_result(state["spec"], state["config"], error)}}
     if state.get("revise"):
         return {"findings": out.get("findings", {}), "dismissals": out.get("dismissals", {})}
@@ -439,7 +465,9 @@ def after_route(state: AuditState) -> list[Send] | str:
     sends = []
     for cid, revise in sorted(by_control.items()):
         prior = state["results"][cid]
+        drafts = {f["finding_id"]: f for f in state["findings"].values() if f["finding_id"] in revise}
         sends.append(Send("control", {"spec": specs[cid], "config": state["config"], "revise": revise,
+                                      "prior_drafts": drafts, "prior_result": prior,
                                       "candidates": [c for c in prior.get("candidates", [])],
                                       "tested": prior.get("tested_counts", {}), "samples": prior.get("samples", {}),
                                       "notes": prior.get("notes", [])}))
@@ -458,7 +486,7 @@ def severity_node(state: AuditState) -> dict:
         step = ReasoningStep(kind="rule", text=f"severity rule {rule}: {f['gap_type']}, {f['exceptions']}/{f['tested']}, "
                                                f"{spec.risk}-risk control → {sev}")
         updates[fid] = dict(f, severity=sev, severity_rule=rule, status="kept" if f["status"] == "draft" else f["status"],
-                            reasoning=[r for r in f["reasoning"] if r["kind"] != "rule"] + [step.model_dump()])
+                            reasoning=[r for r in f["reasoning"] if not r["text"].startswith("severity rule")] + [step.model_dump()])
     return {"findings": updates}
 
 
@@ -473,7 +501,9 @@ def human_review(state: AuditState, runtime: Runtime[AuditContext]) -> dict:
                "decisions": [{"finding_id": f["finding_id"], "control_id": f["control_id"], "severity": f["severity"],
                               "status": f["status"], "condition": f["condition"], "decision": "", "note": ""}
                              for f in sorted(pending, key=lambda f: f["finding_id"])]}
-    (runtime.context.run_dir / "review_request.json").write_text(json.dumps(request, indent=2))
+    req = runtime.context.run_dir / "review_request.json"
+    if not req.exists():                # interrupt() re-runs this node on resume; don't clobber the edited file
+        req.write_text(json.dumps(request, indent=2))
     answer = interrupt(request)
     decisions = {d["finding_id"]: d for d in (answer.get("decisions", []) if isinstance(answer, dict) else answer)}
     updates = {}
