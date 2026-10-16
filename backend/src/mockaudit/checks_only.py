@@ -25,7 +25,7 @@ def findings_from_candidates(spec: ControlSpec, step_id: str, cands: list[Candid
     return Finding(
         finding_id=f"{spec.control_id}-{step_id}", control_id=spec.control_id, test_step=step_id,
         gap_type=step.gap_type, exceptions=len(cands), tested=tested,
-        condition=f"{len(cands)} of {tested} items failed: {listed}. {cands[0].detail}",
+        condition=f"{len(cands)} of {tested} items failed: {listed}. " + " ".join(c.detail for c in cands[:6]),
         criteria=step.description, cause=None,
         effect=f"The control '{spec.description}' did not operate as designed for these items.",
         recommendation="Investigate each exception with the control owner and remediate.",

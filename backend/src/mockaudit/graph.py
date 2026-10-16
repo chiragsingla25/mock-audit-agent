@@ -97,6 +97,7 @@ class ControlState(TypedDict, total=False):
     samples: dict
     sample_facts: dict             # judgment step → item id → date facts computed by code
     code_findings: list[dict]
+    shown_steps: list[str]         # steps whose items the tester was shown (revise pass)
     drafts: list[dict]
     dismissed: list[dict]
     owner_questions: list[dict]
@@ -237,12 +238,13 @@ async def tester(state: ControlState, runtime: Runtime[AuditContext]) -> dict:
     """LLM node: raise or dismiss each candidate; judge judgment-only steps. Checks-only: raise everything."""
     spec, cfg = _spec(state), RunConfig.model_validate(state["config"])
     recipe = {s.id: s for s in spec.test_recipe}
-    cands = [Candidate.model_validate(c) for c in state.get("candidates", []) if recipe[c["test_step"]].judge == "llm"]
+    all_cands = [Candidate.model_validate(c) for c in state.get("candidates", [])]
+    cands = [c for c in all_cands if recipe[c.test_step].judge == "llm"]
     samples = state.get("samples", {})
     revise = state.get("revise") or {}
-    if revise:
+    if revise:     # the revised step's items go back to the tester whatever its judge setting (code-only included)
         steps_to_redo = {v["test_step"] for v in revise.values()}
-        cands = [c for c in cands if c.test_step in steps_to_redo]
+        cands = [c for c in all_cands if c.test_step in steps_to_redo]
         samples = {k: v for k, v in samples.items() if k in steps_to_redo}
     if cfg.mode == "checks_only":
         code = [findings_from_candidates(spec, s, [c for c in cands if c.test_step == s], state["tested"][s]).model_dump()
@@ -267,8 +269,9 @@ async def tester(state: ControlState, runtime: Runtime[AuditContext]) -> dict:
         raise ValueError("tester returned no structured output")
     steps = [ReasoningStep(kind="check", text=f"{c.test_step}: {c.detail}") for c in cands[:10]] + reasoning_from_messages(msgs)
     findings, dismissals = tester_findings(spec, out, cands, state.get("tested", {}), samples, revise, steps)
+    shown = sorted({c.test_step for c in cands} | set(samples))
     return {"drafts": [f.model_dump() for f in findings], "dismissed": [d.model_dump() for d in dismissals],
-            "owner_questions": owner_log,
+            "owner_questions": owner_log, "shown_steps": shown,
             "tester_meta": {"model": getattr(model, "model_name", type(model).__name__), "retries": retries}}
 
 
@@ -296,10 +299,16 @@ def finalize(state: ControlState, runtime: Runtime[AuditContext]) -> dict:
             d.citations = kept
             dismissals[d.candidate_id] = d.model_dump()
     if state.get("revise"):
+        shown = set(state.get("shown_steps", []))
         for fid, f in (state.get("prior_drafts") or {}).items():
-            if fid not in findings:
+            if fid in findings:
+                continue
+            if f["test_step"] in shown:
                 step = ReasoningStep(kind="llm", text="tester dismissed this finding's items on revision").model_dump()
                 findings[fid] = dict(f, status="dismissed", reasoning=f["reasoning"] + [step])
+            else:                       # the tester never saw these items, so it can't have dismissed them
+                step = ReasoningStep(kind="rule", text="revision produced no finding for unseen items; left unresolved").model_dump()
+                findings[fid] = dict(f, status="unresolved", reasoning=f["reasoning"] + [step])
         return {"findings": findings, "dismissals": dismissals,
                 "result": {"dropped_citations": [c.model_dump() for c in dropped], "revision_round": 1}}
     cands = [Candidate.model_validate(c) for c in state.get("candidates", [])]

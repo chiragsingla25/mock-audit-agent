@@ -334,3 +334,26 @@ async def test_skeptic_unresolved_only_when_the_fallback_also_fails(tmp_path, da
     _, run_dir = await run(tmp_path, data_root, "fallback2", models, controls=["C8"])
     f = next(f for f in results(run_dir)["C8"].findings if f.finding_id == "C8-weekly_scan")
     assert f.status == "unresolved"
+
+
+
+async def test_revising_a_code_only_finding_shows_its_items_to_the_tester(tmp_path, data_root, key):
+    """C8-weekly_scan is judge: none. A revise must hand its items to the tester, not silently dismiss it."""
+    skeptic = SkepticScript(lambda fid, rnd: "revise" if fid == "C8-weekly_scan" and rnd == 0 else "keep")
+    models = StubModels(good_tester(key), skeptic)
+    _, run_dir = await run(tmp_path, data_root, "revcode", models, controls=["C8"])
+    f = next(f for f in results(run_dir)["C8"].findings if f.finding_id == "C8-weekly_scan")
+    assert f.status == "kept" and f.condition.startswith("revised: ") and (f.exceptions, f.tested) == (3, 53)
+
+
+def test_code_finding_condition_lists_every_failing_item(data_root):
+    from mockaudit.checks import run_control_checks
+    from mockaudit.checks_only import findings_from_candidates
+    from mockaudit.evidence import Evidence
+    from mockaudit.specs import load_controls
+    spec = next(c for c in load_controls(data_root / "base" / "controls.yaml") if c.control_id == "C8")
+    cc = run_control_checks(spec, Evidence.load(spec, data_root / "base"))
+    weekly = [c for c in cc.candidates if c.test_step == "weekly_scan"]
+    f = findings_from_candidates(spec, "weekly_scan", weekly, cc.tested["weekly_scan"])
+    for week in ["2026-W32", "2026-W33", "2026-W34"]:
+        assert f"occurrence for {week}" in f.condition
