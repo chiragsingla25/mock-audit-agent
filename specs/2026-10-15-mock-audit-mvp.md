@@ -113,14 +113,28 @@ Verify: `uv run mockaudit run --checks-only --variant base && uv run mockaudit e
 
 ### Phase 3: Audit graph **[review gate]**
 Delivers the full `StateGraph`: load → dispatch (`Send` × 12, `max_concurrency`) → control subgraph (population_check → run_checks → sample → tester → finalize) → skeptic fan-out → route (max 1 revise round, entering at `tester`) → severity → human_review (`interrupt`, or skipped when `review_mode=skip`) → report. Also the SQLite checkpointer, LangSmith tracing, the spend guard and the reasoning steps.
-- [ ] `mockaudit run --variant base --review skip` produces 12 control result files and a report.
-- [ ] Findings merge by `finding_id`; a revised control keeps its kept findings unchanged (test with a stub LLM).
-- [ ] At least one revise round appears in LangSmith on base, or in a stub test if the real run doesn't produce one.
-- [ ] Nothing to review → goes straight to severity (stub test with a clean control set).
-- [ ] An exception or timeout in one control gives `status: error` for that control only; the other 11 complete (stub test).
-- [ ] Spend over the run cap stops new LLM calls and marks the remaining controls `error: spend_cap` (stub test).
-- [ ] Every finding and dismissal carries reasoning steps (`check` / `tool` / `owner` / `llm` / `rule`).
-- [ ] `--review human` pauses at `human_review`; resuming with decisions gives a report containing only approved findings.
+- [x] `mockaudit run --variant base --review skip` produces 12 control result files and a report.
+- [x] Findings merge by `finding_id`; a revised control keeps its kept findings unchanged (test with a stub LLM).
+- [x] At least one revise round appears in LangSmith on base, or in a stub test if the real run doesn't produce one.
+- [x] Nothing to review → goes straight to severity (stub test with a clean control set).
+- [x] An exception or timeout in one control gives `status: error` for that control only; the other 11 complete (stub test).
+- [x] Spend over the run cap stops new LLM calls and marks the remaining controls `error: spend_cap` (stub test).
+- [x] Every finding and dismissal carries reasoning steps (`check` / `tool` / `owner` / `llm` / `rule`).
+- [x] `--review human` pauses at `human_review`; resuming with decisions gives a report containing only approved findings.
+
+Clarified 2026-10-16 (Phase 3 clarify pass, ruled by Chirag):
+- `sample`: for judgment-only steps the tester sees every item, up to a cap of 25. Beyond that it takes a seeded random 25. Sampling can't make G3 or G10 a matter of luck.
+- The skeptic reviews **every** finding, including code-only (`judge: none`) ones. A rejected code-proven finding is reported as rejected; nothing hides it.
+- `CONTROL_TIMEOUT_S=420` (Phase 0 measured 80–175 s per control).
+- `--review human` writes `runs/<id>/review_request.json` at the pause, and `mockaudit review --run <id> --decisions <file>` resumes it. Each finding gets approve or dismiss plus a note. The Phase 5 API reuses this.
+- Defaults (builder, stated):
+  - Failures of `judge: none` steps become code findings directly. Candidates from `judge: llm` steps go to the tester, which raises or dismisses each one.
+  - A control with no LLM candidates and no judgment-only steps makes no LLM call.
+  - Counts are set by code. For tester findings, exceptions are the candidates covered, resolved by candidate id or cited record id, and `tested` comes from the check. For judgment-only steps, exceptions are the distinct sampled items cited, and `tested` is the sample size.
+  - Revise round: only the revised finding ids go back to the tester, along with the skeptic's reason. Each comes back with the same `finding_id`, or is dismissed. Anything still marked `revise` after 1 round becomes `unresolved`.
+  - Skip-mode report: kept and unresolved findings (unresolved marked as such), plus a "rejected by skeptic" list. Human mode: approved findings only.
+  - Spend guard: checked before every LLM call. Over the run cap, the control errors with `spend_cap`.
+  - Checks-only and skeptic-off are run-config modes of the same graph.
 
 Verify: `uv run mockaudit run --variant base --review skip` → `runs/<id>/` is complete, the cost is printed, and the trace is visible in LangSmith.
 
@@ -189,3 +203,10 @@ Golden answer key with code-scored metrics (proposal §7), unit tests per criter
 - [phase 2] YAML 1.1 parses a key named `on` as boolean `True`, which broke the first `sla_days` join (`KeyError: 'on'`) — library quirk — renamed to `link_field`. Avoid `on`/`yes`/`no` as keys in controls.yaml.
 - [phase 2] `TestStep.gap_type` (new field, default `operating`) and `ControlResult.candidates`/`dropped_citations` were added to the schemas. Findings need a type without an LLM, and citation validity counts dropped citations — interface addition, recorded for Phase 3's `TesterOutput`.
 - [phase 2] `CHECKS` sits in a single `checks.py` (architecture.md sketched a `checks/` package). Twelve functions in one plain dict didn't justify a package — kept simple per CLAUDE.md.
+- [phase 3] LangGraph 1.2.15's `add_node(..., error_handler=)` works for one task, but with parallel `Send` tasks the first exception is re-raised and fails the whole run. A scratch repro confirmed this in both sync and async, with and without `timeout=` — library gap — the `control` node therefore awaits the control subgraph inside `asyncio.wait_for` + `try/except` (as the proposal planned for timeouts) and returns `status: error` for that control only. Node `timeout=` also needs async execution, so the graph runs via `ainvoke`.
+- [phase 3] `run --checks-only` now goes through the same graph (mode `checks_only`: the tester becomes a code node that raises every candidate, and the skeptic is skipped), as proposal §4 describes. The Phase 2 standalone runner was removed and `findings_from_candidates` kept. Phase 2's "no LLM" test now forbids importing LLM clients (`langchain_openrouter`, `openrouter`, `openai`, `mockaudit.llm`, `mockaudit.agents`) instead of all of LangChain/LangGraph — test scope adjusted to the graph-based design.
+- [phase 3] Judgment-only steps gained `params: {source, prefix}` in controls.yaml so `sample` knows which artifacts to show (C3: UAR, C5: PAR, C12: restore_tests). `ControlResult` gained `tested_counts`, `samples`, `cost_usd` and `tokens`; `RunConfig` gained `controls` (a subset, for tests and debugging) — interface additions.
+- [phase 3] Raised candidates that the tester decides on but never writes up still become findings, with templated code text ("raised by default"). Undecided candidates count as raised — builder default, so an LLM omission can't silently drop an exception.
+- [phase 3] Revise re-entry passes the prior candidates, tested counts and samples in the `Send` payload, rather than re-running `population_check` / `run_checks`. The control subgraph's conditional `START` routes to `tester` when `revise` is set.
+- [phase 3] First real base run `audit-base-20261016T091755120` (agent, review skip): recall 10/10, precision 10/10, clean controls 4/4, all 4 traps dismissed by the tester, citation validity 25/25, severity agreement 10/10. It cost US$0.031 (114,785 tokens, 31 LLM calls), and the trace is in LangSmith. The skeptic produced no revise verdicts, so the revise round is evidenced by stub tests (criterion 3 allows this).
+- [phase 3] The C6 skeptic call used its whole 6,000-token budget on reasoning (6,000 reasoning tokens) and returned no tool call, so C6-segregation is `unresolved` in that run. The graph handled it as designed — model behaviour: DeepSeek reasons at length over a 320-PR population even at `effort: low` — **open for Chirag**: give the skeptic a reasoning budget (OpenRouter `reasoning.max_tokens`, e.g. 3,000) instead of `effort: low`, so the answer always has room, or accept occasional unresolved findings.

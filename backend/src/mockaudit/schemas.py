@@ -150,7 +150,11 @@ class ControlResult(Strict):
     notes: list[str] = []
     sample: list[str] = []
     candidates: list[Candidate] = []
+    tested_counts: dict[str, int] = {}          # step id → items tested (code)
+    samples: dict[str, list[str]] = {}          # judgment-only step id → record ids the tester inspects
     dropped_citations: list[Citation] = []
+    cost_usd: float = 0.0
+    tokens: int = 0
     check_results: list[CheckResult] = []
     findings: list[Finding] = []
     dismissals: list[Dismissal] = []
@@ -180,5 +184,40 @@ class RunConfig(Strict):
     tester_model: str = ""
     skeptic_model: str = ""
     max_concurrency: int = 4
-    control_timeout_s: int = 180
+    control_timeout_s: int = 420
     run_spend_cap_usd: float = 1.0
+    controls: list[str] | None = None           # optional subset (tests, debugging)
+
+
+# ---------- LLM output contracts ----------
+
+class CandidateDecision(Strict):
+    candidate_id: str = Field(description="candidate_id exactly as given")
+    decision: Literal["raise", "dismiss"]
+    reason: str = Field(description="Why, grounded in records you looked at")
+    citations: list[Citation] = Field(min_length=1, description="Records you looked at that support the decision")
+
+
+class FindingDraft(Strict):
+    test_step: str = Field(description="The recipe step id this finding is about")
+    candidate_ids: list[str] = Field(default=[], description="Raised candidates this finding covers (empty for judgment-only steps)")
+    condition: str = Field(description="What you found, naming the records")
+    criteria: str = Field(description="The policy requirement, quoted or paraphrased with its section")
+    cause: str | None = None
+    effect: str
+    recommendation: str
+    citations: list[Citation] = Field(min_length=1)
+
+
+class TesterOutput(Strict):
+    """Final answer: one decision per candidate, and one finding per test step with raised items."""
+    decisions: list[CandidateDecision] = []
+    findings: list[FindingDraft] = []
+
+
+class SkepticOutput(Strict):
+    """Review of one draft finding."""
+    decision: Literal["keep", "revise", "reject"]
+    reason: str
+    checks_failed: list[Literal["citation_mismatch", "out_of_period", "out_of_scope", "innocent_explanation",
+                                "logic_error", "insufficient_evidence"]] = []

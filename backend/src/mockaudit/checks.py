@@ -313,10 +313,10 @@ class ControlChecks:
     tested: dict[str, int]                         # step id → items tested
 
 
-def run_control_checks(spec: ControlSpec, ev: Evidence) -> ControlChecks:
+def run_control_checks(spec: ControlSpec, ev: Evidence, only: set[str] | None = None) -> ControlChecks:
     results, candidates, notes, tested = [], [], [], {}
     for step in spec.test_recipe:
-        if step.check is None:
+        if step.check is None or (only is not None and step.id not in only):
             continue
         if step.check not in CHECKS:
             raise KeyError(f"control {spec.control_id}: step {step.id} names unknown check {step.check!r}")

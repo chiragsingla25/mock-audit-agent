@@ -59,7 +59,7 @@ def test_checks_only_makes_no_llm_calls(data_root, tmp_path):
         "import sys\n"
         "from mockaudit.cli import main\n"
         f"main(['run', '--checks-only', '--variant', 'base', '--data-root', {str(data_root)!r}, '--runs-dir', {str(tmp_path)!r}])\n"
-        "bad = [m for m in sys.modules if m.startswith(('langchain', 'langgraph', 'openrouter', 'openai', 'httpx'))]\n"
+        "bad = [m for m in sys.modules if m.startswith(('langchain_openrouter', 'openrouter', 'openai', 'mockaudit.llm', 'mockaudit.agents'))]\n"
         "print('IMPORTED:' + ','.join(bad))\n"
     )
     out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, check=True).stdout
