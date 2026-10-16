@@ -13,7 +13,10 @@ from langchain_core.callbacks import BaseCallbackHandler
 # Use effort "none": the OpenRouter SDK drops {"enabled": False} (spec Deviations, phase 0).
 REASONING = {"effort": "low"}
 REASONING_OVERRIDE = {"qwen/qwen3.8-flash": {"effort": "none"}}
-SKEPTIC_MAX_TOKENS = 6000
+SKEPTIC_MAX_TOKENS = 12000
+# Skeptic: minimal effort so its answer has room. At "low", DeepSeek once spent all 6,000 tokens reasoning over C6.
+# A reasoning token budget (reasoning.max_tokens) isn't possible: the SDK's chat request only sends effort/summary.
+SKEPTIC_REASONING = {"effort": "minimal"}
 
 
 class SpendCapExceeded(RuntimeError):
@@ -93,13 +96,14 @@ class OpenRouterModels:
         if self.tester_name.split("/")[0] == self.skeptic_name.split("/")[0]:
             raise ValueError("tester and skeptic must be different model families")
 
-    def _make(self, name: str, max_tokens: int | None = None):
+    def _make(self, name: str, max_tokens: int | None = None, reasoning: dict | None = None):
         from langchain_openrouter import ChatOpenRouter
-        return ChatOpenRouter(model=name, reasoning=REASONING_OVERRIDE.get(name, REASONING), temperature=0,
+        reasoning = reasoning or REASONING_OVERRIDE.get(name, REASONING)
+        return ChatOpenRouter(model=name, reasoning=reasoning, temperature=0,
                               max_retries=2, request_timeout=120_000, max_tokens=max_tokens)  # timeout in ms
 
     def tester(self):
         return self._make(self.tester_name)
 
     def skeptic(self):
-        return self._make(self.skeptic_name, SKEPTIC_MAX_TOKENS)
+        return self._make(self.skeptic_name, SKEPTIC_MAX_TOKENS, SKEPTIC_REASONING)
