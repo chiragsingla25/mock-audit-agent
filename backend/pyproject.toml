@@ -16,6 +16,9 @@ dependencies = [
     "uvicorn>=0.30",
 ]
 
+[project.scripts]
+mockaudit = "mockaudit.cli:main"
+
 [dependency-groups]
 dev = [
     "pytest>=8",

@@ -1,0 +1,33 @@
+{
+  "policies": [
+    {
+      "id": "pol-signon-01",
+      "name": "Require MFA for all users",
+      "status": "ACTIVE",
+      "rules": [
+        {
+          "id": "rule-mfa-01",
+          "name": "All groups: password + second factor",
+          "status": "ACTIVE",
+          "groups_included": [
+            "00g0001",
+            "00g0002",
+            "00g0003",
+            "00g0004",
+            "00g0005",
+            "00g0006",
+            "00g0007",
+            "00g0008",
+            "00g0009",
+            "00g0010"
+          ],
+          "factor_required": true,
+          "factor_types": [
+            "okta_verify_push",
+            "webauthn"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+key,issue_type,summary,created_utc,resolved_utc,status,resolution,approver,approved_utc,expires_utc,linked_deploy,linked_doc
+CHG-101,Emergency Change,Hotfix billing-worker,2026-02-13T04:44:00Z,2026-02-17T23:00:00Z,Done,Approved,Marcus Bell,2026-02-17T23:00:00Z,,D-00370,
+CHG-102,Emergency Change,Hotfix infra,2026-03-05T22:49:00Z,2026-03-06T23:00:00Z,Done,Approved,Marcus Bell,2026-03-06T23:00:00Z,,D-00422,
+CHG-103,Emergency Change,Hotfix ledgerly-web,2026-07-02T19:44:00Z,2026-07-03T23:00:00Z,Done,Approved,Marcus Bell,2026-07-03T23:00:00Z,,D-00710,
+CHG-104,Emergency Change,Hotfix infra,2025-11-14T19:42:00Z,2025-11-18T23:00:00Z,Done,Approved,Marcus Bell,2025-11-18T23:00:00Z,,D-00120,
+CHG-105,Emergency Change,Hotfix infra,2026-06-26T01:56:00Z,2026-06-26T03:36:00Z,Done,Approved,Marcus Bell,2026-06-26T03:36:00Z,,D-00676,
+CHG-107,Emergency Change,Hotfix billing-worker,2026-03-23T13:05:00Z,2026-03-25T23:00:00Z,Done,Approved,Marcus Bell,2026-03-25T23:00:00Z,,D-00465,
+INC-21,Incident,Misconfigured S3 bucket policy,2025-11-06T12:54:00Z,2025-11-07T20:54:00Z,Done,Resolved,,,,,PIR-INC-21
+INC-22,Incident,GuardDuty alert: unusual API calls from CI runner,2026-01-05T04:26:00Z,2026-01-06T03:26:00Z,Done,Not an incident (false positive),,,,,
+INC-23,Incident,Phishing email clicked by staff member,2026-03-14T12:54:00Z,2026-03-15T08:54:00Z,Done,Resolved,,,,,PIR-INC-23
+INC-24,Incident,Phishing email clicked by staff member,2026-04-24T21:26:00Z,2026-04-26T06:26:00Z,Done,Resolved,,,,,PIR-INC-24
+INC-25,Incident,Suspicious OAuth app consent,2026-07-03T05:52:00Z,2026-07-04T05:52:00Z,Done,Resolved,,,,,PIR-INC-25
+INC-26,Incident,Leaked test API key in public repo,2026-07-13T11:18:00Z,2026-07-13T23:18:00Z,Done,Resolved,,,,,PIR-INC-26
+INC-27,Incident,Lost laptop (encrypted),2026-08-12T12:13:00Z,2026-08-12T16:13:00Z,Done,Resolved,,,,,PIR-INC-27
+RISK-7,Risk Acceptance,Accept risk on legacy PDF renderer until vendor patch (WAF rule compensates),2026-04-10T09:00:00Z,2026-04-11T09:00:00Z,Done,Approved,Anika Rao; Jonah Price,2026-04-11T09:00:00Z,2026-07-04T09:00:00Z,,

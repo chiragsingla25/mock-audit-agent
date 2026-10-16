@@ -1,0 +1,54 @@
+owner_answers:
+- control_id: C2
+  record_ids:
+  - E1028
+  answer: I can't find a deactivation for E1028. It looks like it was missed.
+- control_id: C2
+  record_ids:
+  - E1010
+  - C2041
+  answer: E1010 converted to contractor C2041 on the same day under policy 4.4, so the account stayed active. It
+    was deactivated when the contract ended.
+- control_id: C1
+  record_ids:
+  - AR-0003
+  - E1121
+  answer: AR-0003 is the tracking record for E1121's birthright Employee-Base role. It's provisioned automatically
+    from the HR hire record and pre-approved under policy 4.2.
+- control_id: C5
+  record_ids:
+  - AIDA13B7B10DB224
+  answer: elena.petrov should have been on the 2025Q4 list. The export we reviewed from was filtered wrongly.
+- control_id: C3
+  record_ids:
+  - UAR-2026Q3
+  answer: Dana ran the 2026Q3 review but never signed it off; we don't have a signed copy.
+- control_id: C7
+  record_ids:
+  - D-00875
+  answer: Those hotfixes went out overnight and nobody raised the change ticket afterwards.
+- control_id: C8
+  record_ids:
+  - SCAN-2026-W29
+  - SCAN-2026-W33
+  answer: The scanner licence lapsed for a few weeks and we didn't notice until it renewed.
+- control_id: C8
+  record_ids:
+  - VULN-0037
+  answer: VULN-0037 slipped through triage; there's no risk acceptance for it.
+- control_id: C8
+  record_ids:
+  - VULN-0031
+  - RISK-7
+  answer: VULN-0031 is covered by risk acceptance RISK-7, signed by Anika and Jonah, with a WAF rule as the compensating
+    control.
+- control_id: C9
+  record_ids:
+  - INC-23
+  answer: 'INC-23 was a false positive: the CI runner''s new IP range. Closed after triage; no PIR needed.'
+- control_id: C10
+  record_ids:
+  - E1125
+  - E1140
+  - E1145
+  answer: Their managers didn't chase the new-hire course; no exception was approved.

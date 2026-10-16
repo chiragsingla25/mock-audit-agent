@@ -1,0 +1,16 @@
+vendor_id,name,criticality,owner,last_risk_review_date,review_doc
+V-001,AWS,critical,Anika Rao,2026-04-10,VRA-AWS-2026
+V-002,Stripe,critical,Anika Rao,2025-12-28,VRA-Stripe-2025
+V-003,Okta,critical,Anika Rao,2026-05-12,VRA-Okta-2026
+V-004,GitHub,critical,Anika Rao,2026-08-17,VRA-GitHub-2026
+V-005,Datadog,critical,Anika Rao,2026-06-10,VRA-Datadog-2026
+V-006,Slack,standard,Anika Rao,2025-01-17,VRA-Slack-2025
+V-007,Google Workspace,standard,Anika Rao,2026-05-04,VRA-GoogleWorkspace-2026
+V-008,Atlassian,standard,Anika Rao,2024-12-13,VRA-Atlassian-2024
+V-009,Figma,standard,Anika Rao,2025-02-08,VRA-Figma-2025
+V-010,Zendesk,standard,Anika Rao,2025-01-15,VRA-Zendesk-2025
+V-011,HubSpot,standard,Anika Rao,2026-09-11,VRA-HubSpot-2026
+V-012,Gusto,standard,Anika Rao,2025-12-25,VRA-Gusto-2025
+V-013,DocuSign,standard,Anika Rao,2026-07-09,VRA-DocuSign-2026
+V-014,Snyk,standard,Anika Rao,2024-11-30,VRA-Snyk-2024
+V-015,Notion,standard,Anika Rao,2026-01-05,VRA-Notion-2026

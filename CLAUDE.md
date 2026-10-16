@@ -33,7 +33,7 @@ uv run mockaudit eval --all              # from Phase 4
 
 ## Models and budget
 
-- Tester `TESTER_MODEL` (qwen/qwen3.8-flash), skeptic `SKEPTIC_MODEL` (deepseek/deepseek-v4-flash). They must be different families. Change them only through `.env`.
+- Tester `TESTER_MODEL` (qwen/qwen3.5-flash-02-23; fallback qwen3.8-flash needs reasoning off), skeptic `SKEPTIC_MODEL` (deepseek/deepseek-v4-flash). They must be different families. Change them only through `.env`.
 - US$10 total. Every LLM call appends `usage.cost` to `runs/spend.jsonl`; a run stops at `RUN_SPEND_CAP_USD`, the project at `PROJECT_SPEND_CAP_USD`.
 - Tests use stub LLMs. **Never call OpenRouter from tests or CI.**
 

@@ -1,0 +1,17 @@
+key,issue_type,summary,created_utc,resolved_utc,status,resolution,approver,approved_utc,expires_utc,linked_deploy,linked_doc
+CHG-101,Emergency Change,Hotfix ledgerly-api,2026-02-13T12:00:00Z,2026-02-17T23:00:00Z,Done,Approved,Marcus Bell,2026-02-17T23:00:00Z,,D-00330,
+CHG-102,Emergency Change,Hotfix ledgerly-api,2025-12-01T03:34:00Z,2025-12-03T23:00:00Z,Done,Approved,Marcus Bell,2025-12-03T23:00:00Z,,D-00121,
+CHG-103,Emergency Change,Hotfix infra,2026-04-21T17:10:00Z,2026-04-21T18:50:00Z,Done,Approved,Marcus Bell,2026-04-21T18:50:00Z,,D-00513,
+CHG-104,Emergency Change,Hotfix ledgerly-web,2026-05-15T10:50:00Z,2026-05-19T23:00:00Z,Done,Approved,Marcus Bell,2026-05-19T23:00:00Z,,D-00586,
+CHG-105,Emergency Change,Hotfix ledgerly-web,2026-03-27T06:45:00Z,2026-03-30T23:00:00Z,Done,Approved,Marcus Bell,2026-03-30T23:00:00Z,,D-00456,
+CHG-106,Emergency Change,Hotfix ledgerly-web,2025-11-18T18:18:00Z,2025-11-18T19:58:00Z,Done,Approved,Marcus Bell,2025-11-18T19:58:00Z,,D-00101,
+CHG-107,Emergency Change,Hotfix billing-worker,2026-02-20T03:57:00Z,2026-02-24T23:00:00Z,Done,Approved,Marcus Bell,2026-02-24T23:00:00Z,,D-00346,
+CHG-108,Emergency Change,Hotfix ledgerly-api,2025-11-04T15:51:00Z,2025-11-06T23:00:00Z,Done,Approved,Marcus Bell,2025-11-06T23:00:00Z,,D-00062,
+INC-21,Incident,GuardDuty alert: unusual API calls from CI runner,2025-11-27T13:28:00Z,2025-11-28T20:28:00Z,Done,Not an incident (false positive),,,,,
+INC-22,Incident,Misconfigured S3 bucket policy,2025-12-30T07:08:00Z,2025-12-31T13:08:00Z,Done,Resolved,,,,,PIR-INC-22
+INC-23,Incident,Misconfigured S3 bucket policy,2026-01-14T04:42:00Z,2026-01-14T21:42:00Z,Done,Resolved,,,,,PIR-INC-23
+INC-24,Incident,Leaked test API key in public repo,2026-03-28T13:30:00Z,2026-03-28T21:30:00Z,Done,Resolved,,,,,PIR-INC-24
+INC-25,Incident,Misconfigured S3 bucket policy,2026-04-19T19:46:00Z,2026-04-20T17:46:00Z,Done,Resolved,,,,,PIR-INC-25
+INC-26,Incident,Credential stuffing on login,2026-05-31T17:44:00Z,2026-06-02T06:44:00Z,Done,Resolved,,,,,PIR-INC-26
+INC-27,Incident,Credential stuffing on login,2026-06-04T12:36:00Z,2026-06-05T08:36:00Z,Done,Resolved,,,,,PIR-INC-27
+RISK-7,Risk Acceptance,Accept risk on legacy PDF renderer until vendor patch (WAF rule compensates),2025-12-29T09:00:00Z,2025-12-30T09:00:00Z,Done,Approved,Anika Rao; Jonah Price,2025-12-30T09:00:00Z,2026-03-24T09:00:00Z,,

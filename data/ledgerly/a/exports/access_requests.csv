@@ -1,0 +1,58 @@
+request_id,user_employee_id,user_email,application,role,requested_utc,approver,approved_utc,granted_utc,granted_by
+AR-0001,E1062,archie.ryan@ledgerly.io,Jira,User,2025-10-06T05:27:00Z,Elena Petrov,2025-10-06T07:34:10Z,2025-10-06T20:16:21Z,it-ops
+AR-0002,E1101,lucas.khan@ledgerly.io,NetSuite,AP Clerk,2025-10-07T04:10:00Z,Dana Whitfield,2025-10-07T20:22:43Z,2025-10-08T13:38:09Z,it-ops
+AR-0003,E1100,sam.brown@ledgerly.io,NetSuite,AP Clerk,2025-10-11T05:30:00Z,Dana Whitfield,2025-10-11T10:19:10Z,2025-10-11T23:51:04Z,it-ops
+AR-0004,E1101,lucas.khan@ledgerly.io,Salesforce,Sales User,2025-10-19T06:04:00Z,Dana Whitfield,2025-10-20T00:16:40Z,2025-10-20T20:04:11Z,it-ops
+AR-0005,E1037,ravi.clarke@ledgerly.io,AWS,ReadOnly,2025-10-31T04:25:00Z,Dana Whitfield,2025-11-01T10:05:14Z,2025-11-02T05:26:44Z,it-ops
+AR-0006,E1074,mia.singh@ledgerly.io,NetSuite,AP Clerk,2025-11-04T02:48:00Z,Dana Whitfield,2025-11-04T07:37:06Z,2025-11-05T00:07:26Z,it-ops
+AR-0007,E1100,sam.brown@ledgerly.io,GitHub,Developer,2025-11-04T03:02:00Z,Dana Whitfield,2025-11-04T16:36:17Z,2025-11-04T18:46:56Z,it-ops
+AR-0008,E1098,nina.martin@ledgerly.io,NetSuite,AP Clerk,2025-11-05T05:08:00Z,Dana Whitfield,2025-11-06T10:53:21Z,2025-11-06T11:26:34Z,it-ops
+AR-0009,E1066,leo.williams@ledgerly.io,AWS,ReadOnly,2025-11-10T05:05:00Z,Elena Petrov,2025-11-10T17:25:34Z,2025-11-11T08:02:27Z,it-ops
+AR-0010,E1056,lucas.ali@ledgerly.io,GitHub,Developer,2025-11-16T01:24:00Z,Dana Whitfield,2025-11-16T13:27:26Z,2025-11-16T20:44:34Z,it-ops
+AR-0011,E1008,ethan.nguyen@ledgerly.io,Jira,User,2025-12-05T02:36:00Z,Dana Whitfield,2025-12-05T23:23:19Z,2025-12-06T10:23:02Z,it-ops
+AR-0012,E1099,ethan.davis@ledgerly.io,Salesforce,Sales User,2025-12-06T02:14:00Z,Marcus Bell,2025-12-06T14:00:25Z,2025-12-06T23:13:42Z,it-ops
+AR-0013,E1126,leo.kelly@ledgerly.io,Figma,Editor,2026-01-03T01:56:00Z,Dana Whitfield,2026-01-03T02:44:26Z,2026-01-03T11:09:42Z,it-ops
+AR-0014,E1044,max.walker@ledgerly.io,Salesforce,Sales User,2026-01-10T04:38:00Z,Elena Petrov,2026-01-10T17:56:31Z,2026-01-11T10:00:13Z,it-ops
+AR-0015,E1120,ravi.wilson@ledgerly.io,Salesforce,Sales User,2026-01-10T04:41:00Z,Elena Petrov,2026-01-10T21:18:42Z,2026-01-11T07:07:12Z,it-ops
+AR-0016,E1052,liam.anderson@ledgerly.io,GitHub,Developer,2026-02-05T06:10:00Z,Marcus Bell,2026-02-06T03:53:23Z,2026-02-06T20:24:12Z,it-ops
+AR-0017,E1017,archie.wu@ledgerly.io,AWS,ReadOnly,2026-02-12T02:32:00Z,Elena Petrov,2026-02-12T10:43:33Z,2026-02-13T02:48:44Z,it-ops
+AR-0018,E1106,jack.novak@ledgerly.io,AWS,ReadOnly,2026-02-24T02:30:00Z,Marcus Bell,2026-02-24T17:50:06Z,2026-02-25T02:56:14Z,it-ops
+AR-0019,E1112,leo.white@ledgerly.io,Figma,Editor,2026-02-25T01:34:00Z,Marcus Bell,2026-02-26T07:09:49Z,2026-02-27T01:22:22Z,it-ops
+AR-0020,E1046,finn.singh@ledgerly.io,Datadog,Viewer,2026-02-26T05:55:00Z,Marcus Bell,2026-02-26T17:30:27Z,2026-02-27T07:51:50Z,it-ops
+AR-0021,E1031,ivy.kim@ledgerly.io,Figma,Editor,2026-03-03T03:23:00Z,Elena Petrov,2026-03-03T09:16:11Z,2026-03-03T12:54:54Z,it-ops
+AR-0022,E1090,ivy.nguyen@ledgerly.io,Datadog,Viewer,2026-03-07T05:09:00Z,Dana Whitfield,2026-03-08T05:58:16Z,2026-03-08T06:39:29Z,it-ops
+AR-0023,E1117,william.sato@ledgerly.io,Jira,User,2026-03-07T05:19:00Z,Dana Whitfield,2026-03-08T02:03:43Z,2026-03-08T07:56:07Z,it-ops
+AR-0024,E1131,zoe.williams@ledgerly.io,Datadog,Viewer,2026-03-09T01:28:00Z,Marcus Bell,2026-03-09T22:22:36Z,2026-03-10T00:18:54Z,it-ops
+AR-0025,E1032,ava.lee@ledgerly.io,GitHub,Developer,2026-03-16T01:25:00Z,Elena Petrov,2026-03-16T06:25:20Z,2026-03-16T10:43:14Z,it-ops
+AR-0026,E1016,ruby.costa@ledgerly.io,NetSuite,AP Clerk,2026-03-28T00:11:00Z,Marcus Bell,2026-03-28T03:14:10Z,2026-03-28T22:02:17Z,it-ops
+AR-0027,E1098,nina.martin@ledgerly.io,Jira,User,2026-03-28T00:20:00Z,Elena Petrov,2026-03-28T02:36:33Z,2026-03-28T04:21:11Z,it-ops
+AR-0028,E1049,charlotte.martin@ledgerly.io,Datadog,Viewer,2026-04-02T05:28:00Z,Elena Petrov,2026-04-02T22:42:37Z,2026-04-03T13:41:56Z,it-ops
+AR-0029,E1103,oscar.clarke@ledgerly.io,Salesforce,Sales User,2026-04-05T02:32:00Z,Dana Whitfield,2026-04-05T04:58:43Z,2026-04-05T11:54:35Z,it-ops
+AR-0030,E1063,matilda.chen@ledgerly.io,NetSuite,AP Clerk,2026-04-14T04:44:00Z,Elena Petrov,2026-04-14T16:53:50Z,2026-04-15T04:57:06Z,it-ops
+AR-0031,E1107,ella.fischer@ledgerly.io,GitHub,Developer,2026-05-11T01:57:00Z,Elena Petrov,2026-05-11T03:30:58Z,2026-05-11T08:54:56Z,it-ops
+AR-0032,E1139,charlotte.clarke@ledgerly.io,AWS,ReadOnly,2026-05-15T01:03:00Z,Dana Whitfield,2026-05-15T14:32:27Z,2026-05-16T10:19:00Z,it-ops
+AR-0033,E1067,nina.moreau@ledgerly.io,Figma,Editor,2026-05-27T02:10:00Z,Marcus Bell,2026-05-27T03:27:30Z,2026-05-27T20:31:29Z,it-ops
+AR-0034,E1094,ava.young@ledgerly.io,Jira,User,2026-05-27T05:25:00Z,Marcus Bell,2026-05-27T17:04:06Z,2026-05-28T12:44:17Z,it-ops
+AR-0035,E1118,sophie.chen@ledgerly.io,Salesforce,Sales User,2026-05-30T06:20:00Z,Dana Whitfield,2026-05-31T11:02:15Z,2026-05-31T11:20:53Z,it-ops
+AR-0036,E1046,finn.singh@ledgerly.io,NetSuite,AP Clerk,2026-06-05T06:09:00Z,Marcus Bell,2026-06-06T01:40:56Z,2026-06-06T02:08:15Z,it-ops
+AR-0037,E1029,ella.hall@ledgerly.io,GitHub,Developer,2026-06-20T04:40:00Z,Elena Petrov,2026-06-20T21:53:11Z,2026-06-21T02:13:29Z,it-ops
+AR-0038,E1145,lachlan.clarke@ledgerly.io,Okta,Employee-Base,2026-06-20T23:00:00Z,Grace Okafor,2026-06-21T00:00:00Z,2026-06-18T23:00:00Z,hr-provisioning
+AR-0039,E1055,archie.walker@ledgerly.io,Jira,User,2026-07-02T06:41:00Z,Dana Whitfield,2026-07-03T10:56:14Z,2026-07-03T22:21:36Z,it-ops
+AR-0040,E1069,ivy.scott@ledgerly.io,Datadog,Viewer,2026-07-08T02:17:00Z,Dana Whitfield,2026-07-08T02:54:51Z,2026-07-08T19:32:16Z,it-ops
+AR-0041,E1008,ethan.nguyen@ledgerly.io,Figma,Editor,2026-07-11T00:11:00Z,Marcus Bell,2026-07-11T04:58:30Z,2026-07-11T20:16:15Z,it-ops
+AR-0042,E1021,arjun.martin@ledgerly.io,Jira,User,2026-07-11T06:50:00Z,Dana Whitfield,2026-07-12T07:38:41Z,2026-07-12T10:07:21Z,it-ops
+AR-0043,E1025,max.kelly@ledgerly.io,Jira,User,2026-07-20T03:44:00Z,Marcus Bell,2026-07-20T15:29:36Z,2026-07-21T10:10:11Z,it-ops
+AR-0044,E1094,ava.young@ledgerly.io,Figma,Editor,2026-08-09T06:22:00Z,Marcus Bell,2026-08-09T16:35:19Z,2026-08-09T17:32:51Z,it-ops
+AR-0045,E1149,chloe.taylor@ledgerly.io,Salesforce,Sales User,2026-08-10T01:07:00Z,Dana Whitfield,2026-08-11T05:31:24Z,2026-08-11T11:02:50Z,it-ops
+AR-0046,E1113,amelia.costa@ledgerly.io,Figma,Editor,2026-08-12T06:13:00Z,Dana Whitfield,2026-08-12T16:53:55Z,2026-08-12T18:59:40Z,it-ops
+AR-0047,E1008,ethan.nguyen@ledgerly.io,AWS,ReadOnly,2026-08-14T06:46:00Z,Elena Petrov,2026-08-15T11:37:51Z,2026-08-15T12:23:52Z,it-ops
+AR-0048,E1129,thomas.singh@ledgerly.io,Jira,User,2026-08-19T06:40:00Z,Marcus Bell,2026-08-19T20:14:16Z,2026-08-20T05:12:26Z,it-ops
+AR-0049,E1112,leo.white@ledgerly.io,GitHub,Developer,2026-08-22T01:04:00Z,Dana Whitfield,2026-08-23T02:02:46Z,2026-08-23T07:36:41Z,it-ops
+AR-0050,E1028,arjun.taylor@ledgerly.io,Datadog,Viewer,2026-08-29T05:54:00Z,Elena Petrov,2026-08-30T10:38:55Z,2026-08-30T11:06:43Z,it-ops
+AR-0051,E1149,chloe.taylor@ledgerly.io,Jira,User,2026-09-01T06:15:00Z,Elena Petrov,2026-09-02T03:21:02Z,2026-09-02T16:35:56Z,it-ops
+AR-0052,E1131,zoe.williams@ledgerly.io,Jira,User,2026-09-05T05:22:00Z,Elena Petrov,2026-09-06T03:26:10Z,2026-09-06T18:51:01Z,it-ops
+AR-0053,E1135,ethan.kim@ledgerly.io,Jira,User,2026-09-07T06:35:00Z,Elena Petrov,2026-09-08T00:57:11Z,2026-09-08T02:06:18Z,it-ops
+AR-0054,E1075,archie.smith@ledgerly.io,Figma,Editor,2026-09-08T03:23:00Z,Dana Whitfield,2026-09-08T12:23:59Z,2026-09-08T14:38:48Z,it-ops
+AR-0055,E1146,ivy.harris@ledgerly.io,Datadog,Viewer,2026-09-18T06:12:00Z,Marcus Bell,2026-09-18T10:29:32Z,2026-09-18T11:30:40Z,it-ops
+AR-0056,E1148,leo.ali@ledgerly.io,GitHub,Developer,2026-09-20T01:15:00Z,Marcus Bell,2026-09-20T07:37:55Z,2026-09-20T23:33:30Z,it-ops
+AR-0057,E1019,lachlan.young@ledgerly.io,Datadog,Viewer,2026-09-23T03:03:00Z,Dana Whitfield,2026-09-23T07:30:32Z,2026-09-23T22:24:57Z,it-ops

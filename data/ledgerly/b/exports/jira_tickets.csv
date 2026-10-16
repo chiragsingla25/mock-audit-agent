@@ -1,0 +1,16 @@
+key,issue_type,summary,created_utc,resolved_utc,status,resolution,approver,approved_utc,expires_utc,linked_deploy,linked_doc
+CHG-101,Emergency Change,Hotfix ledgerly-api,2026-02-13T08:28:00Z,2026-02-17T23:00:00Z,Done,Approved,Marcus Bell,2026-02-17T23:00:00Z,,D-00345,
+CHG-102,Emergency Change,Hotfix ledgerly-web,2026-06-26T06:49:00Z,2026-06-26T08:29:00Z,Done,Approved,Marcus Bell,2026-06-26T08:29:00Z,,D-00661,
+CHG-103,Emergency Change,Hotfix billing-worker,2026-07-08T15:38:00Z,2026-07-09T23:00:00Z,Done,Approved,Marcus Bell,2026-07-09T23:00:00Z,,D-00703,
+CHG-104,Emergency Change,Hotfix infra,2026-07-15T08:44:00Z,2026-07-15T10:24:00Z,Done,Approved,Marcus Bell,2026-07-15T10:24:00Z,,D-00711,
+CHG-105,Emergency Change,Hotfix ledgerly-web,2026-02-27T09:47:00Z,2026-03-02T23:00:00Z,Done,Approved,Marcus Bell,2026-03-02T23:00:00Z,,D-00381,
+CHG-106,Emergency Change,Hotfix ledgerly-api,2025-11-14T22:30:00Z,2025-11-18T23:00:00Z,Done,Approved,Marcus Bell,2025-11-18T23:00:00Z,,D-00120,
+CHG-107,Emergency Change,Hotfix ledgerly-web,2025-12-31T22:08:00Z,2026-01-02T23:00:00Z,Done,Approved,Marcus Bell,2026-01-02T23:00:00Z,,D-00226,
+INC-21,Incident,Misconfigured S3 bucket policy,2025-10-18T02:35:00Z,2025-10-18T11:35:00Z,Done,Resolved,,,,,PIR-INC-21
+INC-22,Incident,Lost laptop (encrypted),2025-11-20T20:12:00Z,2025-11-21T14:12:00Z,Done,Resolved,,,,,PIR-INC-22
+INC-23,Incident,GuardDuty alert: unusual API calls from CI runner,2025-11-29T23:30:00Z,2025-11-30T01:30:00Z,Done,Not an incident (false positive),,,,,
+INC-24,Incident,Misconfigured S3 bucket policy,2025-12-15T20:46:00Z,2025-12-17T08:46:00Z,Done,Resolved,,,,,PIR-INC-24
+INC-25,Incident,Leaked test API key in public repo,2026-04-10T05:10:00Z,2026-04-11T01:10:00Z,Done,Resolved,,,,,PIR-INC-25
+INC-26,Incident,Misconfigured S3 bucket policy,2026-05-31T21:35:00Z,2026-06-02T03:35:00Z,Done,Resolved,,,,,PIR-INC-26
+INC-27,Incident,Lost laptop (encrypted),2026-05-31T02:37:00Z,2026-06-01T00:37:00Z,Done,Resolved,,,,,PIR-INC-27
+RISK-7,Risk Acceptance,Accept risk on legacy PDF renderer until vendor patch (WAF rule compensates),2026-05-07T09:00:00Z,2026-05-08T09:00:00Z,Done,Approved,Anika Rao; Jonah Price,2026-05-08T09:00:00Z,2026-07-31T09:00:00Z,,

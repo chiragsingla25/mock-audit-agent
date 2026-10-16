@@ -1,0 +1,209 @@
+dataset:
+  variant: b
+  seed: 23
+  period:
+  - '2025-10-01'
+  - '2026-09-30'
+gaps:
+- id: G2
+  control_id: C2
+  test_step: completeness
+  gap_type: population_completeness
+  tag: code
+  record_ids:
+  - E1028
+  - 00u5e7b85b559
+  exceptions: 1
+  tested: 19
+  control_risk: high
+  severity: high
+  severity_rule: 2
+  description: E1028 was terminated but their Okta account was never suspended or deactivated.
+- id: G3
+  control_id: C3
+  test_step: signoff
+  gap_type: missing_evidence
+  tag: judgment
+  record_ids:
+  - UAR-2026Q3
+  exceptions: 1
+  tested: 4
+  control_risk: high
+  severity: high
+  severity_rule: 3
+  description: The 2026Q3 user access review has no reviewer sign-off.
+- id: G4
+  control_id: C5
+  test_step: completeness
+  gap_type: population_completeness
+  tag: code
+  record_ids:
+  - AIDA13B7B10DB224
+  - PAR-2025Q4
+  exceptions: 1
+  tested: 6
+  control_risk: high
+  severity: high
+  severity_rule: 2
+  description: AWS admin elena.petrov existed at the 2025Q4 review but is not on the reviewed list.
+- id: G6
+  control_id: C7
+  test_step: ticketed
+  gap_type: population_completeness
+  tag: code
+  record_ids:
+  - D-00875
+  exceptions: 1
+  tested: 8
+  control_risk: moderate
+  severity: moderate
+  severity_rule: 6
+  description: 1 emergency deploy has no emergency change ticket or retroactive approval.
+- id: G7
+  control_id: C8
+  test_step: weekly_scan
+  gap_type: frequency_gap
+  tag: code
+  record_ids:
+  - SCAN-2026-W29
+  - SCAN-2026-W33
+  exceptions: 3
+  tested: 53
+  control_risk: moderate
+  severity: moderate
+  severity_rule: 6
+  description: No scan results for 3 consecutive weeks (2026-W30, 2026-W31, 2026-W32).
+  missing_weeks:
+  - 2026-W30
+  - 2026-W31
+  - 2026-W32
+- id: G8
+  control_id: C8
+  test_step: critical_sla
+  gap_type: sla_breach
+  tag: code
+  record_ids:
+  - VULN-0037
+  exceptions: 1
+  tested: 9
+  control_risk: moderate
+  severity: moderate
+  severity_rule: 6
+  description: Critical VULN-0037 was open 50 days (limit 30).
+  days_open: 50
+- id: G9
+  control_id: C10
+  test_step: new_hire
+  gap_type: operating
+  tag: code
+  record_ids:
+  - E1125
+  - LMS-00010
+  - E1140
+  - LMS-00109
+  - E1145
+  - LMS-00149
+  exceptions: 3
+  tested: 30
+  control_risk: moderate
+  severity: moderate
+  severity_rule: 6
+  description: 3 new hires completed security training after 30 days ([49, 52, 56] days).
+  days_after_hire:
+  - 49
+  - 52
+  - 56
+not_planted:
+- G1
+- G5
+- G10
+traps:
+- id: T1
+  control_id: C2
+  test_step: timeliness
+  record_ids:
+  - E1010
+  - C2041
+  - OK-000079
+  explanation: Employee converted to contractor the same day (policy 4.4); access correctly continued until the
+    contract ended.
+- id: T2
+  control_id: C1
+  test_step: approval
+  record_ids:
+  - AR-0003
+  explanation: Birthright role Employee-Base is provisioned from the HR hire record and pre-approved (policy 4.2);
+    the request record is for tracking only.
+- id: T3
+  control_id: C8
+  test_step: critical_sla
+  record_ids:
+  - VULN-0031
+  - RISK-7
+  explanation: Open 60 days, but covered by approved, unexpired risk acceptance RISK-7 (policy 2.3).
+- id: T4
+  control_id: C9
+  test_step: pir
+  record_ids:
+  - INC-23
+  explanation: Triaged as a false positive and resolved 'Not an incident'; policy 5.2 needs no PIR.
+clean_controls:
+- C1
+- C4
+- C6
+- C9
+- C11
+- C12
+noise:
+- control_id: C2
+  kind: suspend_then_delete
+  record_ids:
+  - E1008
+  - OK-000025
+  description: 'Suspended the same day and deleted 6 days later: suspension removed access (not a gap).'
+- control_id: C2
+  kind: time_zone
+  record_ids:
+  - E1056
+  - E1068
+  description: Morning AEST terminations revoked on the previous UTC calendar day; compare in UTC (not a gap).
+- control_id: C2
+  kind: never_provisioned
+  record_ids:
+  - X3001
+  description: Contractor never had an Okta account; note only.
+- control_id: C2
+  kind: name_format
+  record_ids: []
+  description: HR names are 'Last, First'; Okta display names are 'First Last'.
+- control_id: C3
+  kind: signoff_after_period
+  record_ids:
+  - PAR-2026Q3
+  description: Q3-26 reviews are signed in October 2026, within 10 business days of quarter end (pass).
+- control_id: C7
+  kind: compliant_emergency
+  record_ids:
+  - D-00345
+  - CHG-101
+  description: 'Friday hotfix approved the following Tuesday: exactly 2 business days (pass).'
+- control_id: C8
+  kind: late_in_week_scan
+  record_ids:
+  - SCAN-2026-W07
+  description: Scan ran on Saturday instead of Wednesday, same ISO week (pass).
+- control_id: C8
+  kind: edge_30_days
+  record_ids:
+  - VULN-0016
+  description: 'Critical opened 2026-01-31, closed 2026-03-02: exactly 30 days (pass).'
+- control_id: C10
+  kind: edge_cross_year
+  record_ids:
+  - E1128
+  description: Hired 2025-12-15, trained 2026-01-10 (pass).
+- control_id: C10
+  kind: edge_30_days
+  record_ids:
+  - E1130
+  description: Trained exactly 30 days after hire (pass).
