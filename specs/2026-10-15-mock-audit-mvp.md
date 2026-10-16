@@ -142,7 +142,7 @@ Verify: `uv run mockaudit run --variant base --review skip` → `runs/<id>/` is 
 - [x] `mockaudit eval --all` runs base + variants A and B (agent), skeptic-off (from the same runs, with no extra calls), checks-only, and 3 stability runs on base. It writes `eval.json` and a Markdown table.
 - [x] Reports recall, precision, clean-control accuracy, citation validity, severity agreement, stability overlap, agent vs checks-only, skeptic on vs off, and US$ and tokens per audit.
 - [x] Total evaluation spend ≤ US$2.00 (from `spend.jsonl`).
-- [ ] `.github/workflows/ci.yml`: ruff + pytest + showcase JSON validation, with no secrets and no LLM calls.
+- [x] `.github/workflows/ci.yml`: ruff + pytest + showcase JSON validation, with no secrets and no LLM calls. (The showcase step moved to Phase 6 by ruling. First run green: https://github.com/chiragsingla25/mock-audit-agent/actions/runs/38891182571)
 - [x] Targets are reported honestly. Missing one is not a fail; hiding it is.
 
 Clarified 2026-10-16 (Phase 4 clarify pass, ruled by Chirag):
