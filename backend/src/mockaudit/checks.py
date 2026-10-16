@@ -47,6 +47,26 @@ def business_days_between(start: date, end: date) -> int:
     return n
 
 
+def add_business_days(d: date, n: int) -> date:
+    while n > 0:
+        d += timedelta(days=1)
+        n -= d.weekday() < 5
+    return d
+
+
+def signoff_facts(doc: dict, due_business_days: int, evidence: date | None) -> dict:
+    """Sign-off dates computed by code for a review document, so the LLMs never count business days."""
+    qend = date.fromisoformat(doc["Quarter end"])
+    due = add_business_days(qend, due_business_days)
+    raw = doc.get("Signed", "").strip()
+    signed = date.fromisoformat(raw) if len(raw) == 10 and raw[4] == "-" else None
+    passed = evidence > due if evidence else None
+    return {"quarter_end": qend.isoformat(), "signoff_due": due.isoformat(),
+            "signed": signed.isoformat() if signed else "not signed",
+            "evidence_collected": evidence.isoformat() if evidence else None, "deadline_passed": passed,
+            "signed_on_time": (signed <= due) if signed else (False if passed else None)}
+
+
 def quarters(period: tuple[date, date]) -> list[tuple[str, date]]:
     out, y, q = [], period[0].year, (period[0].month - 1) // 3 + 1
     while True:

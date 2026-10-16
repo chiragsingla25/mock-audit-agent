@@ -152,6 +152,7 @@ class ControlResult(Strict):
     candidates: list[Candidate] = []
     tested_counts: dict[str, int] = {}          # step id → items tested (code)
     samples: dict[str, list[str]] = {}          # judgment-only step id → record ids the tester inspects
+    sample_facts: dict[str, dict] = {}          # judgment-only step id → item id → date facts (code)
     dropped_citations: list[Citation] = []
     cost_usd: float = 0.0
     tokens: int = 0

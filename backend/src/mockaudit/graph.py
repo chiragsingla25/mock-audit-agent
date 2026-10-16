@@ -21,10 +21,10 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.runtime import Runtime
 from langgraph.types import RetryPolicy, Send, interrupt
 
-from mockaudit.checks import run_control_checks
+from mockaudit.checks import run_control_checks, signoff_facts
 from mockaudit.checks_only import findings_from_candidates
 from mockaudit.citations import check_citations
-from mockaudit.evidence import Evidence
+from mockaudit.evidence import Evidence, evidence_date
 from mockaudit.schemas import (
     Candidate,
     ControlResult,
@@ -95,6 +95,7 @@ class ControlState(TypedDict, total=False):
     check_results: list[dict]
     tested: dict
     samples: dict
+    sample_facts: dict             # judgment step → item id → date facts computed by code
     code_findings: list[dict]
     drafts: list[dict]
     dismissed: list[dict]
@@ -150,7 +151,8 @@ def run_checks(state: ControlState, runtime: Runtime[AuditContext]) -> dict:
 def sample(state: ControlState, runtime: Runtime[AuditContext]) -> dict:
     """Judgment-only steps: every item up to the cap, else a seeded random sample."""
     spec, ev = _spec(state), _ev(state, runtime)
-    samples = {}
+    samples, facts = {}, {}
+    evidence = evidence_date(runtime.context.data_dir)
     for step in spec.test_recipe:
         if step.check is not None or "source" not in step.params:
             continue
@@ -159,7 +161,9 @@ def sample(state: ControlState, runtime: Runtime[AuditContext]) -> dict:
         if len(ids) > runtime.context.sample_cap:
             ids = sorted(random.Random(f"{spec.control_id}:{step.id}").sample(ids, runtime.context.sample_cap))
         samples[step.id] = ids
-    return {"samples": samples}
+        if step.params.get("signoff_due_business_days"):
+            facts[step.id] = {i: signoff_facts(ev.get(src, i), step.params["signoff_due_business_days"], evidence) for i in ids}
+    return {"samples": samples, "sample_facts": facts}
 
 
 def _resolve(ref: str, cands: list[Candidate], step: str | None = None) -> str | None:
@@ -255,7 +259,8 @@ async def tester(state: ControlState, runtime: Runtime[AuditContext]) -> dict:
     ev = _ev(state, runtime)
     owner_log: list[dict] = []
     model = ctx.models.tester()
-    message = tester_message(spec, cands, samples, state.get("notes", []), revise)
+    message = tester_message(spec, cands, samples, state.get("notes", []), revise, state.get("sample_facts", {}),
+                             evidence_date(ctx.data_dir))
     out, msgs, retries = await run_tester(model, spec, make_tools(spec, ev, ctx.data_dir, owner_log), message,
                                           [SpendCallback(ctx.spend, "tester", spec.control_id)])
     if out is None:
@@ -306,7 +311,7 @@ def finalize(state: ControlState, runtime: Runtime[AuditContext]) -> dict:
         control_id=spec.control_id, status="exceptions" if findings else "pass",
         population_size=max(state.get("tested", {}).values(), default=0), population_complete=not missing,
         missing_from_population=missing, notes=state.get("notes", []), candidates=cands,
-        tested_counts=state.get("tested", {}), samples=state.get("samples", {}),
+        tested_counts=state.get("tested", {}), samples=state.get("samples", {}), sample_facts=state.get("sample_facts", {}),
         sample=sorted({i for ids in state.get("samples", {}).values() for i in ids}),
         dropped_citations=dropped, check_results=state.get("check_results", []),
         coverage=Coverage(tested=[s.id for s in spec.test_recipe if s.check or cfg.mode != "checks_only"],
@@ -401,7 +406,10 @@ def to_skeptic(state: AuditState) -> list[Send] | str:
     if mode in ("checks_only", "skeptic_off") or not drafts:
         return "severity"
     specs = {s["control_id"]: s for s in state["specs"]}
-    return [Send("skeptic_one", {"finding": f, "spec": specs[f["control_id"]], "round": state.get("revise_round", 0)})
+    def facts(cid):
+        return {i: x for step in state["results"].get(cid, {}).get("sample_facts", {}).values() for i, x in step.items()}
+    return [Send("skeptic_one", {"finding": f, "spec": specs[f["control_id"]], "round": state.get("revise_round", 0),
+                                 "facts": facts(f["control_id"])})
             for f in sorted(drafts, key=lambda f: f["finding_id"])]
 
 
@@ -417,10 +425,12 @@ async def skeptic_one(payload: dict, runtime: Runtime[AuditContext]) -> dict:
     try:
         ctx.spend.guard()
         model = ctx.models.skeptic()
-        out = await review(model, spec, Evidence.load(spec, ctx.data_dir), f,
-                           [SpendCallback(ctx.spend, "skeptic", spec.control_id)])
-        v = {"finding_id": f.finding_id, **out.model_dump(), "reviewer": f"skeptic:{getattr(model, 'model_name', type(model).__name__)}",
-             "round": payload["round"]}
+        fallback = ctx.models.skeptic_fallback() if hasattr(ctx.models, "skeptic_fallback") else None
+        out, path = await review(model, fallback, spec, Evidence.load(spec, ctx.data_dir), f,
+                                 [SpendCallback(ctx.spend, "skeptic", spec.control_id)],
+                                 payload.get("facts"), evidence_date(ctx.data_dir))
+        v = {"finding_id": f.finding_id, **out.model_dump(), "answered_by": path,
+             "reviewer": f"skeptic:{getattr(model, 'model_name', type(model).__name__)}", "round": payload["round"]}
     except Exception as e:              # noqa: BLE001 - a failed review leaves the finding unresolved
         v = {"finding_id": f.finding_id, "decision": "error", "reason": f"{type(e).__name__}: {str(e)[:200]}",
              "checks_failed": [], "reviewer": "skeptic", "round": payload["round"]}
@@ -436,7 +446,8 @@ def route_after_skeptic(state: AuditState) -> dict:
             continue
         v = state.get("verdicts", {}).get(f"{fid}#r{rnd}")
         decision = v["decision"] if v else "error"
-        step = ReasoningStep(kind="llm", text=f"skeptic round {rnd}: {decision} — {(v or {}).get('reason', 'no verdict')}"[:300])
+        how = " (fallback call, no reasoning)" if (v or {}).get("answered_by") == "fallback" else ""
+        step = ReasoningStep(kind="llm", text=f"skeptic round {rnd}: {decision}{how} — {(v or {}).get('reason', 'no verdict')}"[:300])
         new = dict(f, reasoning=f["reasoning"] + [step.model_dump()])
         if decision == "keep":
             new["status"] = "kept"
@@ -470,6 +481,7 @@ def after_route(state: AuditState) -> list[Send] | str:
                                       "prior_drafts": drafts, "prior_result": prior,
                                       "candidates": [c for c in prior.get("candidates", [])],
                                       "tested": prior.get("tested_counts", {}), "samples": prior.get("samples", {}),
+                                      "sample_facts": prior.get("sample_facts", {}),
                                       "notes": prior.get("notes", [])}))
     return sends
 

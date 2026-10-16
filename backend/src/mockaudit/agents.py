@@ -11,6 +11,7 @@ from pathlib import Path
 import yaml
 from langchain.agents import create_agent
 from langchain.agents.structured_output import ToolStrategy
+from langchain_core.runnables import RunnableLambda
 from langchain_core.tools import StructuredTool
 
 from mockaudit.evidence import Evidence
@@ -78,11 +79,15 @@ Then return TesterOutput."""
 
 
 def tester_message(spec: ControlSpec, candidates: list[Candidate], samples: dict[str, list[str]],
-                   notes: list[str], revise: dict[str, dict] | None) -> str:
+                   notes: list[str], revise: dict[str, dict] | None, facts: dict | None = None,
+                   evidence=None) -> str:
     steps = {s.id: s.description for s in spec.test_recipe}
-    judgment = [{"test_step": sid, "requirement": steps[sid], "source": spec_step_source(spec, sid), "items": ids}
+    judgment = [{"test_step": sid, "requirement": steps[sid], "source": spec_step_source(spec, sid), "items": ids,
+                 **({"date_facts": facts[sid]} if facts and sid in facts else {})}
                 for sid, ids in samples.items()]
-    parts = [f"Recipe steps: {json.dumps(steps)}",
+    parts = [(f"Evidence collected: {evidence or 'unknown'}. Any date_facts below were computed by code from the "
+             "records; rely on them and do not recount days."),
+             f"Recipe steps: {json.dumps(steps)}",
              "CANDIDATES_JSON:\n" + json.dumps([c.model_dump() for c in candidates], indent=1),
              "JUDGMENT_STEPS_JSON:\n" + json.dumps(judgment, indent=1)]
     if notes:
@@ -132,23 +137,44 @@ def reasoning_from_messages(messages) -> list[ReasoningStep]:
 # ---------- skeptic ----------
 
 SKEPTIC_PROMPT = """You are the audit senior reviewing one draft finding for control {cid}: "{desc}".
-Period {p0} to {p1}. Counts and severity were computed by code; don't question arithmetic.
+Period {p0} to {p1}. Evidence was collected on {evidence}. Counts, severity and any date_facts were computed by code
+from the records; treat them as correct and don't recount days.
 Check: do the cited records actually show the condition? Is it inside the period? Is there an innocent, documented
 explanation in the records or the policy? Return keep, revise (a fixable problem; say exactly what) or reject."""
 
 
-async def skeptic_one(model, spec: ControlSpec, ev: Evidence, finding: Finding, callbacks) -> SkepticOutput:
+class NoAnswer(ValueError):
+    """The skeptic model returned no usable structured answer (e.g. it spent its budget reasoning)."""
+
+
+def _answer(path: str):
+    def ensure(out: dict) -> dict:
+        if out.get("parsed") is None:
+            raise NoAnswer(f"no structured answer from the {path} skeptic call: {out.get('parsing_error')}")
+        return {**out, "path": path}
+    return RunnableLambda(ensure)
+
+
+async def skeptic_one(model, fallback, spec: ControlSpec, ev: Evidence, finding: Finding, callbacks,
+                      facts: dict | None = None, evidence=None) -> tuple[SkepticOutput, str]:
+    """One structured review. If the reasoning call gives no answer, a non-reasoning fallback call answers."""
     cited = [{"source": c.source, "record_id": c.record_id,
-              "record": {k: v for k, v in (ev.get(c.source, c.record_id) or {}).items() if k != "file"}}
+              "record": {k: v for k, v in (ev.get(c.source, c.record_id) or {}).items() if k != "file"},
+              **({"date_facts": facts[c.record_id]} if facts and c.record_id in facts else {})}
              for c in finding.citations[:20]]
     policies = {s.name: ev.data[s.name] for s in spec.evidence if s.role == "policy"}
     p0, p1 = spec.period
-    s = model.with_structured_output(SkepticOutput, method="function_calling", include_raw=True)
-    out = await s.ainvoke(
-        [{"role": "system", "content": SKEPTIC_PROMPT.format(cid=spec.control_id, desc=spec.description, p0=p0, p1=p1)},
+
+    def structured(m, path):
+        return m.with_structured_output(SkepticOutput, method="function_calling", include_raw=True) | _answer(path)
+
+    chain = structured(model, "primary")
+    if fallback is not None:
+        chain = chain.with_fallbacks([structured(fallback, "fallback")], exceptions_to_handle=(NoAnswer,))
+    out = await chain.ainvoke(
+        [{"role": "system", "content": SKEPTIC_PROMPT.format(cid=spec.control_id, desc=spec.description, p0=p0, p1=p1,
+                                                             evidence=evidence or "an unknown date")},
          {"role": "user", "content": json.dumps({"finding": finding.model_dump(exclude={"reasoning"}),
                                                  "cited_records": cited, "policies": policies}, default=str)}],
         config={"callbacks": callbacks, "run_name": f"skeptic_one:{finding.finding_id}"})
-    if out.get("parsed") is None:
-        raise ValueError(f"skeptic output did not parse: {out.get('parsing_error')}")
-    return out["parsed"]
+    return out["parsed"], out["path"]

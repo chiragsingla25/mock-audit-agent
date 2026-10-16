@@ -4,6 +4,7 @@ dataset:
   period:
   - '2025-10-01'
   - '2026-09-30'
+  evidence_collected: '2026-10-30'
 gaps:
 - id: G1
   control_id: C2

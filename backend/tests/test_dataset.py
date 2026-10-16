@@ -393,3 +393,15 @@ def test_c10_new_hire_step_is_scoped_to_employees(data_root):
     step = next(s for s in c10.test_recipe if s.id == "new_hire")
     assert step.params["where"]["worker_type"] == "employee"
     assert "Contractors" in (data_root / "base" / "policies/security_training.md").read_text()
+
+
+
+def test_evidence_collected_date_is_after_every_signoff_deadline(ds):
+    """G3 must be provably late: the evidence pack is dated after every review's 10-business-day sign-off deadline."""
+    from mockaudit.checks import add_business_days
+    collected = date.fromisoformat(yaml.safe_load((ds / "dataset.yaml").read_text())["evidence_collected"])
+    assert key(ds)["dataset"]["evidence_collected"] == collected.isoformat()
+    for p in (ds / "artifacts/access_reviews").glob("*.md"):
+        text = p.read_text()
+        assert artifact_field(text, "Evidence collected") == collected.isoformat()
+        assert collected > add_business_days(date.fromisoformat(artifact_field(text, "Quarter end")), 10)

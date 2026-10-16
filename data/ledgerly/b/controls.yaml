@@ -54,7 +54,7 @@
     - {id: occurrence, description: A user access review exists for each quarter in the period,
        check: periodic_occurrence, params: {source: user_access_reviews, prefix: UAR, every: quarter}, judge: none, gap_type: frequency_gap}
     - {id: signoff, description: Each review is signed by the reviewer within 10 business days of quarter end,
-       check: null, params: {source: user_access_reviews, prefix: UAR}, judge: llm, gap_type: missing_evidence}
+       check: null, params: {source: user_access_reviews, prefix: UAR, signoff_due_business_days: 10}, judge: llm, gap_type: missing_evidence}
 
 - control_id: C4
   description: MFA is enforced for all users
@@ -90,7 +90,7 @@
     - {id: completeness, description: Every AWS admin that existed at the review date is on that quarter's reviewed list,
        check: set_mismatch, params: {left: aws_iam_admins, left_key: principal_id, left_created: created_utc, right: privileged_access_reviews, prefix: PAR, as_of: Review date}, judge: llm, gap_type: population_completeness}
     - {id: signoff, description: Each review is signed within 10 business days of quarter end,
-       check: null, params: {source: privileged_access_reviews, prefix: PAR}, judge: llm, gap_type: missing_evidence}
+       check: null, params: {source: privileged_access_reviews, prefix: PAR, signoff_due_business_days: 10}, judge: llm, gap_type: missing_evidence}
 
 - control_id: C6
   description: Production changes are approved by someone other than the author

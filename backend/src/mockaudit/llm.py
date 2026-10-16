@@ -13,10 +13,13 @@ from langchain_core.callbacks import BaseCallbackHandler
 # Use effort "none": the OpenRouter SDK drops {"enabled": False} (spec Deviations, phase 0).
 REASONING = {"effort": "low"}
 REASONING_OVERRIDE = {"qwen/qwen3.8-flash": {"effort": "none"}}
-SKEPTIC_MAX_TOKENS = 12000
-# Skeptic: minimal effort so its answer has room. At "low", DeepSeek once spent all 6,000 tokens reasoning over C6.
-# A reasoning token budget (reasoning.max_tokens) isn't possible: the SDK's chat request only sends effort/summary.
+SKEPTIC_MAX_TOKENS = 6000
+# Skeptic: minimal effort. `effort` doesn't bound DeepSeek on every finding (C6 once used all 12,000 tokens at
+# minimal), and a reasoning token budget can't be sent (the SDK's chat request only has effort/summary). So a
+# non-reasoning fallback call answers whenever the first call gives no answer (spec Deviations, phase 4).
 SKEPTIC_REASONING = {"effort": "minimal"}
+SKEPTIC_FALLBACK = {"effort": "none"}
+SKEPTIC_FALLBACK_MAX_TOKENS = 2000
 
 
 class SpendCapExceeded(RuntimeError):
@@ -107,3 +110,6 @@ class OpenRouterModels:
 
     def skeptic(self):
         return self._make(self.skeptic_name, SKEPTIC_MAX_TOKENS, SKEPTIC_REASONING)
+
+    def skeptic_fallback(self):
+        return self._make(self.skeptic_name, SKEPTIC_FALLBACK_MAX_TOKENS, SKEPTIC_FALLBACK)

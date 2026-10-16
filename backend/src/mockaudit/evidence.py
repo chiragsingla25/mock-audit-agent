@@ -112,3 +112,13 @@ def _json_ids(obj: Any, field: str) -> list[str]:
     if isinstance(obj, list):
         return [i for v in obj for i in _json_ids(v, field)]
     return []
+
+
+def evidence_date(data_dir: Path) -> date | None:
+    """When the evidence pack was collected (dataset.yaml); deadlines before it have passed."""
+    p = Path(data_dir) / "dataset.yaml"
+    if not p.exists():
+        return None
+    import yaml
+    raw = yaml.safe_load(p.read_text()).get("evidence_collected")
+    return date.fromisoformat(str(raw)) if raw else None

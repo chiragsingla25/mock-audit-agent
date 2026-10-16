@@ -292,3 +292,19 @@ def test_date_in_period_edges():
 ])
 def test_severity_rules(args, expected):
     assert severity(*args) == expected
+
+
+
+# ---------- signoff_facts: code computes the sign-off deadline (10 business days after quarter end) ----------
+
+def test_signoff_facts_edges():
+    from mockaudit.checks import signoff_facts
+    q3 = {"Quarter end": "2026-09-30"}                                  # due 2026-10-14 (10 business days)
+    collected = date(2026, 10, 30)
+    on_day_10 = signoff_facts({**q3, "Signed": "2026-10-14"}, 10, collected)
+    assert on_day_10["signoff_due"] == "2026-10-14" and on_day_10["signed_on_time"] is True
+    assert signoff_facts({**q3, "Signed": "2026-10-15"}, 10, collected)["signed_on_time"] is False
+    unsigned = signoff_facts({**q3, "Signed": "(not signed)"}, 10, collected)
+    assert unsigned["signed"] == "not signed" and unsigned["deadline_passed"] is True and unsigned["signed_on_time"] is False
+    early = signoff_facts({**q3, "Signed": "(not signed)"}, 10, date(2026, 10, 10))   # deadline not reached yet
+    assert early["deadline_passed"] is False and early["signed_on_time"] is None

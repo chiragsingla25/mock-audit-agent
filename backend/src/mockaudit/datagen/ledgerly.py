@@ -24,6 +24,7 @@ from mockaudit.specs import load_controls
 
 SYD = ZoneInfo("Australia/Sydney")   # HR and LMS export in local time
 P0, P1 = PERIOD
+EVIDENCE_COLLECTED = date(2026, 10, 30)   # after every Q3 sign-off deadline (≤ 2026-10-14)
 CONTROLS_YAML = Path(__file__).with_name("controls.yaml")
 ALL_GAPS = [f"G{i}" for i in range(1, 11)]
 JUDGMENT_GAPS = {"G3", "G10"}
@@ -368,6 +369,7 @@ class Ledgerly:
             self.files[f"artifacts/access_reviews/UAR-{q}.md"] = (
                 f"# User Access Review {q}\nID: UAR-{q}\nSystem: Okta (all active users)\n"
                 f"Quarter end: {qend.isoformat()}\nReview performed: {performed.isoformat()}\n"
+                f"Evidence collected: {EVIDENCE_COLLECTED.isoformat()}\n"
                 f"Population reviewed: {len(active)} active users\n\n"
                 f"| User | Department | Decision | Note |\n|---|---|---|---|\n{rows}\n\n{sign}\n")
             if unsigned:
@@ -385,7 +387,8 @@ class Ledgerly:
             psigned = add_business_days(performed, rng.randint(0, 2))
             self.files[f"artifacts/access_reviews/PAR-{q}.md"] = (
                 f"# Privileged Access Review {q}\nID: PAR-{q}\nSystem: AWS IAM principals with AdministratorAccess\n"
-                f"Quarter end: {qend.isoformat()}\nReview date: {performed.isoformat()}\n\n"
+                f"Quarter end: {qend.isoformat()}\nReview date: {performed.isoformat()}\n"
+                f"Evidence collected: {EVIDENCE_COLLECTED.isoformat()}\n\n"
                 f"| Principal | Name | Decision |\n|---|---|---|\n{rows}\n\n"
                 f"Reviewer: Elena Petrov, Head of Platform\nSigned: {psigned.isoformat()}\n")
             if omitted is not None:
@@ -726,9 +729,13 @@ class Ledgerly:
         for name, text in POLICIES.items():
             self.files[f"policies/{name}"] = text
         self.files["answers.yaml"] = yaml_text({"owner_answers": self.answers})
+        self.files["dataset.yaml"] = yaml_text({"company": "Ledgerly", "variant": self.variant, "seed": self.seed,
+                                                "period": [P0.isoformat(), P1.isoformat()],
+                                                "evidence_collected": EVIDENCE_COLLECTED.isoformat()})
         gapped = {g["control_id"] for g in self.gaps}
         self.files["answer_key.yaml"] = yaml_text({
-            "dataset": {"variant": self.variant, "seed": self.seed, "period": [P0.isoformat(), P1.isoformat()]},
+            "dataset": {"variant": self.variant, "seed": self.seed, "period": [P0.isoformat(), P1.isoformat()],
+                        "evidence_collected": EVIDENCE_COLLECTED.isoformat()},
             "gaps": sorted(self.gaps, key=lambda g: int(g["id"][1:])),
             "not_planted": [g for g in ALL_GAPS if g not in self.planted],
             "traps": self.traps,

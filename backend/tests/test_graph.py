@@ -298,3 +298,39 @@ async def test_report_never_shows_a_bare_pass(full_run):
     _, run_dir, _ = full_run
     md = (run_dir / "report.md").read_text()
     assert "| pass |" not in md and "no exceptions found" in md
+
+
+
+# ---------- G3 evidence date and C6 skeptic fallback (phase 4 follow-up) ----------
+
+async def test_tester_and_skeptic_get_code_computed_signoff_facts(full_run, data_root, key):
+    _, run_dir, models = full_run
+    c3 = results(run_dir)["C3"]
+    facts = c3.sample_facts["signoff"]["UAR-2026Q3"]
+    assert facts == {"quarter_end": "2026-09-30", "signoff_due": "2026-10-14", "signed": "not signed",
+                     "evidence_collected": "2026-10-30", "deadline_passed": True, "signed_on_time": False}
+    msg = models.tester_script.messages["C3"]
+    assert "Evidence collected: 2026-10-30" in msg and '"signoff_due": "2026-10-14"' in msg
+    payload = next(p for p in models.skeptic_script.payloads if p["finding"]["finding_id"] == "C3-signoff")
+    cited = next(c for c in payload["cited_records"] if c["record_id"] == "UAR-2026Q3")
+    assert cited["date_facts"]["deadline_passed"] is True
+
+
+async def test_skeptic_with_no_answer_falls_back_to_a_non_reasoning_call(tmp_path, data_root, key):
+    silent = SkepticScript(silent={"C8-weekly_scan"})
+    models = StubModels(good_tester(key), silent, fallback=SkepticScript())
+    _, run_dir = await run(tmp_path, data_root, "fallback", models, controls=["C8"])
+    f = next(f for f in results(run_dir)["C8"].findings if f.finding_id == "C8-weekly_scan")
+    assert f.status == "kept" and any("(fallback call, no reasoning)" in s.text for s in f.reasoning)
+    verdicts = json.loads((run_dir / "verdicts.json").read_text())
+    assert verdicts["C8-weekly_scan#r0"]["answered_by"] == "fallback"
+    assert verdicts["C8-critical_sla#r0"]["answered_by"] == "primary"
+    assert models.log.count("stub-skeptic-fallback") == 1
+
+
+async def test_skeptic_unresolved_only_when_the_fallback_also_fails(tmp_path, data_root, key):
+    models = StubModels(good_tester(key), SkepticScript(silent={"C8-weekly_scan"}),
+                        fallback=SkepticScript(silent={"C8-weekly_scan"}))
+    _, run_dir = await run(tmp_path, data_root, "fallback2", models, controls=["C8"])
+    f = next(f for f in results(run_dir)["C8"].findings if f.finding_id == "C8-weekly_scan")
+    assert f.status == "unresolved"

@@ -66,6 +66,7 @@ class TesterScript:
         self.invalid_first, self.always_invalid = invalid_first, set(always_invalid)
         self.fail_on_revise, self.dismiss_on_revise = fail_on_revise, dismiss_on_revise
         self.bogus_cites, self.transient_once, self.raised_transient = set(bogus_cites), set(transient_once), set()
+        self.messages: dict[str, str] = {}             # control id → the human message it was given
 
     def __call__(self, messages) -> AIMessage:
         system = next(m.content for m in messages if isinstance(m, SystemMessage))
@@ -76,6 +77,7 @@ class TesterScript:
             self.raised_transient.add(cid)
             raise TooManyRequestsResponseError("429 upstream rate limit (stub)")
         human = next(m.content for m in messages if isinstance(m, HumanMessage))
+        self.messages.setdefault(cid, human)
         cands = _block(human, "CANDIDATES_JSON") or []
         judgment = _block(human, "JUDGMENT_STEPS_JSON") or []
         revise = _block(human, "REVISE_JSON")
@@ -122,13 +124,18 @@ class TesterScript:
 class SkepticScript:
     """decide(finding_id, round) -> keep | revise | reject."""
 
-    def __init__(self, decide: Callable[[str, int], str] | None = None):
+    def __init__(self, decide: Callable[[str, int], str] | None = None, silent=()):
         self.decide = decide or (lambda fid, rnd: "keep")
+        self.silent = set(silent)                     # finding ids for which the model never answers
         self.seen: dict[str, int] = {}
+        self.payloads: list[dict] = []
 
     def __call__(self, messages) -> AIMessage:
         payload = json.loads(next(m.content for m in messages if isinstance(m, HumanMessage)))
+        self.payloads.append(payload)
         fid = payload["finding"]["finding_id"]
+        if fid in self.silent:
+            return AIMessage(content="still reasoning about it...")
         rnd = self.seen.get(fid, 0)
         self.seen[fid] = rnd + 1
         return _call("SkepticOutput", {"decision": self.decide(fid, rnd), "reason": f"stub verdict r{rnd}", "checks_failed": []})
@@ -136,9 +143,10 @@ class SkepticScript:
 
 class StubModels:
     def __init__(self, tester: TesterScript | None = None, skeptic: SkepticScript | None = None,
-                 cost: float = 0.0, slow: dict | None = None):
+                 cost: float = 0.0, slow: dict | None = None, fallback: SkepticScript | None = None):
         self.tester_script = tester or TesterScript()
         self.skeptic_script = skeptic or SkepticScript()
+        self.fallback_script = fallback or SkepticScript()
         self.cost, self.slow = cost, slow or {}
         self.log: list[str] = []
 
@@ -152,6 +160,9 @@ class StubModels:
 
     def skeptic(self):
         return StubChat(respond=self.skeptic_script, cost=self.cost, log=self.log, model_name="stub-skeptic")
+
+    def skeptic_fallback(self):
+        return StubChat(respond=self.fallback_script, cost=self.cost, log=self.log, model_name="stub-skeptic-fallback")
 
 
 class _Slow(StubChat):

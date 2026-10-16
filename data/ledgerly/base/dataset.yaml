@@ -1,0 +1,7 @@
+company: Ledgerly
+variant: base
+seed: 7
+period:
+- '2025-10-01'
+- '2026-09-30'
+evidence_collected: '2026-10-30'
