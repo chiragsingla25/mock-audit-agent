@@ -266,7 +266,7 @@ async def tester(state: ControlState, runtime: Runtime[AuditContext]) -> dict:
     out, msgs, retries = await run_tester(model, spec, make_tools(spec, ev, ctx.data_dir, owner_log), message,
                                           [SpendCallback(ctx.spend, "tester", spec.control_id)])
     if out is None:
-        raise ValueError("tester returned no structured output")
+        raise TesterNoAnswer("tester ended without calling TesterOutput")
     steps = [ReasoningStep(kind="check", text=f"{c.test_step}: {c.detail}") for c in cands[:10]] + reasoning_from_messages(msgs)
     findings, dismissals = tester_findings(spec, out, cands, state.get("tested", {}), samples, revise, steps)
     shown = sorted({c.test_step for c in cands} | set(samples))
@@ -334,9 +334,14 @@ TRANSIENT = {"TooManyRequestsResponseError", "InternalServerResponseError", "Ser
              "BadGatewayResponseError", "GatewayTimeoutResponseError", "ConnectError", "ReadTimeout", "RemoteProtocolError"}
 
 
+class TesterNoAnswer(ValueError):
+    """The tester's tool loop ended without a structured answer."""
+
+
 def is_transient(exc: Exception) -> bool:
-    """Provider rate limits and network blips are retried; schema failures and the spend cap are not."""
-    return type(exc).__name__ in TRANSIENT
+    """Retried once: provider rate limits, network blips, and a tester that ended without its structured answer.
+    Not retried: schema failures (already retried once inside the agent) and the spend cap."""
+    return type(exc).__name__ in TRANSIENT or isinstance(exc, TesterNoAnswer)
 
 
 def build_control_graph():

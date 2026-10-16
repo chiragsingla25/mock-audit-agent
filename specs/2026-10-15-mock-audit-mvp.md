@@ -237,3 +237,19 @@ Golden answer key with code-scored metrics (proposal §7), unit tests per criter
 - [phase 4] The skeptic added no precision on this data, and cost one true positive. In base run 2 it sent C3-signoff (G3) for revision, arguing the Q3 review might still be inside its 10-business-day window (deadline 2026-10-14). The tester then dropped it, so recall fell to 9/10 (the skeptic-off view keeps 10/10). This is also the first real revise round on base (criterion 3) — **dataset gap, open for Chirag:** no artifact states when the evidence was collected, so the skeptic's objection is defensible.
 - [phase 4] The C6 skeptic ran away again at `effort: minimal`: 12,000 reasoning tokens and no answer, in 1 of 4 base-family runs (other runs used 714–3,821) — `effort` doesn't bound DeepSeek on this finding — **open for Chirag.**
 - [phase 4] Builder bug in my own default: the skeptic-off view excluded findings dropped after a skeptic-requested revision, which hid exactly the harm it measures. It now counts them. `mockaudit eval --rescore <eval_id>` rebuilds an evaluation from runs on disk with no LLM calls, and the real evaluation was re-scored that way.
+- [phase 4 follow-up] RULING (Chirag 2026-10-16) on the two open items — fix both:
+  - **G3:** the dataset now records evidence collected 2026-10-30 (`dataset.yaml`, the answer key and the review artifact headers), after every Q3 sign-off deadline. Code computes each sampled review's sign-off facts (quarter end, due date at 10 business days, signed date, `deadline_passed`, `signed_on_time`) and gives them to the tester and skeptic, so neither LLM counts business days.
+  - **C6:** the skeptic call is `with_fallbacks([effort: none call])`, triggered when the `minimal` call (now capped at 6,000 tokens) returns no answer. The verdict records `answered_by`.
+  - **Verified:** 3 real C3+C6 runs; G3 kept and C6 answered 3/3 (561–2,835 reasoning tokens).
+- [phase 4 follow-up] A fresh eval (`eval-20261016T112051Z`) exposed a builder bug: revising a code-only (`judge: none`) finding sent the tester no items, so the finding was then marked "tester dismissed". G7 was lost this way in 3 of 5 runs. The skeptic's complaint was fair too: code conditions named only the first missing week — fixed:
+  - revised steps pass all their items to the tester;
+  - a revised finding is `dismissed` only if the tester saw its items, otherwise `unresolved`;
+  - code conditions list every failing item.
+- [phase 4 follow-up] Final Milestone 1 eval `eval-20261016T114336Z`: every target met.
+  - **Base:** 10/10 recall and precision in all 3 runs.
+  - **Stability:** 100%.
+  - **Variant b:** 7/7.
+  - **Variant a:** 6/7. G1 was missed because the C2 tester ended its loop without calling `TesterOutput`, so the control errored, correctly isolated and reported.
+  - **Cost:** US$0.030 per audit; eval total US$0.15 of the US$2 cap. Project spend is US$0.55 of US$10.
+  - **Skeptic fallback:** answered 11 of about 55 skeptic calls (the `minimal` call hit its 6,000-token cap). All were keeps, and the cost stays bounded.
+- [phase 4 follow-up] A tester that ends without `TesterOutput` now raises `TesterNoAnswer`, which the tester node's `RetryPolicy` retries once (as with schema failures) — reliability fix — stub-tested. It's not re-verified with another paid eval; the variant a miss above predates it.

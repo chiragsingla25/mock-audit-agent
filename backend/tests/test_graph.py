@@ -357,3 +357,11 @@ def test_code_finding_condition_lists_every_failing_item(data_root):
     f = findings_from_candidates(spec, "weekly_scan", weekly, cc.tested["weekly_scan"])
     for week in ["2026-W32", "2026-W33", "2026-W34"]:
         assert f"occurrence for {week}" in f.condition
+
+
+
+async def test_tester_ending_without_structured_output_is_retried_once(tmp_path, data_root, key):
+    tester = good_tester(key)
+    tester.no_answer_once = {"C2"}
+    _, run_dir = await run(tmp_path, data_root, "noanswer", StubModels(tester), controls=["C2"])
+    assert tester.gave_no_answer == {"C2"} and results(run_dir)["C2"].status == "exceptions"

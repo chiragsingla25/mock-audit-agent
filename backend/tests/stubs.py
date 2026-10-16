@@ -61,12 +61,13 @@ class TesterScript:
     """Raises every candidate except `dismiss` record ids; flags judgment items in `flag`."""
 
     def __init__(self, dismiss=(), flag=(), fail=(), slow=(), invalid_first=False, always_invalid=(),
-                 fail_on_revise=False, dismiss_on_revise=False, bogus_cites=(), transient_once=()):
+                 fail_on_revise=False, dismiss_on_revise=False, bogus_cites=(), transient_once=(), no_answer_once=()):
         self.dismiss, self.flag, self.fail, self.slow = set(dismiss), set(flag), set(fail), set(slow)
         self.invalid_first, self.always_invalid = invalid_first, set(always_invalid)
         self.fail_on_revise, self.dismiss_on_revise = fail_on_revise, dismiss_on_revise
         self.bogus_cites, self.transient_once, self.raised_transient = set(bogus_cites), set(transient_once), set()
         self.messages: dict[str, str] = {}             # control id → the human message it was given
+        self.no_answer_once, self.gave_no_answer = set(no_answer_once), set()
 
     def __call__(self, messages) -> AIMessage:
         system = next(m.content for m in messages if isinstance(m, SystemMessage))
@@ -89,6 +90,9 @@ class TesterScript:
                 c = cands[0]["citations"][0]
                 return _call("get_record", {"source": c["source"], "record_id": c["record_id"]})
             return _call("read_policy", {"name": "x"})
+        if cid in self.no_answer_once and cid not in self.gave_no_answer:
+            self.gave_no_answer.add(cid)
+            return AIMessage(content="Done reviewing; the exceptions look real.")    # ends the loop with no TesterOutput
         retries = [t for t in tools if "failed validation" in str(t.content)]
         if cid in self.always_invalid or (self.invalid_first and not retries):
             return _call("TesterOutput", {"decisions": [{"candidate_id": "x", "decision": "raise", "reason": "r",
