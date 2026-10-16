@@ -15,7 +15,7 @@
     - {name: access_control, path: policies/access_control.md, role: policy}
   test_recipe:
     - {id: approval, description: Each access grant has an approval timestamp at or before the grant,
-       check: approval_before_grant, params: {source: access_requests, approved: approved_utc, granted: granted_utc}, judge: llm}
+       check: approval_before_grant, params: {source: access_requests, approved: approved_utc, granted: granted_utc}, judge: llm, gap_type: operating}
 
 - control_id: C2
   description: Terminated users lose access within 24 hours
@@ -32,9 +32,11 @@
     - {name: access_control, path: policies/access_control.md, role: policy}
   test_recipe:
     - {id: completeness, description: Every HR termination with an Okta account appears in the deprovisioning population,
-       check: population_diff, params: {left: hr_roster, right: okta_events, key: email, events: [user.lifecycle.suspend, user.lifecycle.deactivate]}, judge: llm}
+       check: population_diff, params: {left: hr_roster, left_where: {terminated_in_period: true}, left_key: email,
+               right: okta_events, right_where: {event_type: [user.lifecycle.suspend, user.lifecycle.deactivate]}, right_key: target_login,
+               require_in: {source: okta_users, key: login}}, judge: llm, gap_type: population_completeness}
     - {id: timeliness, description: First suspend or deactivate event within 24 clock hours of termination,
-       check: revocation_delay, params: {max_hours: 24, events: [user.lifecycle.suspend, user.lifecycle.deactivate]}, judge: llm}
+       check: revocation_delay, params: {hr: hr_roster, accounts: okta_users, events_source: okta_events, max_hours: 24, events: [user.lifecycle.suspend, user.lifecycle.deactivate]}, judge: llm, gap_type: operating}
 
 - control_id: C3
   description: User access is reviewed quarterly with reviewer sign-off
@@ -50,9 +52,9 @@
     - {name: access_control, path: policies/access_control.md, role: policy}
   test_recipe:
     - {id: occurrence, description: A user access review exists for each quarter in the period,
-       check: periodic_occurrence, params: {source: user_access_reviews, prefix: UAR, every: quarter}, judge: none}
+       check: periodic_occurrence, params: {source: user_access_reviews, prefix: UAR, every: quarter}, judge: none, gap_type: frequency_gap}
     - {id: signoff, description: Each review is signed by the reviewer within 10 business days of quarter end,
-       check: null, judge: llm}
+       check: null, judge: llm, gap_type: missing_evidence}
 
 - control_id: C4
   description: MFA is enforced for all users
@@ -68,7 +70,7 @@
     - {name: access_control, path: policies/access_control.md, role: policy}
   test_recipe:
     - {id: coverage, description: An active MFA rule requiring a second factor covers every Okta group,
-       check: config_assert, params: {policy: okta_mfa_policy, groups: okta_groups, require: factor_required}, judge: none}
+       check: config_assert, params: {policy: okta_mfa_policy, groups: okta_groups, require: factor_required}, judge: none, gap_type: design}
 
 - control_id: C5
   description: Privileged access is reviewed quarterly
@@ -84,11 +86,11 @@
     - {name: access_control, path: policies/access_control.md, role: policy}
   test_recipe:
     - {id: occurrence, description: A privileged access review exists for each quarter in the period,
-       check: periodic_occurrence, params: {source: privileged_access_reviews, prefix: PAR, every: quarter}, judge: none}
+       check: periodic_occurrence, params: {source: privileged_access_reviews, prefix: PAR, every: quarter}, judge: none, gap_type: frequency_gap}
     - {id: completeness, description: Every AWS admin that existed at the review date is on that quarter's reviewed list,
-       check: set_mismatch, params: {left: aws_iam_admins, right: privileged_access_reviews, as_of: review_date}, judge: llm}
+       check: set_mismatch, params: {left: aws_iam_admins, left_key: principal_id, left_created: created_utc, right: privileged_access_reviews, prefix: PAR, as_of: Review date}, judge: llm, gap_type: population_completeness}
     - {id: signoff, description: Each review is signed within 10 business days of quarter end,
-       check: null, judge: llm}
+       check: null, judge: llm, gap_type: missing_evidence}
 
 - control_id: C6
   description: Production changes are approved by someone other than the author
@@ -103,7 +105,7 @@
     - {name: change_management, path: policies/change_management.md, role: policy}
   test_recipe:
     - {id: segregation, description: Every PR merged to main has at least one approver who is not the author,
-       check: author_ne_approver, params: {source: github_prs, author: author, approvers: approvers}, judge: llm}
+       check: author_ne_approver, params: {source: github_prs, author: author, approvers: approvers}, judge: llm, gap_type: segregation_of_duties}
 
 - control_id: C7
   description: Emergency changes are approved retroactively within 2 business days
@@ -119,9 +121,10 @@
     - {name: change_management, path: policies/change_management.md, role: policy}
   test_recipe:
     - {id: ticketed, description: Every emergency deploy links an emergency change ticket,
-       check: unticketed_deploys, params: {source: deploys, where: {change_type: emergency}, link: ticket}, judge: llm}
+       check: unticketed_deploys, params: {source: deploys, where: {change_type: emergency}, link: ticket, tickets: jira_tickets}, judge: llm, gap_type: population_completeness}
     - {id: retro_approval, description: Each emergency change ticket is approved within 2 business days of the deploy,
-       check: sla_days, params: {start: deploys.deployed_utc, end: jira_tickets.approved_utc, days: 2, business: true}, judge: llm}
+       check: sla_days, params: {source: deploys, where: {change_type: emergency}, start: deployed_utc,
+               join: {source: jira_tickets, link_field: ticket, key: key}, end: approved_utc, days: 2, business: true}, judge: llm, gap_type: operating}
 
 - control_id: C8
   description: Vulnerability scans run weekly and critical findings are fixed within 30 days
@@ -138,9 +141,9 @@
     - {name: vulnerability_management, path: policies/vulnerability_management.md, role: policy}
   test_recipe:
     - {id: weekly_scan, description: Each ISO week in the period has at least one completed scan,
-       check: periodic_occurrence, params: {source: scanner_runs, date: started_utc, every: iso_week}, judge: none}
+       check: periodic_occurrence, params: {source: scanner_runs, date: started_utc, where: {status: completed}, every: iso_week}, judge: none, gap_type: frequency_gap}
     - {id: critical_sla, description: Critical vulnerabilities are closed within 30 calendar days of being opened,
-       check: sla_days, params: {source: vulnerabilities, where: {severity: critical}, start: opened_utc, end: closed_utc, days: 30, business: false}, judge: llm}
+       check: sla_days, params: {source: vulnerabilities, where: {severity: critical}, start: opened_utc, end: closed_utc, days: 30, business: false}, judge: llm, gap_type: sla_breach}
 
 - control_id: C9
   description: Security incidents are logged and get a post-incident review
@@ -156,7 +159,7 @@
     - {name: incident_response, path: policies/incident_response.md, role: policy}
   test_recipe:
     - {id: pir, description: Every Incident ticket links a post-incident review document,
-       check: required_link, params: {source: jira_tickets, where: {issue_type: Incident}, link: linked_doc, target: post_incident_reviews}, judge: llm}
+       check: required_link, params: {source: jira_tickets, where: {issue_type: Incident}, link: linked_doc, target: post_incident_reviews}, judge: llm, gap_type: missing_evidence}
 
 - control_id: C10
   description: Security training is completed within 30 days of hire and annually
@@ -172,9 +175,11 @@
     - {name: security_training, path: policies/security_training.md, role: policy}
   test_recipe:
     - {id: new_hire, description: New hires complete new-hire security training within 30 days of their hire date,
-       check: days_after_event, params: {event: hr_roster.hire_local, done: lms_completions.completed_local, course: Security Awareness - New Hire, days: 30, where: {worker_type: employee}}, judge: llm}
+       check: days_after_event, params: {people: hr_roster, where: {worker_type: employee, hired_in_period: true}, event: hire_local,
+               done_source: lms_completions, done: completed_local, course: Security Awareness - New Hire, days: 30}, judge: llm, gap_type: operating}
     - {id: annual, description: Employees employed throughout the annual campaign complete the annual course in the period,
-       check: population_diff, params: {left: hr_roster, right: lms_completions, key: employee_id, course: Security Awareness - Annual 2026}, judge: none}
+       check: population_diff, params: {left: hr_roster, left_where: {worker_type: employee, employed_throughout: [2026-03-01, 2026-05-31]}, left_key: employee_id,
+               right: lms_completions, right_where: {course: Security Awareness - Annual 2026}, right_key: employee_id}, judge: none, gap_type: operating}
 
 - control_id: C11
   description: Critical vendors are risk-reviewed annually
@@ -189,7 +194,7 @@
     - {name: vendor_management, path: policies/vendor_management.md, role: policy}
   test_recipe:
     - {id: review_in_period, description: Each critical vendor has a risk review dated within the period,
-       check: date_in_period, params: {source: vendor_register, where: {criticality: critical}, date: last_risk_review_date}, judge: none}
+       check: date_in_period, params: {source: vendor_register, where: {criticality: critical}, date: last_risk_review_date}, judge: none, gap_type: missing_evidence}
 
 - control_id: C12
   description: Backup restore is tested annually
@@ -204,4 +209,4 @@
     - {name: backup_recovery, path: policies/backup_recovery.md, role: policy}
   test_recipe:
     - {id: restore_test, description: A restore test was performed and evidenced within the period,
-       check: null, judge: llm}
+       check: null, judge: llm, gap_type: evidence_out_of_period}

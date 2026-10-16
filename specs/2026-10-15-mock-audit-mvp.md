@@ -87,11 +87,27 @@ Verify: `uv run mockaudit gen --variant base && uv run pytest tests/test_dataset
 
 ### Phase 2: Checks and scoring
 Delivers the `CHECKS` registry (the checks the 12 recipes need), the 7 severity rules, the citation check, the scorer, and `run --checks-only`.
-- [ ] Each check has unit tests, including both edges of its threshold.
-- [ ] `run --checks-only` raises every candidate (check failures plus items missing from the population) with citations, and uses no LLM.
-- [ ] The scorer reports recall, precision, clean-control accuracy, citation validity and severity agreement against the answer key, matching on control id and ≥ 1 cited record id.
-- [ ] Checks-only on base finds every `code`-tagged gap and raises every trap (expected low precision).
-- [ ] Failure case: a citation to a nonexistent record id is dropped and logged by the citation check.
+- [x] Each check has unit tests, including both edges of its threshold.
+- [x] `run --checks-only` raises every candidate (check failures plus items missing from the population) with citations, and uses no LLM.
+- [x] The scorer reports recall, precision, clean-control accuracy, citation validity and severity agreement against the answer key, matching on control id and ≥ 1 cited record id.
+- [x] Checks-only on base finds every `code`-tagged gap and raises every trap (expected low precision).
+- [x] Failure case: a citation to a nonexistent record id is dropped and logged by the citation check.
+
+Clarified 2026-10-16 (Phase 2 clarify pass):
+- Scoring unit (ruled by Chirag): one finding per (control, test step), grouping that step's failed records. The tester produces the same shape. Matching is on control id + ≥ 1 cited record id. A separate metric, **traps raised**, counts traps whose record is cited in a kept finding, because a trap merged into a true finding (T1 into G1, T3 into G8) is otherwise invisible to precision. Expected on base checks-only: recall 8/10 (G3/G10 are judgment), precision about 8/10, clean-control accuracy 2/4 (T2 and T4 make C1/C9 look gapped), traps raised 4/4.
+- Defaults (builder, stated):
+  - Limits are inclusive: 24.0 h, 30 days and 2 business days all pass. Rule 4 is strict (> 10%).
+  - C2 measures elapsed UTC hours. C8 and C10 count calendar dates. C7 counts business days on UTC dates.
+  - A missing ISO week is one candidate that cites the nearest scans before and after it.
+  - Judgment-only steps are listed in coverage as `not_tested` in checks-only mode.
+- Metrics:
+  - **Recall:** gaps matched / planted gaps, with code-tagged recall shown separately.
+  - **Precision:** matching kept findings / kept findings.
+  - **Clean-control accuracy:** clean controls with no kept finding / clean controls.
+  - **Citation validity:** valid citations / all citations, counting the ones the citation check dropped.
+  - **Severity agreement:** matched pairs where the rule severity equals the key severity.
+  - **Traps raised:** as defined above.
+- Each recipe step declares its `gap_type` in controls.yaml, so a failed step maps to a finding type without an LLM.
 
 Verify: `uv run mockaudit run --checks-only --variant base && uv run mockaudit eval --run latest` → a metrics table is printed.
 
@@ -168,3 +184,8 @@ Golden answer key with code-scored metrics (proposal §7), unit tests per criter
   - **Check:** a seed sweep (1–60 × base/a/b, 180 datasets) passes every gap/trap query.
 - [phase 1 / review gate] C10 new-hire training is scoped to `worker_type: employee` (recipe `where` param and policy 2.1 text) — the review found 2 contractors per variant hired in the period with no new-hire course, which a literal C10 check would raise as 2 unlisted exceptions — builder decision, open for Chirag to overrule (the alternative is to plant contractor training rows).
 - [phase 1 → phase 2] The C8 30-day edge row is 30 days by calendar date but 30 d 6 h elapsed. Phase 2's `sla_days` must count calendar dates (policy 2.2), or it will flag that row.
+- [phase 2] Base checks-only result (`runs/checks-base-…`): recall 8/10 (code 8/8), precision 8/10, clean-control accuracy 2/4, citation validity 28/28, severity agreement 8/8, traps raised 4/4. Variants a and b: recall 6/7 each, precision 75% and 67%. b's extra miss is C2 timeliness, which only the T1 trap triggers.
+- [phase 2] Check params in controls.yaml were reshaped to what the checks read: `left_where`/`right_where`/`require_in` for `population_diff`, plus the `join` used by `sla_days`. Two named filters, `terminated_in_period` and `employed_throughout`, were added to the shared `where` matcher. C2 completeness now includes contractors, so the never-provisioned X3001 gets its note (handover §11) — recipe/data contract — datasets regenerated, and Phase 1 tests still pass.
+- [phase 2] YAML 1.1 parses a key named `on` as boolean `True`, which broke the first `sla_days` join (`KeyError: 'on'`) — library quirk — renamed to `link_field`. Avoid `on`/`yes`/`no` as keys in controls.yaml.
+- [phase 2] `TestStep.gap_type` (new field, default `operating`) and `ControlResult.candidates`/`dropped_citations` were added to the schemas. Findings need a type without an LLM, and citation validity counts dropped citations — interface addition, recorded for Phase 3's `TesterOutput`.
+- [phase 2] `CHECKS` sits in a single `checks.py` (architecture.md sketched a `checks/` package). Twelve functions in one plain dict didn't justify a package — kept simple per CLAUDE.md.

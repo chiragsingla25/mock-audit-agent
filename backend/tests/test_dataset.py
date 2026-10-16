@@ -391,5 +391,5 @@ def test_c10_new_hire_step_is_scoped_to_employees(data_root):
     """Contractors hired in the period (e.g. the T1 conversion, X3001) are out of C10 new-hire scope (policy 2.1)."""
     c10 = next(c for c in load_controls(data_root / "base" / "controls.yaml") if c.control_id == "C10")
     step = next(s for s in c10.test_recipe if s.id == "new_hire")
-    assert step.params["where"] == {"worker_type": "employee"}
+    assert step.params["where"]["worker_type"] == "employee"
     assert "Contractors" in (data_root / "base" / "policies/security_training.md").read_text()

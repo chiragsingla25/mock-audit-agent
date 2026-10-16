@@ -45,6 +45,7 @@ class TestStep(Strict):
     check: str | None = None                    # name in CHECKS, or None for pure judgment
     params: dict = {}
     judge: Literal["none", "llm"] = "llm"
+    gap_type: GapType = "operating"             # what a failure of this step is, for findings
 
     @model_validator(mode="after")
     def _judgment_needs_llm(self):
@@ -148,6 +149,8 @@ class ControlResult(Strict):
     missing_from_population: list[str] = []
     notes: list[str] = []
     sample: list[str] = []
+    candidates: list[Candidate] = []
+    dropped_citations: list[Citation] = []
     check_results: list[CheckResult] = []
     findings: list[Finding] = []
     dismissals: list[Dismissal] = []
