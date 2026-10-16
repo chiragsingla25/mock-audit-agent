@@ -12,9 +12,9 @@ gaps:
   tag: code
   record_ids:
   - E1109
-  - OK-000260
+  - OK-000261
   - E1055
-  - OK-000100
+  - OK-000099
   exceptions: 2
   tested: 18
   control_risk: high
@@ -170,7 +170,7 @@ traps:
   record_ids:
   - E1083
   - C2017
-  - OK-000262
+  - OK-000263
   explanation: Employee converted to contractor the same day (policy 4.4); access correctly continued until the
     contract ended.
 - id: T2
@@ -203,7 +203,7 @@ noise:
   kind: suspend_then_delete
   record_ids:
   - E1066
-  - OK-000138
+  - OK-000136
   description: 'Suspended the same day and deleted 6 days later: suspension removed access (not a gap).'
 - control_id: C2
   kind: time_zone
@@ -225,11 +225,11 @@ noise:
   record_ids:
   - E1109
   description: 'Terminated Friday 18:00, suspended Monday 09:00 (63 clock hours): an exception (part of G1).'
-- control_id: C3
+- control_id: C5
   kind: signoff_after_period
   record_ids:
   - PAR-2026Q3
-  description: Q3-26 reviews are signed in October 2026, within 10 business days of quarter end (pass).
+  description: Q3-26 privileged access review signed in October 2026, within 10 business days (pass).
 - control_id: C7
   kind: compliant_emergency
   record_ids:

@@ -15,7 +15,10 @@ class ControlSpecError(ValueError):
 
 
 def load_controls(path: str | Path) -> list[ControlSpec]:
-    raw = yaml.safe_load(Path(path).read_text())
+    try:
+        raw = yaml.safe_load(Path(path).read_text())
+    except yaml.YAMLError as e:
+        raise ControlSpecError(f"{path}: not valid YAML: {e}") from e
     if not isinstance(raw, list):
         raise ControlSpecError(f"{path}: expected a list of controls")
     specs, seen = [], set()

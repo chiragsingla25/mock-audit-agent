@@ -304,6 +304,9 @@ def test_noise_is_present_and_not_a_gap(data_root):
     # same-day suspension then deletion 6 days later: not a gap
     e, delete_id = next(n for n in key(d)["noise"] if n["kind"] == "suspend_then_delete")["record_ids"]
     assert hours[e] <= 24 and e not in q_g1_late_revocations(d)
+    term = local(by_id[e]["termination_local"])
+    susp = min(utc(x["published_utc"]) for x in events if x["target_login"] == by_id[e]["email"] and x["event_type"] in REMOVAL)
+    assert susp.astimezone(SYD).date() == term.date() and susp.date() == term.astimezone(UTC).date()
     assert next(x for x in events if x["event_id"] == delete_id)["event_type"] == "user.lifecycle.delete"
     # compliant emergency change: Friday deploy, approved the following Tuesday
     dep_id, chg = next(n for n in key(d)["noise"] if n["kind"] == "compliant_emergency")["record_ids"]
@@ -354,7 +357,7 @@ def test_variants_replant_different_combinations(data_root):
         assert dropped_controls - gapped <= set(keys[v]["clean_controls"])
         # re-placed on different records than base
         for gid in planted[v]:
-            assert gap(data_root / v, gid)["record_ids"] != gap(data_root / "base", gid)["record_ids"] or gid in ("G3",), gid
+            assert gap(data_root / v, gid)["record_ids"] != gap(data_root / "base", gid)["record_ids"], gid
         assert trap(data_root / v, "T1")["record_ids"] != trap(data_root / "base", "T1")["record_ids"]
     # "keys match": test_queries_find_every_gap_and_trap runs on base, a and b
 
@@ -374,3 +377,19 @@ def test_invalid_controls_yaml_names_control_and_field(tmp_path, data_root):
     bad.write_text(yaml.safe_dump(controls))
     with pytest.raises(ControlSpecError, match=r"control C8: field 'risk'"):
         load_controls(bad)
+    controls[7]["risk"] = "moderate"
+    controls[0]["period"] = ["2026-09-30", "2025-10-01"]      # reversed, C1
+    bad.write_text(yaml.safe_dump(controls))
+    with pytest.raises(ControlSpecError, match=r"control C1: field 'period'"):
+        load_controls(bad)
+    bad.write_text("- control_id: C1\n  description: [unclosed\n")
+    with pytest.raises(ControlSpecError, match="not valid YAML"):
+        load_controls(bad)
+
+
+def test_c10_new_hire_step_is_scoped_to_employees(data_root):
+    """Contractors hired in the period (e.g. the T1 conversion, X3001) are out of C10 new-hire scope (policy 2.1)."""
+    c10 = next(c for c in load_controls(data_root / "base" / "controls.yaml") if c.control_id == "C10")
+    step = next(s for s in c10.test_recipe if s.id == "new_hire")
+    assert step.params["where"] == {"worker_type": "employee"}
+    assert "Contractors" in (data_root / "base" / "policies/security_training.md").read_text()

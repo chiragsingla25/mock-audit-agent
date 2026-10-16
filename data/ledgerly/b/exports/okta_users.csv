@@ -33,7 +33,7 @@ user_id,login,display_name,status,created_utc,groups
 00u47f4438c07,zoe.young@ledgerly.io,Zoe Young,ACTIVE,2021-01-17T22:00:00Z,Everyone;Engineering;Admins
 00u4f840c6690,liam.king@ledgerly.io,Liam King,ACTIVE,2023-07-27T23:00:00Z,Everyone;Customer Success
 00u4f9905fcee,ravi.wu@ledgerly.io,Ravi Wu,ACTIVE,2023-10-20T22:00:00Z,Everyone;Engineering
-00u507cac10c0,ruby.martin@ledgerly.io,Ruby Martin,SUSPENDED,2023-01-11T22:00:00Z,Everyone;Engineering
+00u507cac10c0,ruby.martin@ledgerly.io,Ruby Martin,DEPROVISIONED,2023-01-11T22:00:00Z,Everyone;Engineering
 00u5196e5eb81,william.green@ledgerly.io,William Green,ACTIVE,2025-12-19T22:00:00Z,Everyone;Engineering
 00u5228831aaf,archie.scott@ledgerly.io,Archie Scott,ACTIVE,2019-03-18T22:00:00Z,Everyone;Engineering;Admins
 00u5331aae95d,priya.young@ledgerly.io,Priya Young,ACTIVE,2019-09-18T23:00:00Z,Everyone;Engineering
@@ -61,12 +61,12 @@ user_id,login,display_name,status,created_utc,groups
 00u7058e2c18c,arjun.rossi@ledgerly.io,Arjun Rossi,ACTIVE,2019-09-12T23:00:00Z,Everyone;Engineering
 00u70ce924948,noah.white@ledgerly.io,Noah White,ACTIVE,2020-02-18T22:00:00Z,Everyone;Sales
 00u73394b4396,archie.rossi@ledgerly.io,Archie Rossi,ACTIVE,2023-06-21T23:00:00Z,Everyone;Engineering
-00u737f758076,liam.green@ledgerly.io,Liam Green,DEPROVISIONED,2024-05-21T23:00:00Z,Everyone;Engineering;Admins
+00u737f758076,liam.green@ledgerly.io,Liam Green,SUSPENDED,2024-05-21T23:00:00Z,Everyone;Engineering;Admins
 00u74e66d31a6,grace.costa@ledgerly.io,Grace Costa,ACTIVE,2022-06-26T23:00:00Z,Everyone;Finance
 00u75d55f62e6,isla.davis@ledgerly.io,Isla Davis,ACTIVE,2022-08-22T23:00:00Z,Everyone;Engineering
 00u7623735109,evie.obrien@ledgerly.io,Evie O'Brien,ACTIVE,2021-03-16T22:00:00Z,Everyone;Engineering
 00u76b1b1b080,liam.clarke@ledgerly.io,Liam Clarke,ACTIVE,2022-05-11T23:00:00Z,Everyone;Engineering
-00u7ccd75167d,evie.hall@ledgerly.io,Evie Hall,SUSPENDED,2024-01-03T22:00:00Z,Everyone;Engineering;Admins
+00u7ccd75167d,evie.hall@ledgerly.io,Evie Hall,DEPROVISIONED,2024-01-03T22:00:00Z,Everyone;Engineering;Admins
 00u7efe7d3a1c,henry.novak@ledgerly.io,Henry Novak,ACTIVE,2023-04-02T23:00:00Z,Everyone;Engineering
 00u80ae9f9b7f,harper.scott@ledgerly.io,Harper Scott,ACTIVE,2023-01-31T22:00:00Z,Everyone;Customer Success
 00u810f522813,evie.silva@ledgerly.io,Evie Silva,ACTIVE,2023-07-02T23:00:00Z,Everyone;Engineering;Admins
@@ -80,7 +80,7 @@ user_id,login,display_name,status,created_utc,groups
 00u89662a19b1,henry.silva@ledgerly.io,Henry Silva,ACTIVE,2025-05-22T23:00:00Z,Everyone;Customer Success
 00u89788f9568,lachlan.rossi@ledgerly.io,Lachlan Rossi,ACTIVE,2023-12-16T22:00:00Z,Everyone;Engineering;Admins
 00u8c3c2b59e2,leo.kim@ledgerly.io,Leo Kim,ACTIVE,2020-11-27T22:00:00Z,Everyone;Customer Success
-00u90ba53a62d,lily.white@ledgerly.io,Lily White,SUSPENDED,2022-09-14T23:00:00Z,Everyone;Customer Success
+00u90ba53a62d,lily.white@ledgerly.io,Lily White,DEPROVISIONED,2022-09-14T23:00:00Z,Everyone;Customer Success
 00u92384a46d7,ivy.wilson@ledgerly.io,Ivy Wilson,ACTIVE,2026-02-09T22:00:00Z,Everyone;Engineering
 00u9374a838dd,ravi.davis@ledgerly.io,Ravi Davis,ACTIVE,2023-06-02T23:00:00Z,Everyone;People
 00u937e0fef5e,olivia.ali@ledgerly.io,Olivia Ali,ACTIVE,2021-07-30T23:00:00Z,Everyone;Engineering
@@ -96,7 +96,7 @@ user_id,login,display_name,status,created_utc,groups
 00ua50c0615d5,james.ryan@ledgerly.io,James Ryan,ACTIVE,2020-05-25T23:00:00Z,Everyone;Engineering
 00ua5ab04111e,mei.hall@ledgerly.io,Mei Hall,ACTIVE,2025-03-31T22:00:00Z,Everyone;Engineering
 00ua5c4182995,ravi.thompson@ledgerly.io,Ravi Thompson,ACTIVE,2025-03-18T22:00:00Z,Everyone;Engineering;Admins
-00ua72727b613,sam.sato@ledgerly.io,Sam Sato,DEPROVISIONED,2021-04-18T23:00:00Z,Everyone;Engineering
+00ua72727b613,sam.sato@ledgerly.io,Sam Sato,SUSPENDED,2021-04-18T23:00:00Z,Everyone;Engineering
 00ua876fdda4b,leo.sato@ledgerly.io,Leo Sato,ACTIVE,2023-07-04T23:00:00Z,Everyone;Engineering
 00ua8f1e65933,amelia.rossi@ledgerly.io,Amelia Rossi,ACTIVE,2019-02-16T22:00:00Z,Everyone;Engineering;Admins
 00uaab8472611,isla.rossi@ledgerly.io,Isla Rossi,ACTIVE,2021-09-19T23:00:00Z,Everyone;Customer Success
@@ -108,7 +108,7 @@ user_id,login,display_name,status,created_utc,groups
 00ub6c6248acb,amelia.fischer@ledgerly.io,Amelia Fischer,ACTIVE,2019-07-29T23:00:00Z,Everyone;Product
 00ub78ba8cf71,ella.moreau@ledgerly.io,Ella Moreau,ACTIVE,2024-01-12T22:00:00Z,Everyone;Sales
 00ub89719fbdf,liam.rossi@ledgerly.io,Liam Rossi,ACTIVE,2024-04-17T23:00:00Z,Everyone;Engineering;Admins
-00ub927b76392,grace.murphy@ledgerly.io,Grace Murphy,SUSPENDED,2024-08-24T23:00:00Z,Everyone;Engineering;Admins
+00ub927b76392,grace.murphy@ledgerly.io,Grace Murphy,DEPROVISIONED,2024-08-24T23:00:00Z,Everyone;Engineering;Admins
 00ubac85fb565,amelia.davis@ledgerly.io,Amelia Davis,ACTIVE,2024-09-28T23:00:00Z,Everyone;People
 00ubb8b55a4be,henry.green@ledgerly.io,Henry Green,ACTIVE,2024-12-02T22:00:00Z,Everyone;Engineering
 00ubebd8c10c0,henry.fischer@ledgerly.io,Henry Fischer,ACTIVE,2019-09-02T23:00:00Z,Everyone;Security

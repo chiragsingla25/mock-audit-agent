@@ -1,5 +1,5 @@
 employee_id,name,email,worker_type,department,title,hire_local,termination_local,timezone,status,termination_reason,prior_employee_id
-C2041,"Harris, Hugo",hugo.harris@ledgerly.io,contractor,Finance,Accountant,2025-11-17 18:15,2026-01-16 18:15,Australia/Sydney,terminated,Contract end,E1010
+C2041,"Harris, Hugo",hugo.harris@ledgerly.io,contractor,Finance,Accountant,2025-11-17 18:15,2026-01-25 18:15,Australia/Sydney,terminated,Contract end,E1010
 E1001,"Williams, Finn",finn.williams@ledgerly.io,employee,Sales,SDR,2019-01-15 09:00,,Australia/Sydney,active,,
 E1002,"Chen, Harper",harper.chen@ledgerly.io,employee,Customer Success,Customer Success Manager,2019-02-05 09:00,,Australia/Sydney,active,,
 E1003,"Ali, Sophie",sophie.ali@ledgerly.io,employee,Sales,Account Executive,2019-02-16 09:00,2025-10-07 09:45,Australia/Sydney,terminated,Resignation,
@@ -7,7 +7,7 @@ E1004,"Rossi, Amelia",amelia.rossi@ledgerly.io,employee,Engineering,Site Reliabi
 E1005,"Scott, Archie",archie.scott@ledgerly.io,employee,Engineering,Site Reliability Engineer,2019-03-21 09:00,,Australia/Sydney,active,,
 E1006,"Patel, Liam",liam.patel@ledgerly.io,employee,Engineering,Site Reliability Engineer,2019-06-19 09:00,,Australia/Sydney,active,,
 E1007,"Tran, Matilda",matilda.tran@ledgerly.io,employee,Finance,Accountant,2019-06-22 09:00,,Australia/Sydney,active,,
-E1008,"Smith, Mei",mei.smith@ledgerly.io,employee,Customer Success,Customer Success Manager,2019-06-24 09:00,2025-10-25 12:45,Australia/Sydney,terminated,Resignation,
+E1008,"Smith, Mei",mei.smith@ledgerly.io,employee,Customer Success,Customer Success Manager,2019-06-24 09:00,2025-10-25 13:00,Australia/Sydney,terminated,Resignation,
 E1009,"Singh, Finn",finn.singh@ledgerly.io,employee,Engineering,Senior Software Engineer,2019-07-02 09:00,,Australia/Sydney,active,,
 E1010,"Harris, Hugo",hugo.harris@ledgerly.io,employee,Finance,Accountant,2019-07-23 09:00,2025-11-17 18:15,Australia/Sydney,terminated,Conversion to contractor,
 E1011,"Lee, Mia",mia.lee@ledgerly.io,employee,Customer Success,Support Engineer,2019-07-27 09:00,,Australia/Sydney,active,,

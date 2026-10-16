@@ -25,27 +25,27 @@ gaps:
   gap_type: missing_evidence
   tag: judgment
   record_ids:
-  - UAR-2026Q3
+  - UAR-2026Q2
   exceptions: 1
   tested: 4
   control_risk: high
   severity: high
   severity_rule: 3
-  description: The 2026Q3 user access review has no reviewer sign-off.
+  description: The 2026Q2 user access review has no reviewer sign-off.
 - id: G4
   control_id: C5
   test_step: completeness
   gap_type: population_completeness
   tag: code
   record_ids:
-  - AIDA13B7B10DB224
-  - PAR-2025Q4
+  - AIDAB886960EB41A
+  - PAR-2026Q1
   exceptions: 1
-  tested: 6
+  tested: 8
   control_risk: high
   severity: high
   severity_rule: 2
-  description: AWS admin elena.petrov existed at the 2025Q4 review but is not on the reviewed list.
+  description: AWS admin elena.petrov existed at the 2026Q1 review but is not on the reviewed list.
 - id: G6
   control_id: C7
   test_step: ticketed
@@ -124,7 +124,7 @@ traps:
   record_ids:
   - E1010
   - C2041
-  - OK-000079
+  - OK-000085
   explanation: Employee converted to contractor the same day (policy 4.4); access correctly continued until the
     contract ended.
 - id: T2
@@ -159,7 +159,7 @@ noise:
   kind: suspend_then_delete
   record_ids:
   - E1008
-  - OK-000025
+  - OK-000022
   description: 'Suspended the same day and deleted 6 days later: suspension removed access (not a gap).'
 - control_id: C2
   kind: time_zone
@@ -179,8 +179,13 @@ noise:
 - control_id: C3
   kind: signoff_after_period
   record_ids:
+  - UAR-2026Q3
+  description: Q3-26 user access review signed in October 2026, within 10 business days (pass).
+- control_id: C5
+  kind: signoff_after_period
+  record_ids:
   - PAR-2026Q3
-  description: Q3-26 reviews are signed in October 2026, within 10 business days of quarter end (pass).
+  description: Q3-26 privileged access review signed in October 2026, within 10 business days (pass).
 - control_id: C7
   kind: compliant_emergency
   record_ids:

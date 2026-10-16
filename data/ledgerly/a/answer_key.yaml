@@ -30,27 +30,27 @@ gaps:
   gap_type: missing_evidence
   tag: judgment
   record_ids:
-  - UAR-2026Q1
+  - UAR-2026Q2
   exceptions: 1
   tested: 4
   control_risk: high
   severity: high
   severity_rule: 3
-  description: The 2026Q1 user access review has no reviewer sign-off.
+  description: The 2026Q2 user access review has no reviewer sign-off.
 - id: G4
   control_id: C5
   test_step: completeness
   gap_type: population_completeness
   tag: code
   record_ids:
-  - AIDA07DE82A19403
-  - PAR-2026Q1
+  - AIDA0DAED3206F81
+  - PAR-2025Q4
   exceptions: 1
-  tested: 8
+  tested: 6
   control_risk: high
   severity: high
   severity_rule: 2
-  description: AWS admin elena.petrov existed at the 2026Q1 review but is not on the reviewed list.
+  description: AWS admin elena.petrov existed at the 2025Q4 review but is not on the reviewed list.
 - id: G5
   control_id: C6
   test_step: segregation
@@ -184,8 +184,12 @@ noise:
   kind: signoff_after_period
   record_ids:
   - UAR-2026Q3
+  description: Q3-26 user access review signed in October 2026, within 10 business days (pass).
+- control_id: C5
+  kind: signoff_after_period
+  record_ids:
   - PAR-2026Q3
-  description: Q3-26 reviews are signed in October 2026, within 10 business days of quarter end (pass).
+  description: Q3-26 privileged access review signed in October 2026, within 10 business days (pass).
 - control_id: C7
   kind: compliant_emergency
   record_ids:

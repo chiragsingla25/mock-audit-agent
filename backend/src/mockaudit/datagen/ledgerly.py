@@ -214,6 +214,9 @@ class Ledgerly:
             elif i in tz_i:
                 p["term"] = t = at_local(t.date(), 8)              # before 10:00 local = previous UTC day
                 when = t + timedelta(minutes=rng.randint(20, 90))
+            elif i == sd_i:
+                p["term"] = t = at_local(t.date(), 13)             # suspended same day, local and UTC
+                when = t + timedelta(minutes=rng.randint(60, 180))
             else:
                 when = t + timedelta(hours=rng.uniform(0.5, 23.5))
             removal[i] = ev(when, p, rng.choice(["user.lifecycle.suspend", "user.lifecycle.deactivate"]))
@@ -260,7 +263,8 @@ class Ledgerly:
         tested = sum(1 for i in range(n) if i in removal or i == trap_i)
         if self.on("G1"):
             ids = [x for i in late_i for x in (leavers[i]["employee_id"], removal[i]["event_id"])]
-            hours = [round((removal[i]["dt"] - leavers[i]["term"]).total_seconds() / 3600, 1) for i in late_i]
+            hours = [round((removal[i]["dt"].astimezone(UTC) - leavers[i]["term"].astimezone(UTC)).total_seconds() / 3600, 1)
+                     for i in late_i]
             self.gap("G1", "C2", "timeliness", "operating", ids, len(late_i), tested,
                      f"{len(late_i)} of {tested} terminated users were suspended/deactivated late ({hours} hours).",
                      hours=hours)
@@ -334,8 +338,9 @@ class Ledgerly:
 
     def build_reviews(self):
         rng = self.rng("reviews")
-        g3_q = "2026Q3" if self.variant == "base" else rng.choice([q for q, _ in QUARTERS])
-        g4_q = "2026Q3" if self.variant == "base" else rng.choice([q for q, _ in QUARTERS])
+        other_q = [q for q, _ in QUARTERS if q != "2026Q3"]          # variants: not base's record
+        g3_q = "2026Q3" if self.variant == "base" else rng.choice(other_q)
+        g4_q = "2026Q3" if self.variant == "base" else rng.choice(other_q)
         # AWS admins
         admins = []
         names = ["platform-admin", "break-glass", "terraform-ci", "sre-oncall", "elena.petrov", "marcus.bell",
@@ -390,8 +395,11 @@ class Ledgerly:
                 self.answer("C5", [omitted["principal_id"]],
                             f"{omitted['name']} should have been on the {q} list. The export we reviewed from was filtered wrongly.")
             if q == "2026Q3":
-                self.note_noise("C3", "signoff_after_period", ([] if unsigned else [f"UAR-{q}"]) + [f"PAR-{q}"],
-                                "Q3-26 reviews are signed in October 2026, within 10 business days of quarter end (pass).")
+                if not unsigned:
+                    self.note_noise("C3", "signoff_after_period", [f"UAR-{q}"],
+                                    "Q3-26 user access review signed in October 2026, within 10 business days (pass).")
+                self.note_noise("C5", "signoff_after_period", [f"PAR-{q}"],
+                                "Q3-26 privileged access review signed in October 2026, within 10 business days (pass).")
         self.admins = admins
 
     # ----- C4: MFA config -----

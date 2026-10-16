@@ -19,14 +19,14 @@ owner_answers:
   - E1145
   answer: AR-0038 is the tracking record for E1145's birthright Employee-Base role. It's provisioned automatically
     from the HR hire record and pre-approved under policy 4.2.
-- control_id: C3
-  record_ids:
-  - UAR-2026Q1
-  answer: Dana ran the 2026Q1 review but never signed it off; we don't have a signed copy.
 - control_id: C5
   record_ids:
-  - AIDA07DE82A19403
-  answer: elena.petrov should have been on the 2026Q1 list. The export we reviewed from was filtered wrongly.
+  - AIDA0DAED3206F81
+  answer: elena.petrov should have been on the 2025Q4 list. The export we reviewed from was filtered wrongly.
+- control_id: C3
+  record_ids:
+  - UAR-2026Q2
+  answer: Dana ran the 2026Q2 review but never signed it off; we don't have a signed copy.
 - control_id: C6
   record_ids:
   - PR-1316

@@ -6,7 +6,7 @@ from datetime import date
 from enum import Enum
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 PERIOD = (date(2025, 10, 1), date(2026, 9, 30))
 
@@ -66,11 +66,12 @@ class ControlSpec(Strict):
     evidence: list[EvidenceSource] = Field(min_length=1)
     test_recipe: list[TestStep] = Field(min_length=1)
 
-    @model_validator(mode="after")
-    def _period_ordered(self):
-        if self.period[0] > self.period[1]:
+    @field_validator("period")
+    @classmethod
+    def _period_ordered(cls, v):
+        if v[0] > v[1]:
             raise ValueError("period start is after period end")
-        return self
+        return v
 
     @property
     def periodic(self) -> bool:

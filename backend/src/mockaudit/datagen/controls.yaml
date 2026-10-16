@@ -172,7 +172,7 @@
     - {name: security_training, path: policies/security_training.md, role: policy}
   test_recipe:
     - {id: new_hire, description: New hires complete new-hire security training within 30 days of their hire date,
-       check: days_after_event, params: {event: hr_roster.hire_local, done: lms_completions.completed_local, course: Security Awareness - New Hire, days: 30}, judge: llm}
+       check: days_after_event, params: {event: hr_roster.hire_local, done: lms_completions.completed_local, course: Security Awareness - New Hire, days: 30, where: {worker_type: employee}}, judge: llm}
     - {id: annual, description: Employees employed throughout the annual campaign complete the annual course in the period,
        check: population_diff, params: {left: hr_roster, right: lms_completions, key: employee_id, course: Security Awareness - Annual 2026}, judge: none}
 

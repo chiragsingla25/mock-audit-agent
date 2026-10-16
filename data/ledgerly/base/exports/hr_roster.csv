@@ -1,5 +1,5 @@
 employee_id,name,email,worker_type,department,title,hire_local,termination_local,timezone,status,termination_reason,prior_employee_id
-C2017,"Khan, Noah",noah.khan@ledgerly.io,contractor,Finance,Financial Analyst,2026-06-17 12:00,2026-09-04 12:00,Australia/Sydney,terminated,Contract end,E1083
+C2017,"Khan, Noah",noah.khan@ledgerly.io,contractor,Finance,Financial Analyst,2026-06-17 12:00,2026-09-01 12:00,Australia/Sydney,terminated,Contract end,E1083
 E1001,"Costa, Sam",sam.costa@ledgerly.io,employee,Engineering,Site Reliability Engineer,2019-03-28 09:00,,Australia/Sydney,active,,
 E1002,"White, Sophie",sophie.white@ledgerly.io,employee,Engineering,Software Engineer,2019-06-23 09:00,,Australia/Sydney,active,,
 E1003,"Harris, Mia",mia.harris@ledgerly.io,employee,Customer Success,Support Engineer,2019-07-31 09:00,,Australia/Sydney,active,,
@@ -65,7 +65,7 @@ E1062,"Smith, Zoe",zoe.smith@ledgerly.io,employee,Product,Product Manager,2022-0
 E1063,"Smith, Archie",archie.smith@ledgerly.io,employee,People,People Partner,2022-07-06 09:00,,Australia/Sydney,active,,
 E1064,"Green, Chloe",chloe.green@ledgerly.io,employee,Security,Security Engineer,2022-07-15 09:00,,Australia/Sydney,active,,
 E1065,"Walker, Olivia",olivia.walker@ledgerly.io,employee,Engineering,Software Engineer,2022-07-16 09:00,,Australia/Sydney,active,,
-E1066,"Wilson, Mia",mia.wilson@ledgerly.io,employee,Engineering,Senior Software Engineer,2022-07-16 09:00,2026-03-18 16:15,Australia/Sydney,terminated,Involuntary,
+E1066,"Wilson, Mia",mia.wilson@ledgerly.io,employee,Engineering,Senior Software Engineer,2022-07-16 09:00,2026-03-18 13:00,Australia/Sydney,terminated,Involuntary,
 E1067,"Costa, Ethan",ethan.costa@ledgerly.io,employee,Product,Product Manager,2022-07-19 09:00,,Australia/Sydney,active,,
 E1068,"Kim, Kenji",kenji.kim@ledgerly.io,employee,Engineering,Software Engineer,2022-07-25 09:00,,Australia/Sydney,active,,
 E1069,"Jones, Henry",henry.jones@ledgerly.io,employee,Sales,SDR,2022-08-02 09:00,2026-04-09 17:00,Australia/Sydney,terminated,Resignation,

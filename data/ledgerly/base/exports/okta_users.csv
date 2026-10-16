@@ -25,7 +25,7 @@ user_id,login,display_name,status,created_utc,groups
 00u30cee23f3c,max.brown@ledgerly.io,Max Brown,ACTIVE,2021-04-12T23:00:00Z,Everyone;Sales
 00u3180b02a61,william.nguyen@ledgerly.io,William Nguyen,ACTIVE,2026-02-03T22:00:00Z,Everyone;Sales
 00u31bfe434b7,lachlan.ali@ledgerly.io,Lachlan Ali,ACTIVE,2023-07-23T23:00:00Z,Everyone;Sales
-00u3272b5e3d5,liam.thompson@ledgerly.io,Liam Thompson,DEPROVISIONED,2023-08-29T23:00:00Z,Everyone;Sales
+00u3272b5e3d5,liam.thompson@ledgerly.io,Liam Thompson,SUSPENDED,2023-08-29T23:00:00Z,Everyone;Sales
 00u32887010f3,kenji.patel@ledgerly.io,Kenji Patel,ACTIVE,2019-12-31T22:00:00Z,Everyone;Product
 00u335ad912ee,chloe.williams@ledgerly.io,Chloe Williams,ACTIVE,2026-03-10T22:00:00Z,Everyone;Sales
 00u38cd64925f,henry.murphy@ledgerly.io,Henry Murphy,ACTIVE,2020-06-27T23:00:00Z,Everyone;Sales
@@ -90,7 +90,7 @@ user_id,login,display_name,status,created_utc,groups
 00u9a8a35430f,nina.obrien@ledgerly.io,Nina O'Brien,ACTIVE,2026-04-12T23:00:00Z,Everyone;Engineering
 00u9aaf4ebdbd,archie.smith@ledgerly.io,Archie Smith,ACTIVE,2022-07-03T23:00:00Z,Everyone;People
 00u9aecae8239,hugo.lee@ledgerly.io,Hugo Lee,ACTIVE,2023-12-05T22:00:00Z,Everyone;People
-00u9e7e10450d,harper.ryan@ledgerly.io,Harper Ryan,DEPROVISIONED,2024-12-25T22:00:00Z,Everyone;Security
+00u9e7e10450d,harper.ryan@ledgerly.io,Harper Ryan,SUSPENDED,2024-12-25T22:00:00Z,Everyone;Security
 00u9e7f19bf48,nina.thompson@ledgerly.io,Nina Thompson,ACTIVE,2025-08-17T23:00:00Z,Everyone;Engineering;Admins
 00ua319249f46,arjun.silva@ledgerly.io,Arjun Silva,ACTIVE,2025-12-11T22:00:00Z,Everyone;Finance
 00ua4d95be3b8,lucas.ali@ledgerly.io,Lucas Ali,ACTIVE,2022-03-19T22:00:00Z,Everyone;Engineering
