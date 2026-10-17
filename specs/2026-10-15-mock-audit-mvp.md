@@ -189,7 +189,7 @@ Verify: start an audit in the browser → 12 cards finish → open G1 → the st
 ### Phase 6: Showcase and ship (end of Milestone 2)
 - [x] `mockaudit export-showcase <run_ids>` writes the showcase JSON (cited records only, not full exports), and it validates against the schemas.
 - [x] A static export (`output: 'export'`, `basePath`, `generateStaticParams`) builds; the Pages site has no start button and shows recorded review decisions.
-- [ ] `.github/workflows/pages.yml` deploys on push to `main`.
+- [x] `.github/workflows/pages.yml` deploys on push to `main`. (First deploy green: https://github.com/chiragsingla25/mock-audit-agent/actions/runs/38997158658; live at https://chiragsingla25.github.io/mock-audit-agent/)
 - [x] README: what it is, the diagram, evaluation results (including agent vs checks-only), cost, how to run locally, the roadmap, and the note on synthetic data and practitioner review.
 - [x] A 2-minute video script is in `docs/video-script.md`.
 
@@ -307,3 +307,4 @@ Golden answer key with code-scored metrics (proposal §7), unit tests per criter
 - [phase 6] Recorded review decisions are now stored as `{finding_id, decision, note}`. They used to carry the whole review-request row.
 - [phase 6] All eval agent runs are published, the stability runs included, so every comparison row opens a run (the validator enforces this). Each run also ships `report.md` for the Markdown export.
 - [phase 6] The root `.gitignore` entry `runs/` also matched `frontend/public/data/runs/`, so the per-run showcase JSON would never have been committed. Caught before committing; CI's `validate-showcase` would have failed on it too — scaffold bug — anchored to `/runs/`.
+- [phase 6] Verify line checked on the live site: the home shows runs and the comparison with no start button, findings show step lists and cited records, and the reviewed run's report holds the 3 approved findings. No console errors.
