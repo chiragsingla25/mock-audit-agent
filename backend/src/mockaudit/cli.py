@@ -136,7 +136,10 @@ def main(argv: list[str] | None = None) -> int:
         print(f"wrote {args.out}")
     elif args.cmd == "export-showcase":
         from mockaudit.showcase import export_showcase, validate_showcase
-        out = export_showcase(args.run_ids, args.runs_dir, args.data_root, args.out, args.eval_id)
+        try:
+            out = export_showcase(args.run_ids, args.runs_dir, args.data_root, args.out, args.eval_id)
+        except (FileNotFoundError, ValueError) as e:
+            raise SystemExit(f"export-showcase: {e}") from e
         print(f"wrote {out} ({validate_showcase(out)} files, all valid)")
     elif args.cmd == "validate-showcase":
         from mockaudit.showcase import validate_showcase

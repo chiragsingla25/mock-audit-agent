@@ -19,7 +19,7 @@ _Readiness forecast from synthetic evidence. Not an audit opinion._ Mode: agent,
 | C11 | no exceptions found | review_in_period | — | — |
 | C12 | exceptions dismissed in review | restore_test | — | 1 finding(s) dismissed in review |
 
-## Findings (3)
+## Approved findings (3)
 
 ### C2-completeness · high · 1 of 20
 

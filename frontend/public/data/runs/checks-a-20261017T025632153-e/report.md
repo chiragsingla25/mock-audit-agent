@@ -17,9 +17,11 @@ _Readiness forecast from synthetic evidence. Not an audit opinion._ Mode: checks
 | C9 | exceptions | pir | — | — |
 | C10 | exceptions | new_hire, annual | — | — |
 | C11 | no exceptions found | review_in_period | — | — |
-| C12 | no exceptions found | — | restore_test (judgment-only step (checks-only mode)) | — |
+| C12 | not tested | — | restore_test (judgment-only step (checks-only mode)) | — |
 
 ## Findings (8)
+
+_Not reviewed by a person: these are the findings the agent kept (evaluation run)._
 
 ### C2-timeliness · high · 3 of 19
 

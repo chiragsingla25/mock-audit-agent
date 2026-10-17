@@ -20,6 +20,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict
 
 from mockaudit.evaluation import metrics_for
+from mockaudit.report import render_md
 from mockaudit.schemas import Citation, Dismissal, Finding, SkepticVerdict
 from mockaudit.views import audit_from_disk, disk_status, findings_view, run_config
 
@@ -164,8 +165,16 @@ def export_showcase(run_ids: list[str], runs_dir: Path, data_root: Path, out_dir
 async def export_showcase_async(run_ids: list[str], runs_dir: Path, data_root: Path, out_dir: Path,
                                 eval_id: str | None = None) -> Path:
     runs_dir, data_root, out_dir = Path(runs_dir), Path(data_root), Path(out_dir)
-    if out_dir.name != "data":
-        raise ValueError(f"refusing to replace {out_dir}: the showcase output folder must be named 'data'")
+    if out_dir.parts[-2:] != ("public", "data"):
+        raise ValueError(f"refusing to replace {out_dir}: the showcase output folder must be <frontend>/public/data")
+    for run_id in run_ids:                          # check everything before deleting anything
+        d = runs_dir / run_id
+        if not (d / "config.json").exists():
+            raise FileNotFoundError(f"no run {run_id!r} in {runs_dir}")
+        if disk_status(d) != "done":
+            raise ValueError(f"run {run_id} is {disk_status(d)}; only finished runs (report written) are published")
+    if eval_id and not (runs_dir / eval_id / "eval.json").exists():
+        raise FileNotFoundError(f"no evaluation {eval_id!r} in {runs_dir}")
     if out_dir.exists():
         shutil.rmtree(out_dir)
     spend = runs_dir / "spend.jsonl"
@@ -184,10 +193,10 @@ async def export_showcase_async(run_ids: list[str], runs_dir: Path, data_root: P
         report = ReportView.model_validate(json.loads((d / "report.json").read_text()))
         for name, model in [("audit.json", audit), ("findings.json", findings), ("report.json", report)]:
             (target / name).write_text(model.model_dump_json(indent=1) + "\n")
-        (target / "report.md").write_text((d / "report.md").read_text())
+        (target / "report.md").write_text(render_md(report.model_dump()))       # re-rendered with current wording
         reviewed = cfg["review_mode"] == "human" and (d / "review_decisions.json").exists()
         label = f"{'Ledgerly base' if cfg['variant'] == 'base' else 'Variant ' + cfg['variant'].upper()} · " \
-                f"{cfg['mode'].replace('_', ' ')}" + (" · human-reviewed" if reviewed else "") + \
+                f"{cfg['mode'].replace('_', ' ')}" + (" · human-reviewed" if reviewed else " · not reviewed") + \
                 (f" · stability run {run_id[-1]}" if run_id[-3:] in ("-r2", "-r3") else "")
         entries.append(RunEntry(run_id=run_id, variant=cfg["variant"], mode=cfg["mode"], review_mode=cfg["review_mode"],
                                 status=status, reviewed=reviewed, label=label,

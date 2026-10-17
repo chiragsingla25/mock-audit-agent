@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-17T02:58:11+00:00",
+ "generated": "2026-10-17T08:23:05+00:00",
  "statement": "Readiness forecast from synthetic evidence (Ledgerly is fictional). Not an audit opinion.",
  "runs": [
   {
@@ -52,7 +52,7 @@
    "review_mode": "skip",
    "status": "done",
    "reviewed": false,
-   "label": "Ledgerly base · agent",
+   "label": "Ledgerly base · agent · not reviewed",
    "metrics": {
     "recall": {
      "n": 10,
@@ -95,7 +95,7 @@
    "review_mode": "skip",
    "status": "done",
    "reviewed": false,
-   "label": "Variant A · agent",
+   "label": "Variant A · agent · not reviewed",
    "metrics": {
     "recall": {
      "n": 7,
@@ -138,7 +138,7 @@
    "review_mode": "skip",
    "status": "done",
    "reviewed": false,
-   "label": "Variant B · agent",
+   "label": "Variant B · agent · not reviewed",
    "metrics": {
     "recall": {
      "n": 7,
@@ -181,7 +181,7 @@
    "review_mode": "skip",
    "status": "done",
    "reviewed": false,
-   "label": "Ledgerly base · agent · stability run 2",
+   "label": "Ledgerly base · agent · not reviewed · stability run 2",
    "metrics": {
     "recall": {
      "n": 10,
@@ -224,7 +224,7 @@
    "review_mode": "skip",
    "status": "done",
    "reviewed": false,
-   "label": "Ledgerly base · agent · stability run 3",
+   "label": "Ledgerly base · agent · not reviewed · stability run 3",
    "metrics": {
     "recall": {
      "n": 10,
@@ -267,7 +267,7 @@
    "review_mode": "skip",
    "status": "done",
    "reviewed": false,
-   "label": "Ledgerly base · checks only",
+   "label": "Ledgerly base · checks only · not reviewed",
    "metrics": {
     "recall": {
      "n": 8,
@@ -310,7 +310,7 @@
    "review_mode": "skip",
    "status": "done",
    "reviewed": false,
-   "label": "Variant A · checks only",
+   "label": "Variant A · checks only · not reviewed",
    "metrics": {
     "recall": {
      "n": 6,
@@ -353,7 +353,7 @@
    "review_mode": "skip",
    "status": "done",
    "reviewed": false,
-   "label": "Variant B · checks only",
+   "label": "Variant B · checks only · not reviewed",
    "metrics": {
     "recall": {
      "n": 6,

@@ -21,6 +21,8 @@ _Readiness forecast from synthetic evidence. Not an audit opinion._ Mode: agent,
 
 ## Findings (7)
 
+_Not reviewed by a person: these are the findings the agent kept (evaluation run)._
+
 ### C2-completeness · high · 1 of 20
 
 - **Condition:** HR record E1028 shows employee Charlotte Ryan terminated on 2025-12-21 17:30, but Okta user 00u5e7b85b559 remains ACTIVE with no suspend or deactivate event in okta_events

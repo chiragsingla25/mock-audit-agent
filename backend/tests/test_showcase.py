@@ -47,7 +47,7 @@ async def published(data_root, tmp_path_factory):
         d["decision"], d["note"] = ("dismiss", "not convinced") if d["finding_id"] == "C12-restore_test" else ("approve", "")
     await resume_audit(runs / "reviewed-base", request, models)
     run_ids = ["reviewed-base"] + [r["run_id"] for r in ev["rows"] if r["mode"] in ("agent", "checks_only")]
-    out = tmp_path_factory.mktemp("frontend") / "data"
+    out = tmp_path_factory.mktemp("frontend") / "public" / "data"
     await export_showcase_async(run_ids, runs, data_root, out, ev["eval_id"])
     return out, runs, run_ids
 
@@ -97,20 +97,45 @@ def test_index_carries_the_comparison(published):
 
 def test_export_refuses_unfinished_runs_and_odd_output_folders(published, data_root, tmp_path):
     _, runs, run_ids = published
-    with pytest.raises(ValueError, match="must be named 'data'"):
-        export_showcase(run_ids[:1], runs, data_root, tmp_path / "public")
+    for odd in (tmp_path / "public", tmp_path / "data"):                       # e.g. `--out data` at the repo root
+        with pytest.raises(ValueError, match="public/data"):
+            export_showcase(run_ids[:1], runs, data_root, odd)
     (runs / "paused").mkdir()
     (runs / "paused" / "config.json").write_text(json.dumps({"config": {"run_id": "paused", "variant": "base",
                                                                          "mode": "agent", "review_mode": "human"}}))
     (runs / "paused" / "review_request.json").write_text("{}")
     with pytest.raises(ValueError, match="only finished runs"):
-        export_showcase(["paused"], runs, data_root, tmp_path / "data")
+        export_showcase(["paused"], runs, data_root, tmp_path / "public" / "data")
+
+
+def test_a_bad_run_id_deletes_nothing(published, data_root, tmp_path):
+    """Review M2 note: validation happens before the output folder is replaced."""
+    _, runs, _ = published
+    out = tmp_path / "public" / "data"
+    out.mkdir(parents=True)
+    (out / "precious.txt").write_text("keep me")
+    with pytest.raises(FileNotFoundError, match="no run 'no-such-run'"):
+        export_showcase(["no-such-run"], runs, data_root, out)
+    assert (out / "precious.txt").read_text() == "keep me"
+
+
+def test_unreviewed_runs_are_marked_and_their_reports_do_not_claim_approval(published):
+    """Review M2 FAIL (Phase 6 rule: eval runs are published marked unreviewed)."""
+    out, _, _ = published
+    index = json.loads((out / "index.json").read_text())
+    for r in index["runs"]:
+        assert r["label"].endswith("human-reviewed") if r["reviewed"] else " · not reviewed" in r["label"]
+        md = (out / "runs" / r["run_id"] / "report.md").read_text()
+        if r["reviewed"]:
+            assert "## Approved findings" in md and "Not reviewed by a person" not in md
+        else:
+            assert "## Approved findings" not in md and "Not reviewed by a person" in md
 
 
 def test_validation_catches_a_broken_file(published, tmp_path):
     import shutil
     out, _, _ = published
-    copy = tmp_path / "data"
+    copy = tmp_path / "public" / "data"
     shutil.copytree(out, copy)
     f = copy / "runs" / "reviewed-base" / "findings.json"
     body = json.loads(f.read_text())

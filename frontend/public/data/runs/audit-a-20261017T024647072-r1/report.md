@@ -21,6 +21,8 @@ _Readiness forecast from synthetic evidence. Not an audit opinion._ Mode: agent,
 
 ## Findings (7)
 
+_Not reviewed by a person: these are the findings the agent kept (evaluation run)._
+
 ### C2-timeliness · high · 2 of 19
 
 - **Condition:** Two terminated users had their Okta accounts suspended/deactivated more than 24 hours after termination: E1006 (Rossi, Kenji) had first suspend event 77 hours after termination (OK-000037), and E1038 (Lee, Ivy) had first deactivate event 89 hours after termination (OK-000153). Owner confirmed both offboarding tickets were actioned late with no approved exceptions.

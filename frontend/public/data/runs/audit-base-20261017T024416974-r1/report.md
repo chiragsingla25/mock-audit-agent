@@ -21,6 +21,8 @@ _Readiness forecast from synthetic evidence. Not an audit opinion._ Mode: agent,
 
 ## Findings (10)
 
+_Not reviewed by a person: these are the findings the agent kept (evaluation run)._
+
 ### C2-completeness · high · 1 of 20
 
 - **Condition:** Employee E1070 (hr_roster) was terminated but has no corresponding suspend or deactivate event in okta_events. The associated okta_users record 00u27ba276404 shows status ACTIVE.

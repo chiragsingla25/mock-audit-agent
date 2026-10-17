@@ -68,17 +68,21 @@ def write_run(state: dict, ctx) -> dict:
     return {"path": str(run_dir), "findings": len(shown), **totals}
 
 
-def render_md(rep: dict, results: list[ControlResult]) -> str:
+def render_md(rep: dict, results: list[ControlResult] | None = None) -> str:
     out = [f"# Ledgerly SOC 2 readiness report — {rep['run_id']}", "",
            f"_{rep['statement']}_ Mode: {rep['mode']}, review: {rep['review_mode']}.", "",
            "## Coverage", "", "| Control | Status | Steps tested | Not tested | Notes |", "|---|---|---|---|---|"]
     for c in rep["coverage"]:
         dismissed = any("dismissed in review" in n for n in c["notes"])
-        status = {"error": f"error ({c['error']})",
-                  "pass": "exceptions dismissed in review" if dismissed else "no exceptions found"}.get(c["status"], c["status"])
+        error = " ".join(str(c["error"] or "").split())       # one line, so the table survives
+        status = {"error": f"error ({error})", "pass": "exceptions dismissed in review" if dismissed
+                  else "not tested" if not c["tested"] else "no exceptions found"}.get(c["status"], c["status"])
         nt = ", ".join(f"{x['step_id']} ({x['reason']})" for x in c["not_tested"]) or "—"
         out.append(f"| {c['control_id']} | {status} | {', '.join(c['tested']) or '—'} | {nt} | {'; '.join(c['notes'])[:120] or '—'} |")
-    out += ["", f"## Findings ({len(rep['findings'])})", ""]
+    reviewed = rep["review_mode"] == "human"
+    out += ["", f"## {'Approved findings' if reviewed else 'Findings'} ({len(rep['findings'])})", ""]
+    if not reviewed:
+        out += ["_Not reviewed by a person: these are the findings the agent kept (evaluation run)._", ""]
     for f in rep["findings"]:
         cites = ", ".join(f"{c['source']}/{c['record_id']}" for c in f["citations"][:12])
         failed = any(w in s["text"] for s in f["reasoning"][-2:] for w in ("revision failed", ": error"))

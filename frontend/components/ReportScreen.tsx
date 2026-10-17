@@ -16,9 +16,10 @@ function download(name: string, text: string, type: string) {
 }
 
 /** Coverage status in words. There is deliberately no pass badge: no exceptions found is not an audit opinion. */
-function coverageLabel(status: string, notes: string[]) {
+function coverageLabel(status: string, notes: string[], tested: string[]) {
   if (status !== "pass") return status;
-  return notes.some((n) => n.includes("dismissed in review")) ? "exceptions dismissed in review" : "no exceptions found";
+  if (notes.some((n) => n.includes("dismissed in review"))) return "exceptions dismissed in review";
+  return tested.length ? "no exceptions found" : "not tested";
 }
 
 export function ReportScreen() {
@@ -56,7 +57,12 @@ export function ReportScreen() {
           </Card>
 
           <section>
-            <h2 className="mb-2 font-semibold">Approved findings ({report.findings.length})</h2>
+            <h2 className="mb-2 font-semibold">
+              {report.review_mode === "human" ? "Approved findings" : "Findings"} ({report.findings.length})
+            </h2>
+            {report.review_mode !== "human" && (
+              <p className="mb-2 text-sm text-slate-500">Not reviewed by a person: these are the findings the agent kept (evaluation run).</p>
+            )}
             <div className="space-y-3">
               {report.findings.length === 0 && <Card className="text-sm text-slate-500">No findings were approved.</Card>}
               {report.findings.map((f) => (
@@ -85,7 +91,7 @@ export function ReportScreen() {
                   {report.coverage.map((c) => (
                     <tr key={c.control_id} className="border-t border-slate-100 dark:border-slate-800">
                       <td className="px-3 py-2 font-medium">{c.control_id}</td>
-                      <td className="px-3 py-2">{c.status === "error" ? <Badge tone="red">error</Badge> : coverageLabel(c.status, c.notes)}</td>
+                      <td className="px-3 py-2">{c.status === "error" ? <Badge tone="red">error</Badge> : coverageLabel(c.status, c.notes, c.tested)}</td>
                       <td className="px-3 py-2">{c.tested.join(", ") || "—"}</td>
                       <td className="px-3 py-2">{c.not_tested.map((n) => n.step_id).join(", ") || "—"}</td>
                       <td className="px-3 py-2">{c.population_size}</td>

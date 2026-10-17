@@ -21,6 +21,8 @@ _Readiness forecast from synthetic evidence. Not an audit opinion._ Mode: agent,
 
 ## Findings (10)
 
+_Not reviewed by a person: these are the findings the agent kept (evaluation run)._
+
 ### C2-completeness · high · 1 of 20
 
 - **Condition:** HR record E1070 shows employee Anderson, Ivy terminated on 2026-04-25, but okta_users record 00u27ba276404 shows status ACTIVE; okta_events records OK-000059 and OK-000162 show only session.start events with no suspend/deactivate event

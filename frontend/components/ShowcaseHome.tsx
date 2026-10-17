@@ -51,7 +51,10 @@ export function ShowcaseHome() {
               {index.runs.map((r) => (
                 <tr key={r.run_id} className="border-t border-slate-100 dark:border-slate-800">
                   <td className="px-3 py-2">
-                    <div className="font-medium">{r.label} {r.reviewed && <Badge tone="green">review decisions recorded</Badge>}</div>
+                    <div className="font-medium">
+                      {r.label}{" "}
+                      {r.reviewed ? <Badge tone="green">review decisions recorded</Badge> : <Badge>not reviewed by a person</Badge>}
+                    </div>
                     <div className="text-xs text-slate-500">{r.run_id}</div>
                     {r.reviewed && <div className="text-xs text-slate-500">Scores count only the findings the reviewer approved.</div>}
                   </td>
