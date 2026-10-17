@@ -52,6 +52,7 @@ class AuditContext:
     spend: Any = None              # mockaudit.llm.Spend
     timeout_s: float = 420
     sample_cap: int = 25
+    on_control: Any = None         # optional callback(control_id, state) for live progress
 
 
 # ---------- reducers ----------
@@ -222,13 +223,15 @@ def tester_findings(spec: ControlSpec, out: TesterOutput, cands: list[Candidate]
             exceptions=exceptions, tested=n, condition=fd.condition, criteria=fd.criteria, cause=fd.cause,
             effect=fd.effect, recommendation=fd.recommendation, citations=cites, severity=sev,
             severity_rule=rule, status="draft", reasoning=list(steps)))
-    if not revise:      # raised candidates the tester didn't write up still become findings (code template)
-        for step in recipe:
-            left = [c for c in cands if c.test_step == step and c.candidate_id in raised - covered]
-            if left and not any(f.test_step == step for f in findings):
-                f = findings_from_candidates(spec, step, left, tested.get(step, len(left)))
-                f.status, f.reasoning = "draft", list(steps) + [ReasoningStep(kind="rule", text="raised by default: no tester write-up")]
-                findings.append(f)
+    # Raised candidates the tester didn't write up still become findings (code template), in a revise pass too,
+    # where they keep the revised finding's id. Only candidates the tester dismissed drop out.
+    for step in recipe:
+        left = [c for c in cands if c.test_step == step and c.candidate_id in raised - covered]
+        if left and not any(f.test_step == step for f in findings):
+            f = findings_from_candidates(spec, step, left, tested.get(step, len(left)))
+            f.finding_id = revise_by_step.get(step, f.finding_id)
+            f.status, f.reasoning = "draft", list(steps) + [ReasoningStep(kind="rule", text="raised by default: no tester write-up")]
+            findings.append(f)
     dismissals = [Dismissal(candidate_id=cid, control_id=spec.control_id, reason=decided[cid].reason,
                             citations=decided[cid].citations, reasoning=list(steps)) for cid in sorted(dismissed)]
     return findings, dismissals
@@ -386,6 +389,8 @@ def _error_result(spec: dict, cfg: dict, error: str) -> dict:
 async def control(state: ControlState, runtime: Runtime[AuditContext]) -> dict:
     """Runs the control subgraph. A timeout, exception or spend cap marks only this control as error."""
     cid = state["spec"]["control_id"]
+    if runtime.context.on_control is not None:     # the body runs only once a concurrency slot is free
+        runtime.context.on_control(cid, "revising" if state.get("revise") else "running")
     try:
         out = await asyncio.wait_for(CONTROL_GRAPH.ainvoke(state, context=runtime.context), runtime.context.timeout_s)
     except Exception as e:              # noqa: BLE001 - isolate the failure to this control

@@ -236,6 +236,14 @@ def write_json_schema(path) -> None:
     models = [ControlSpec, Citation, CheckResult, ReasoningStep, Candidate, Finding, Dismissal, Coverage,
               ControlResult, SkepticVerdict, RunConfig]
     _, top = models_json_schema([(m, "serialization") for m in models], ref_template="#/$defs/{model}")
+    def strip_titles(node, top=False):     # field titles would become noisy TS aliases; keep model names only
+        if isinstance(node, dict):
+            return {k: strip_titles(v) for k, v in node.items() if not (k == "title" and not top)}
+        if isinstance(node, list):
+            return [strip_titles(v) for v in node]
+        return node
+
+    top["$defs"] = {name: {**strip_titles(d, top=True)} for name, d in top.get("$defs", {}).items()}
     schema = {"$schema": "https://json-schema.org/draft/2020-12/schema", "title": "MockAudit",
               "type": "object", "properties": {m.__name__: {"$ref": f"#/$defs/{m.__name__}"} for m in models},
               "$defs": top.get("$defs", {})}

@@ -107,3 +107,20 @@ def test_checks_only_audit_needs_no_models(data_root, tmp_path):
     with TestClient(create_app(data_root, tmp_path, no_models)) as client:
         run_id = client.post("/audits", json={"variant": "base", "mode": "checks_only"}).json()["run_id"]
         assert wait_for(client, run_id, {"paused", "error"})["status"] == "paused"
+
+
+
+def test_progress_marks_running_only_when_the_body_starts_and_done_after_a_revise():
+    from mockaudit.api import Progress
+    run = {"controls": {"C1": "queued", "C2": "queued"}, "phase": "", "error": None}
+    p = Progress(run)
+    p({"id": "t1", "name": "control", "input": {"spec": {"control_id": "C1"}}})
+    assert run["controls"]["C1"] == "queued"                          # scheduled is not running
+    p.control("C1", "running")
+    assert run["controls"]["C1"] == "running"
+    p({"id": "t1", "name": "control", "result": {"results": {"C1": {"status": "pass"}}}, "error": None})
+    assert run["controls"]["C1"] == "done"
+    p({"id": "t2", "name": "control", "input": {"spec": {"control_id": "C2"}, "revise": {"C2-x": {}}}})
+    p.control("C2", "revising")
+    p({"id": "t2", "name": "control", "result": {"findings": {}}, "error": None})   # revise passes return findings only
+    assert run["controls"]["C2"] == "done"

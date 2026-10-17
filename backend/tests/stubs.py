@@ -61,13 +61,15 @@ class TesterScript:
     """Raises every candidate except `dismiss` record ids; flags judgment items in `flag`."""
 
     def __init__(self, dismiss=(), flag=(), fail=(), slow=(), invalid_first=False, always_invalid=(),
-                 fail_on_revise=False, dismiss_on_revise=False, bogus_cites=(), transient_once=(), no_answer_once=()):
+                 fail_on_revise=False, dismiss_on_revise=False, bogus_cites=(), transient_once=(), no_answer_once=(),
+                 revise_no_writeup=False):
         self.dismiss, self.flag, self.fail, self.slow = set(dismiss), set(flag), set(fail), set(slow)
         self.invalid_first, self.always_invalid = invalid_first, set(always_invalid)
         self.fail_on_revise, self.dismiss_on_revise = fail_on_revise, dismiss_on_revise
         self.bogus_cites, self.transient_once, self.raised_transient = set(bogus_cites), set(transient_once), set()
         self.messages: dict[str, str] = {}             # control id → the human message it was given
         self.no_answer_once, self.gave_no_answer = set(no_answer_once), set()
+        self.revise_no_writeup = revise_no_writeup
 
     def __call__(self, messages) -> AIMessage:
         system = next(m.content for m in messages if isinstance(m, SystemMessage))
@@ -105,6 +107,8 @@ class TesterScript:
                               "citations": c["citations"]})
             if not dismiss:
                 by_step.setdefault(c["test_step"], []).append(c)
+        if revise and self.revise_no_writeup:           # raises everything again but writes no finding
+            return _call("TesterOutput", {"decisions": decisions, "findings": []})
         prefix = "revised: " if revise else ""
         for step, cs in by_step.items():
             findings.append({"test_step": step, "candidate_ids": [c["candidate_id"] for c in cs],

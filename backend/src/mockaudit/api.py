@@ -49,22 +49,38 @@ class Live:
     def busy(self) -> bool:
         return self.task is not None and not self.task.done()
 
-    def progress(self, run_id: str):
-        def on_task(chunk: dict) -> None:
-            run = self.runs[run_id]
-            name = chunk.get("name")
-            if name == "control" and "input" in chunk:
-                spec = (chunk["input"] or {}).get("spec", {})
-                run["controls"][spec.get("control_id", "?")] = "revising" if chunk["input"].get("revise") else "running"
-            elif name == "control" and "result" in chunk:
-                for cid, res in ((chunk.get("result") or {}).get("results") or {}).items():
-                    run["controls"][cid] = "error" if res.get("status") == "error" else "done"
-                if chunk.get("error"):
-                    run["error"] = str(chunk["error"])
-            elif name in ("skeptic_one", "severity", "human_review", "report") and "input" in chunk:
-                run["phase"] = {"skeptic_one": "skeptic review", "severity": "severity", "human_review": "awaiting review",
-                                "report": "writing report"}[name]
-        return on_task
+    def progress(self, run_id: str) -> Progress:
+        return Progress(self.runs[run_id])
+
+
+STAGES = {"skeptic_one": "skeptic review", "severity": "severity", "human_review": "awaiting review",
+          "report": "writing report"}
+
+
+class Progress:
+    """Live progress for one run: control cards from the control node itself, stages from the task stream."""
+
+    def __init__(self, run: dict):
+        self.run, self.tasks = run, {}
+
+    def control(self, control_id: str, state: str) -> None:
+        self.run["controls"][control_id] = state
+
+    def __call__(self, chunk: dict) -> None:
+        name = chunk.get("name")
+        if name == "control" and "input" in chunk:          # scheduled; it turns "running" when its body starts
+            self.tasks[chunk["id"]] = (chunk["input"] or {}).get("spec", {}).get("control_id")
+        elif name == "control" and "result" in chunk:
+            cid = self.tasks.pop(chunk.get("id"), None)
+            results = (chunk.get("result") or {}).get("results") or {}
+            for rid, res in results.items():
+                self.run["controls"][rid] = "error" if res.get("status") == "error" else "done"
+            if cid and cid not in results:                    # a revise pass returns findings only
+                self.run["controls"][cid] = "error" if chunk.get("error") else "done"
+            if chunk.get("error"):
+                self.run["error"] = str(chunk["error"])
+        elif name in STAGES and "input" in chunk:
+            self.run["phase"] = STAGES[name]
 
 
 def create_app(data_root: Path, runs_dir: Path, models_factory=None, spend_path: Path | None = None) -> FastAPI:

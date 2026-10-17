@@ -365,3 +365,27 @@ async def test_tester_ending_without_structured_output_is_retried_once(tmp_path,
     tester.no_answer_once = {"C2"}
     _, run_dir = await run(tmp_path, data_root, "noanswer", StubModels(tester), controls=["C2"])
     assert tester.gave_no_answer == {"C2"} and results(run_dir)["C2"].status == "exceptions"
+
+
+
+async def test_revise_pass_without_a_write_up_keeps_the_raised_items_as_the_revised_finding(tmp_path, data_root, key):
+    """Seen in the live run: the tester re-raised G7's weeks on revision but wrote no finding; it must not vanish."""
+    tester = good_tester(key)
+    tester.revise_no_writeup = True
+    skeptic = SkepticScript(lambda fid, rnd: "revise" if fid == "C8-weekly_scan" and rnd == 0 else "keep")
+    _, run_dir = await run(tmp_path, data_root, "nowriteup", StubModels(tester, skeptic), controls=["C8"])
+    f = next(f for f in results(run_dir)["C8"].findings if f.finding_id == "C8-weekly_scan")
+    assert f.status == "kept" and (f.exceptions, f.tested) == (3, 53)
+    assert any(s.text == "raised by default: no tester write-up" for s in f.reasoning)
+
+
+async def test_report_says_dismissed_in_review_not_no_exceptions(tmp_path, data_root, key):
+    models = StubModels(good_tester(key))
+    _, run_dir = await run(tmp_path, data_root, "dismissreview", models, review_mode="human", controls=["C12"])
+    request = json.loads((run_dir / "review_request.json").read_text())
+    for d in request["decisions"]:
+        d["decision"] = "dismiss"
+    await resume_audit(run_dir, request, models)
+    md = (run_dir / "report.md").read_text()
+    assert "| C12 | exceptions dismissed in review |" in md and "no exceptions found" not in md
+    assert results(run_dir)["C12"].population_size == 1

@@ -1,0 +1,816 @@
+{
+  "$defs": {
+    "Candidate": {
+      "additionalProperties": false,
+      "description": "An item code flagged (check failure or missing from the population).",
+      "properties": {
+        "candidate_id": {
+          "type": "string"
+        },
+        "citations": {
+          "items": {
+            "$ref": "#/$defs/Citation"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "control_id": {
+          "type": "string"
+        },
+        "detail": {
+          "type": "string"
+        },
+        "gap_type": {
+          "enum": [
+            "operating",
+            "population_completeness",
+            "segregation_of_duties",
+            "frequency_gap",
+            "sla_breach",
+            "evidence_out_of_period",
+            "missing_evidence",
+            "design"
+          ],
+          "type": "string"
+        },
+        "record_id": {
+          "type": "string"
+        },
+        "test_step": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "candidate_id",
+        "control_id",
+        "test_step",
+        "record_id",
+        "gap_type",
+        "detail",
+        "citations"
+      ],
+      "title": "Candidate",
+      "type": "object"
+    },
+    "CheckResult": {
+      "additionalProperties": false,
+      "properties": {
+        "detail": {
+          "additionalProperties": true,
+          "default": {},
+          "type": "object"
+        },
+        "passed": {
+          "type": "boolean"
+        },
+        "record_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "step_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "step_id",
+        "record_id",
+        "passed"
+      ],
+      "title": "CheckResult",
+      "type": "object"
+    },
+    "Citation": {
+      "additionalProperties": false,
+      "properties": {
+        "record_id": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "source",
+        "record_id"
+      ],
+      "title": "Citation",
+      "type": "object"
+    },
+    "ControlResult": {
+      "additionalProperties": false,
+      "properties": {
+        "agent": {
+          "default": "default",
+          "type": "string"
+        },
+        "candidates": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Candidate"
+          },
+          "type": "array"
+        },
+        "check_results": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/CheckResult"
+          },
+          "type": "array"
+        },
+        "control_id": {
+          "type": "string"
+        },
+        "cost_usd": {
+          "default": 0.0,
+          "type": "number"
+        },
+        "coverage": {
+          "$ref": "#/$defs/Coverage",
+          "default": {
+            "not_tested": [],
+            "tested": []
+          }
+        },
+        "dismissals": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Dismissal"
+          },
+          "type": "array"
+        },
+        "dropped_citations": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Citation"
+          },
+          "type": "array"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "findings": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Finding"
+          },
+          "type": "array"
+        },
+        "missing_from_population": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "model": {
+          "default": "",
+          "type": "string"
+        },
+        "notes": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "owner_questions": {
+          "default": [],
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "population_complete": {
+          "default": true,
+          "type": "boolean"
+        },
+        "population_size": {
+          "default": 0,
+          "type": "integer"
+        },
+        "revision_round": {
+          "default": 0,
+          "type": "integer"
+        },
+        "run_id": {
+          "default": "",
+          "type": "string"
+        },
+        "sample": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "sample_facts": {
+          "additionalProperties": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "default": {},
+          "type": "object"
+        },
+        "samples": {
+          "additionalProperties": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "default": {},
+          "type": "object"
+        },
+        "status": {
+          "enum": [
+            "pass",
+            "exceptions",
+            "error"
+          ],
+          "type": "string"
+        },
+        "tested_counts": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "default": {},
+          "type": "object"
+        },
+        "tokens": {
+          "default": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "control_id",
+        "status"
+      ],
+      "title": "ControlResult",
+      "type": "object"
+    },
+    "ControlSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "agent_type": {
+          "default": "default",
+          "type": "string"
+        },
+        "automated": {
+          "type": "boolean"
+        },
+        "control_id": {
+          "pattern": "^C\\d+$",
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/EvidenceSource"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "frequency": {
+          "$ref": "#/$defs/Frequency"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "period": {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "format": "date",
+              "type": "string"
+            }
+          ],
+          "type": "array"
+        },
+        "risk": {
+          "enum": [
+            "low",
+            "moderate",
+            "high"
+          ],
+          "type": "string"
+        },
+        "test_recipe": {
+          "items": {
+            "$ref": "#/$defs/TestStep"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "tsc": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "required": [
+        "control_id",
+        "description",
+        "tsc",
+        "frequency",
+        "automated",
+        "risk",
+        "owner",
+        "period",
+        "evidence",
+        "test_recipe"
+      ],
+      "title": "ControlSpec",
+      "type": "object"
+    },
+    "Coverage": {
+      "additionalProperties": false,
+      "properties": {
+        "not_tested": {
+          "default": [],
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "tested": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "tested"
+      ],
+      "title": "Coverage",
+      "type": "object"
+    },
+    "Dismissal": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_id": {
+          "type": "string"
+        },
+        "citations": {
+          "items": {
+            "$ref": "#/$defs/Citation"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "control_id": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "reasoning": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ReasoningStep"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "candidate_id",
+        "control_id",
+        "reason",
+        "citations"
+      ],
+      "title": "Dismissal",
+      "type": "object"
+    },
+    "EvidenceSource": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "record_id_field": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "role": {
+          "enum": [
+            "population",
+            "independent",
+            "supporting",
+            "policy",
+            "artifact"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "path",
+        "role"
+      ],
+      "title": "EvidenceSource",
+      "type": "object"
+    },
+    "Finding": {
+      "additionalProperties": false,
+      "properties": {
+        "cause": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "citations": {
+          "items": {
+            "$ref": "#/$defs/Citation"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "condition": {
+          "type": "string"
+        },
+        "control_id": {
+          "type": "string"
+        },
+        "criteria": {
+          "type": "string"
+        },
+        "effect": {
+          "type": "string"
+        },
+        "exceptions": {
+          "type": "integer"
+        },
+        "finding_id": {
+          "type": "string"
+        },
+        "gap_type": {
+          "enum": [
+            "operating",
+            "population_completeness",
+            "segregation_of_duties",
+            "frequency_gap",
+            "sla_breach",
+            "evidence_out_of_period",
+            "missing_evidence",
+            "design"
+          ],
+          "type": "string"
+        },
+        "reasoning": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ReasoningStep"
+          },
+          "type": "array"
+        },
+        "recommendation": {
+          "type": "string"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "enum": [
+                "low",
+                "moderate",
+                "high"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "severity_rule": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "status": {
+          "default": "draft",
+          "enum": [
+            "draft",
+            "kept",
+            "unresolved",
+            "rejected",
+            "approved",
+            "dismissed"
+          ],
+          "type": "string"
+        },
+        "test_step": {
+          "type": "string"
+        },
+        "tested": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "finding_id",
+        "control_id",
+        "test_step",
+        "gap_type",
+        "exceptions",
+        "tested",
+        "condition",
+        "criteria",
+        "effect",
+        "recommendation",
+        "citations"
+      ],
+      "title": "Finding",
+      "type": "object"
+    },
+    "Frequency": {
+      "enum": [
+        "event",
+        "continuous",
+        "daily",
+        "weekly",
+        "monthly",
+        "quarterly",
+        "annual"
+      ],
+      "title": "Frequency",
+      "type": "string"
+    },
+    "ReasoningStep": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "check",
+            "tool",
+            "owner",
+            "llm",
+            "rule"
+          ],
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "text"
+      ],
+      "title": "ReasoningStep",
+      "type": "object"
+    },
+    "RunConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "control_timeout_s": {
+          "default": 420,
+          "type": "integer"
+        },
+        "controls": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "max_concurrency": {
+          "default": 4,
+          "type": "integer"
+        },
+        "mode": {
+          "default": "agent",
+          "enum": [
+            "agent",
+            "skeptic_off",
+            "checks_only"
+          ],
+          "type": "string"
+        },
+        "review_mode": {
+          "default": "skip",
+          "enum": [
+            "human",
+            "skip"
+          ],
+          "type": "string"
+        },
+        "run_id": {
+          "type": "string"
+        },
+        "run_spend_cap_usd": {
+          "default": 1.0,
+          "type": "number"
+        },
+        "skeptic_model": {
+          "default": "",
+          "type": "string"
+        },
+        "tester_model": {
+          "default": "",
+          "type": "string"
+        },
+        "variant": {
+          "default": "base",
+          "type": "string"
+        }
+      },
+      "required": [
+        "run_id"
+      ],
+      "title": "RunConfig",
+      "type": "object"
+    },
+    "SkepticVerdict": {
+      "additionalProperties": false,
+      "properties": {
+        "checks_failed": {
+          "default": [],
+          "items": {
+            "enum": [
+              "citation_mismatch",
+              "out_of_period",
+              "out_of_scope",
+              "innocent_explanation",
+              "logic_error",
+              "insufficient_evidence"
+            ],
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "decision": {
+          "enum": [
+            "keep",
+            "revise",
+            "reject"
+          ],
+          "type": "string"
+        },
+        "finding_id": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "reviewer": {
+          "default": "",
+          "type": "string"
+        }
+      },
+      "required": [
+        "finding_id",
+        "decision",
+        "reason"
+      ],
+      "title": "SkepticVerdict",
+      "type": "object"
+    },
+    "TestStep": {
+      "additionalProperties": false,
+      "properties": {
+        "check": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "description": {
+          "type": "string"
+        },
+        "gap_type": {
+          "default": "operating",
+          "enum": [
+            "operating",
+            "population_completeness",
+            "segregation_of_duties",
+            "frequency_gap",
+            "sla_breach",
+            "evidence_out_of_period",
+            "missing_evidence",
+            "design"
+          ],
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "judge": {
+          "default": "llm",
+          "enum": [
+            "none",
+            "llm"
+          ],
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": true,
+          "default": {},
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "description"
+      ],
+      "title": "TestStep",
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "Candidate": {
+      "$ref": "#/$defs/Candidate"
+    },
+    "CheckResult": {
+      "$ref": "#/$defs/CheckResult"
+    },
+    "Citation": {
+      "$ref": "#/$defs/Citation"
+    },
+    "ControlResult": {
+      "$ref": "#/$defs/ControlResult"
+    },
+    "ControlSpec": {
+      "$ref": "#/$defs/ControlSpec"
+    },
+    "Coverage": {
+      "$ref": "#/$defs/Coverage"
+    },
+    "Dismissal": {
+      "$ref": "#/$defs/Dismissal"
+    },
+    "Finding": {
+      "$ref": "#/$defs/Finding"
+    },
+    "ReasoningStep": {
+      "$ref": "#/$defs/ReasoningStep"
+    },
+    "RunConfig": {
+      "$ref": "#/$defs/RunConfig"
+    },
+    "SkepticVerdict": {
+      "$ref": "#/$defs/SkepticVerdict"
+    }
+  },
+  "title": "MockAudit",
+  "type": "object"
+}

@@ -19,14 +19,15 @@ def new_run_id(mode: str, variant: str) -> str:
     return f"{prefix}-{variant}-{datetime.now(UTC).strftime('%Y%m%dT%H%M%S%fZ')[:-4]}"
 
 
-def make_context(cfg: RunConfig, data_root: Path, runs_dir: Path, models=None, spend_path: Path | None = None) -> AuditContext:
+def make_context(cfg: RunConfig, data_root: Path, runs_dir: Path, models=None, spend_path: Path | None = None,
+                 progress=None) -> AuditContext:
     spend = None
     if cfg.mode != "checks_only":
         from mockaudit.llm import Spend
         spend = Spend(spend_path or Path(runs_dir) / "spend.jsonl", cfg.run_id, cfg.run_spend_cap_usd,
                       float(os.environ.get("PROJECT_SPEND_CAP_USD", "9.50")))
     return AuditContext(data_dir=Path(data_root) / cfg.variant, run_dir=Path(runs_dir) / cfg.run_id, models=models,
-                        spend=spend, timeout_s=cfg.control_timeout_s)
+                        spend=spend, timeout_s=cfg.control_timeout_s, on_control=getattr(progress, "control", None))
 
 
 def _invoke_config(cfg: RunConfig) -> dict:
@@ -39,7 +40,7 @@ async def run_audit(cfg: RunConfig, data_root: Path, runs_dir: Path, models=None
     data_dir = Path(data_root) / cfg.variant
     if not (data_dir / "controls.yaml").exists():
         raise FileNotFoundError(f"no dataset at {data_dir}; run `mockaudit gen --variant {cfg.variant}` first")
-    ctx = make_context(cfg, data_root, runs_dir, models, spend_path)
+    ctx = make_context(cfg, data_root, runs_dir, models, spend_path, progress)
     ctx.run_dir.mkdir(parents=True, exist_ok=True)
     (ctx.run_dir / "config.json").write_text(json.dumps({"config": cfg.model_dump(), "data_root": str(Path(data_root).resolve()),
                                                           "spend_path": str(spend_path) if spend_path else None}, indent=2))
@@ -73,5 +74,5 @@ async def resume_audit(run_dir: Path, decisions: dict | list, models=None, progr
     meta = json.loads((Path(run_dir) / "config.json").read_text())
     cfg = RunConfig.model_validate(meta["config"])
     spend_path = Path(meta["spend_path"]) if meta.get("spend_path") else None
-    ctx = make_context(cfg, Path(meta["data_root"]), Path(run_dir).parent, models, spend_path)
+    ctx = make_context(cfg, Path(meta["data_root"]), Path(run_dir).parent, models, spend_path, progress)
     return await _stream(ctx, cfg, Command(resume=decisions), progress)

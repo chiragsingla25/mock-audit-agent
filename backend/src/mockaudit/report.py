@@ -26,7 +26,13 @@ def write_run(state: dict, ctx) -> dict:
         r = ControlResult.model_validate({**raw, "findings": [f.model_dump() for f in mine],
                                           "dismissals": [d.model_dump() for d in dismissals if d.control_id == cid]})
         if r.status != "error":
-            r.status = "exceptions" if any(f.status not in ("rejected", "dismissed") for f in mine) else "pass"
+            live_findings = [f for f in mine if f.status not in ("rejected", "dismissed")]
+            reviewer_dismissed = [f for f in mine if f.finding_id in (state.get("decisions") or {}) and f.status == "dismissed"]
+            r.status = "exceptions" if live_findings else "pass"
+            if not live_findings and reviewer_dismissed:
+                r.notes = r.notes + [f"{len(reviewer_dismissed)} finding(s) dismissed in review"]
+        if not r.population_size and r.sample:
+            r.population_size = len(r.sample)              # judgment-only controls: the items inspected
         if spend is not None and cid in spend.by_control:
             r.cost_usd, r.tokens = round(spend.by_control[cid][0], 6), spend.by_control[cid][1]
         r.revision_round = int(any(s.text.startswith("skeptic round 1") for f in mine for s in f.reasoning))
@@ -67,7 +73,9 @@ def render_md(rep: dict, results: list[ControlResult]) -> str:
            f"_{rep['statement']}_ Mode: {rep['mode']}, review: {rep['review_mode']}.", "",
            "## Coverage", "", "| Control | Status | Steps tested | Not tested | Notes |", "|---|---|---|---|---|"]
     for c in rep["coverage"]:
-        status = {"error": f"error ({c['error']})", "pass": "no exceptions found"}.get(c["status"], c["status"])
+        dismissed = any("dismissed in review" in n for n in c["notes"])
+        status = {"error": f"error ({c['error']})",
+                  "pass": "exceptions dismissed in review" if dismissed else "no exceptions found"}.get(c["status"], c["status"])
         nt = ", ".join(f"{x['step_id']} ({x['reason']})" for x in c["not_tested"]) or "—"
         out.append(f"| {c['control_id']} | {status} | {', '.join(c['tested']) or '—'} | {nt} | {'; '.join(c['notes'])[:120] or '—'} |")
     out += ["", f"## Findings ({len(rep['findings'])})", ""]

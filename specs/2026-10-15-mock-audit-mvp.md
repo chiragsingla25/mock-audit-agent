@@ -164,10 +164,10 @@ Four screens, as in the 2026-10-15 mockup:
 2. **Progress:** 12 control cards (queued → running → done / error), polled every second; totals and cost.
 3. **Findings:** a list (findings, "not raised", "rejected by skeptic") and a detail view (condition, criteria, cause, effect, recommendation, citations with the cited rows shown inline, reasoning step list, skeptic verdict, severity), plus approve / dismiss with a note.
 4. **Report:** approved findings, coverage per control, remediation tasks; export Markdown and JSON; no pass badge.
-- [ ] One data layer (`NEXT_PUBLIC_MODE=live|showcase`); screens never call `fetch` directly.
-- [ ] TypeScript types are generated from the Pydantic JSON Schema.
-- [ ] Submitting the review resumes the paused graph, and the report shows only approved findings.
-- [ ] Failure case: starting an audit with the API down shows "Can't reach the local API. Start it with `uv run mockaudit serve`."
+- [x] One data layer (`NEXT_PUBLIC_MODE=live|showcase`); screens never call `fetch` directly.
+- [x] TypeScript types are generated from the Pydantic JSON Schema.
+- [x] Submitting the review resumes the paused graph, and the report shows only approved findings.
+- [x] Failure case: starting an audit with the API down shows "Can't reach the local API. Start it with `uv run mockaudit serve`."
 
 Clarified 2026-10-17 (Phase 5 clarify pass, ruled by Chirag):
 - No 2026-10-15 mockup exists in the repo or the artifacts, so the screens are built from this phase's list and PRD §9. Screenshots are shown at the gate.
@@ -269,3 +269,21 @@ Golden answer key with code-scored metrics (proposal §7), unit tests per criter
   - **Cost:** US$0.030 per audit; eval total US$0.15 of the US$2 cap. Project spend is US$0.55 of US$10.
   - **Skeptic fallback:** answered 11 of about 55 skeptic calls (the `minimal` call hit its 6,000-token cap). All were keeps, and the cost stays bounded.
 - [phase 4 follow-up] A tester that ends without `TesterOutput` now raises `TesterNoAnswer`, which the tester node's `RetryPolicy` retries once (as with schema failures) — reliability fix — stub-tested. It's not re-verified with another paid eval; the variant a miss above predates it.
+- [phase 5] Verify line done by hand in the built-in browser on a real agent audit (`audit-base-20261017T022850664`, US$0.023):
+  - **API down:** Start showed the exact API-down message.
+  - **Progress:** 12 cards progressed and the run paused for review.
+  - **Findings:** opened C2-timeliness (G1); its 16-step list, cited rows and the two-round skeptic exchange all showed.
+  - **Review:** approved 8 findings and dismissed C12; the graph resumed.
+  - **Report:** showed exactly the 8 approved findings, with the reviewer note.
+  - **Export:** Markdown export returned 200.
+- [phase 5] Builder bugs found by that live run, all fixed with regression tests:
+  - **(a) Revise write-up:** in a revise pass where the tester re-raised items but wrote no finding, the finding was marked dismissed. G7 was lost again this way. A revise pass now applies the same "raised by default" code finding, keeping the revised id.
+  - **(b) Card states:** cards said "running" when a control was merely *scheduled* (LangGraph emits task-start at scheduling), and stayed "revising" after a revise pass. Now "running" comes from the control node body (`AuditContext.on_control`), and task-finish events are matched by task id.
+  - **(c) Coverage label:** coverage said "no exceptions found" for a control whose finding was dismissed in review. It now says "exceptions dismissed in review", and judgment-only controls show their sample size as population.
+- [phase 5] Routing uses query strings (`/audit?run=…`, `/findings?run=…`, `/report?run=…`) instead of dynamic `[id]` segments, so every route prerenders as static and Phase 6's export needs no per-run `generateStaticParams` — design simplification against the Phase 6 wording, recorded for Phase 6.
+- [phase 5] Frontend tooling: create-next-app 16.4.2 pinned `@types/node@^20`. The latest `@vitejs/plugin-react` needs Vite 8, which Vitest 3 doesn't ship, and Next's build typecheck failed on the config. The fix was Vitest 5 + `@types/node@24`, matching Node 24 — dependency gap.
+- [phase 5] API additions beyond spec §4: `GET /config` and `GET /audits`. Reviewer submissions are saved to `review_submitted.json` — interface additions.
+- [phase 5] Not fixed (noted):
+  - A finding's step list holds every tool call of its control's tester run, not only the calls about that finding.
+  - In the live run the skeptic misquoted policy 4.3 ("excludes weekends"), though its verdict was correct.
+  - Both are LLM/presentation quality issues for the roadmap.
