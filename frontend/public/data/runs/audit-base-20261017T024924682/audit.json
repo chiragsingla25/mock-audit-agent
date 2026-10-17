@@ -1,0 +1,26 @@
+{
+ "run_id": "audit-base-20261017T024924682",
+ "variant": "base",
+ "mode": "agent",
+ "status": "done",
+ "phase": "done",
+ "error": null,
+ "controls": {
+  "C1": "done",
+  "C2": "done",
+  "C3": "done",
+  "C4": "done",
+  "C5": "done",
+  "C6": "done",
+  "C7": "done",
+  "C8": "done",
+  "C9": "done",
+  "C10": "done",
+  "C11": "done",
+  "C12": "done"
+ },
+ "control_errors": {},
+ "cost_usd": 0.015616,
+ "tokens": 124350,
+ "llm_calls": 34
+}

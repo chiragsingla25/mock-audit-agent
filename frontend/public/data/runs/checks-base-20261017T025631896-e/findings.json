@@ -1,0 +1,850 @@
+{
+ "run_id": "checks-base-20261017T025631896-e",
+ "status": "done",
+ "findings": [
+  {
+   "finding_id": "C1-approval",
+   "control_id": "C1",
+   "test_step": "approval",
+   "gap_type": "operating",
+   "exceptions": 1,
+   "tested": 61,
+   "condition": "1 of 61 items failed: AR-0031. Granted 49.0 h before it was approved.",
+   "criteria": "Each access grant has an approval timestamp at or before the grant",
+   "cause": null,
+   "effect": "The control 'New access is approved before it is granted' did not operate as designed for these items.",
+   "recommendation": "Investigate each exception with the control owner and remediate.",
+   "citations": [
+    {
+     "source": "access_requests",
+     "record_id": "AR-0031"
+    }
+   ],
+   "severity": "moderate",
+   "severity_rule": 5,
+   "status": "kept",
+   "reasoning": [
+    {
+     "kind": "check",
+     "text": "approval_before_grant: 1 of 61 failed"
+    },
+    {
+     "kind": "rule",
+     "text": "severity rule 5: operating, 1/61, high-risk control → moderate"
+    }
+   ],
+   "group": "findings",
+   "cited": [
+    {
+     "source": "access_requests",
+     "record_id": "AR-0031",
+     "record": {
+      "request_id": "AR-0031",
+      "user_employee_id": "E1141",
+      "user_email": "hugo.taylor@ledgerly.io",
+      "application": "Okta",
+      "role": "Employee-Base",
+      "requested_utc": "2026-05-02T23:00:00Z",
+      "approver": "Grace Okafor",
+      "approved_utc": "2026-05-03T00:00:00Z",
+      "granted_utc": "2026-04-30T23:00:00Z",
+      "granted_by": "hr-provisioning"
+     }
+    }
+   ],
+   "verdicts": [],
+   "decision": null
+  },
+  {
+   "finding_id": "C2-completeness",
+   "control_id": "C2",
+   "test_step": "completeness",
+   "gap_type": "population_completeness",
+   "exceptions": 1,
+   "tested": 20,
+   "condition": "1 of 20 items failed: E1070. E1070 is missing from okta_events.",
+   "criteria": "Every HR termination with an Okta account appears in the deprovisioning population",
+   "cause": null,
+   "effect": "The control 'Terminated users lose access within 24 hours' did not operate as designed for these items.",
+   "recommendation": "Investigate each exception with the control owner and remediate.",
+   "citations": [
+    {
+     "source": "hr_roster",
+     "record_id": "E1070"
+    },
+    {
+     "source": "okta_users",
+     "record_id": "00u27ba276404"
+    }
+   ],
+   "severity": "high",
+   "severity_rule": 2,
+   "status": "kept",
+   "reasoning": [
+    {
+     "kind": "check",
+     "text": "population_diff: 1 of 20 failed"
+    },
+    {
+     "kind": "rule",
+     "text": "severity rule 2: population_completeness, 1/20, high-risk control → high"
+    }
+   ],
+   "group": "findings",
+   "cited": [
+    {
+     "source": "hr_roster",
+     "record_id": "E1070",
+     "record": {
+      "employee_id": "E1070",
+      "name": "Anderson, Ivy",
+      "email": "ivy.anderson@ledgerly.io",
+      "worker_type": "employee",
+      "department": "Sales",
+      "title": "Account Executive",
+      "hire_local": "2022-08-20 09:00",
+      "termination_local": "2026-04-25 16:45",
+      "timezone": "Australia/Sydney",
+      "status": "terminated",
+      "termination_reason": "Involuntary",
+      "prior_employee_id": ""
+     }
+    },
+    {
+     "source": "okta_users",
+     "record_id": "00u27ba276404",
+     "record": {
+      "user_id": "00u27ba276404",
+      "login": "ivy.anderson@ledgerly.io",
+      "display_name": "Ivy Anderson",
+      "status": "ACTIVE",
+      "created_utc": "2022-08-17T23:00:00Z",
+      "groups": "Everyone;Sales"
+     }
+    }
+   ],
+   "verdicts": [],
+   "decision": null
+  },
+  {
+   "finding_id": "C2-timeliness",
+   "control_id": "C2",
+   "test_step": "timeliness",
+   "gap_type": "operating",
+   "exceptions": 3,
+   "tested": 18,
+   "condition": "3 of 18 items failed: E1055, E1083, E1109. First suspend/deactivate 219.0 h after termination (limit 24 h). First suspend/deactivate 1826.0 h after termination (limit 24 h). First suspend/deactivate 63.0 h after termination (limit 24 h).",
+   "criteria": "First suspend or deactivate event within 24 clock hours of termination",
+   "cause": null,
+   "effect": "The control 'Terminated users lose access within 24 hours' did not operate as designed for these items.",
+   "recommendation": "Investigate each exception with the control owner and remediate.",
+   "citations": [
+    {
+     "source": "hr_roster",
+     "record_id": "E1055"
+    },
+    {
+     "source": "okta_events",
+     "record_id": "OK-000099"
+    },
+    {
+     "source": "hr_roster",
+     "record_id": "E1083"
+    },
+    {
+     "source": "okta_events",
+     "record_id": "OK-000263"
+    },
+    {
+     "source": "hr_roster",
+     "record_id": "E1109"
+    },
+    {
+     "source": "okta_events",
+     "record_id": "OK-000261"
+    }
+   ],
+   "severity": "high",
+   "severity_rule": 4,
+   "status": "kept",
+   "reasoning": [
+    {
+     "kind": "check",
+     "text": "revocation_delay: 3 of 18 failed"
+    },
+    {
+     "kind": "rule",
+     "text": "severity rule 4: operating, 3/18, high-risk control → high"
+    }
+   ],
+   "group": "findings",
+   "cited": [
+    {
+     "source": "hr_roster",
+     "record_id": "E1055",
+     "record": {
+      "employee_id": "E1055",
+      "name": "Young, Evie",
+      "email": "evie.young@ledgerly.io",
+      "worker_type": "employee",
+      "department": "Engineering",
+      "title": "Software Engineer",
+      "hire_local": "2021-12-03 09:00",
+      "termination_local": "2026-01-27 17:00",
+      "timezone": "Australia/Sydney",
+      "status": "terminated",
+      "termination_reason": "Involuntary",
+      "prior_employee_id": ""
+     }
+    },
+    {
+     "source": "okta_events",
+     "record_id": "OK-000099",
+     "record": {
+      "event_id": "OK-000099",
+      "published_utc": "2026-02-05T09:00:00Z",
+      "event_type": "user.lifecycle.suspend",
+      "target_login": "evie.young@ledgerly.io",
+      "target_user_id": "00udd56b99e95",
+      "actor": "okta-workflows",
+      "detail": ""
+     }
+    },
+    {
+     "source": "hr_roster",
+     "record_id": "E1083",
+     "record": {
+      "employee_id": "E1083",
+      "name": "Khan, Noah",
+      "email": "noah.khan@ledgerly.io",
+      "worker_type": "employee",
+      "department": "Finance",
+      "title": "Financial Analyst",
+      "hire_local": "2023-07-24 09:00",
+      "termination_local": "2026-06-17 12:00",
+      "timezone": "Australia/Sydney",
+      "status": "terminated",
+      "termination_reason": "Conversion to contractor",
+      "prior_employee_id": ""
+     }
+    },
+    {
+     "source": "okta_events",
+     "record_id": "OK-000263",
+     "record": {
+      "event_id": "OK-000263",
+      "published_utc": "2026-09-01T04:00:00Z",
+      "event_type": "user.lifecycle.deactivate",
+      "target_login": "noah.khan@ledgerly.io",
+      "target_user_id": "00ub6da594d73",
+      "actor": "okta-workflows",
+      "detail": ""
+     }
+    },
+    {
+     "source": "hr_roster",
+     "record_id": "E1109",
+     "record": {
+      "employee_id": "E1109",
+      "name": "Ryan, Harper",
+      "email": "harper.ryan@ledgerly.io",
+      "worker_type": "employee",
+      "department": "Security",
+      "title": "Security Engineer",
+      "hire_local": "2024-12-28 09:00",
+      "termination_local": "2026-08-28 18:00",
+      "timezone": "Australia/Sydney",
+      "status": "terminated",
+      "termination_reason": "Resignation",
+      "prior_employee_id": ""
+     }
+    },
+    {
+     "source": "okta_events",
+     "record_id": "OK-000261",
+     "record": {
+      "event_id": "OK-000261",
+      "published_utc": "2026-08-30T23:00:00Z",
+      "event_type": "user.lifecycle.suspend",
+      "target_login": "harper.ryan@ledgerly.io",
+      "target_user_id": "00u9e7e10450d",
+      "actor": "okta-workflows",
+      "detail": ""
+     }
+    }
+   ],
+   "verdicts": [],
+   "decision": null
+  },
+  {
+   "finding_id": "C5-completeness",
+   "control_id": "C5",
+   "test_step": "completeness",
+   "gap_type": "population_completeness",
+   "exceptions": 1,
+   "tested": 30,
+   "condition": "1 of 30 items failed: AIDAFCB2757B1F7F@PAR-2026Q3. AIDAFCB2757B1F7F existed on 2026-10-07 but is not in PAR-2026Q3.",
+   "criteria": "Every AWS admin that existed at the review date is on that quarter's reviewed list",
+   "cause": null,
+   "effect": "The control 'Privileged access is reviewed quarterly' did not operate as designed for these items.",
+   "recommendation": "Investigate each exception with the control owner and remediate.",
+   "citations": [
+    {
+     "source": "aws_iam_admins",
+     "record_id": "AIDAFCB2757B1F7F"
+    },
+    {
+     "source": "privileged_access_reviews",
+     "record_id": "PAR-2026Q3"
+    }
+   ],
+   "severity": "high",
+   "severity_rule": 2,
+   "status": "kept",
+   "reasoning": [
+    {
+     "kind": "check",
+     "text": "set_mismatch: 1 of 30 failed"
+    },
+    {
+     "kind": "rule",
+     "text": "severity rule 2: population_completeness, 1/30, high-risk control → high"
+    }
+   ],
+   "group": "findings",
+   "cited": [
+    {
+     "source": "aws_iam_admins",
+     "record_id": "AIDAFCB2757B1F7F",
+     "record": {
+      "principal_id": "AIDAFCB2757B1F7F",
+      "name": "security-audit",
+      "arn": "arn:aws:iam::418295730012:role/security-audit",
+      "policy": "AdministratorAccess",
+      "created_utc": "2026-03-13T04:00:00Z"
+     }
+    },
+    {
+     "source": "privileged_access_reviews",
+     "record_id": "PAR-2026Q3",
+     "record": {
+      "ID": "PAR-2026Q3",
+      "System": "AWS IAM principals with AdministratorAccess",
+      "Quarter end": "2026-09-30",
+      "Review date": "2026-10-07",
+      "Evidence collected": "2026-10-30",
+      "Reviewer": "Elena Petrov, Head of Platform",
+      "Signed": "2026-10-08",
+      "text": "# Privileged Access Review 2026Q3\nID: PAR-2026Q3\nSystem: AWS IAM principals with AdministratorAccess\nQuarter end: 2026-09-30\nReview date: 2026-10-07\nEvidence collected: 2026-10-30\n\n| Principal | Name | Decision |\n|---|---|---|\n| AIDA9E7FA9AC41D2 | platform-admin | Keep |\n| AIDA0AAD38CCA3BE | break-glass | Keep |\n| AIDA349244FEAF23 | terraform-ci | Keep |\n| AIDACBA89CE7D8D2 | sre-oncall | Keep |\n| AIDAF2124F2F0B0C | elena.petrov | Keep |\n| AIDAB32A3BFE4924 | marcus.bell | Keep |\n| AIDA9FB60030A967 | data-migration | Keep |\n\nReviewer: Elena Petrov, Head of Platform\nSigned: 2026-10-08\n"
+     }
+    }
+   ],
+   "verdicts": [],
+   "decision": null
+  },
+  {
+   "finding_id": "C6-segregation",
+   "control_id": "C6",
+   "test_step": "segregation",
+   "gap_type": "segregation_of_duties",
+   "exceptions": 4,
+   "tested": 320,
+   "condition": "4 of 320 items failed: PR-1230, PR-1018, PR-1300, PR-1265. Merged with no approver other than the author (matilda.taylor). Merged with no approver other than the author (william.wilson). Merged with no approver other than the author (matilda.singh). Merged with no approver other than the author (ivy.sato).",
+   "criteria": "Every PR merged to main has at least one approver who is not the author",
+   "cause": null,
+   "effect": "The control 'Production changes are approved by someone other than the author' did not operate as designed for these items.",
+   "recommendation": "Investigate each exception with the control owner and remediate.",
+   "citations": [
+    {
+     "source": "github_prs",
+     "record_id": "PR-1230"
+    },
+    {
+     "source": "github_prs",
+     "record_id": "PR-1018"
+    },
+    {
+     "source": "github_prs",
+     "record_id": "PR-1300"
+    },
+    {
+     "source": "github_prs",
+     "record_id": "PR-1265"
+    }
+   ],
+   "severity": "high",
+   "severity_rule": 1,
+   "status": "kept",
+   "reasoning": [
+    {
+     "kind": "check",
+     "text": "author_ne_approver: 4 of 320 failed"
+    },
+    {
+     "kind": "rule",
+     "text": "severity rule 1: segregation_of_duties, 4/320, high-risk control → high"
+    }
+   ],
+   "group": "findings",
+   "cited": [
+    {
+     "source": "github_prs",
+     "record_id": "PR-1230",
+     "record": {
+      "pr_id": "PR-1230",
+      "repo": "ledgerly-web",
+      "title": "Change 1230",
+      "author": "matilda.taylor",
+      "approvers": "matilda.taylor",
+      "base_branch": "main",
+      "merged_utc": "2026-01-09T21:58:00Z"
+     }
+    },
+    {
+     "source": "github_prs",
+     "record_id": "PR-1018",
+     "record": {
+      "pr_id": "PR-1018",
+      "repo": "ledgerly-web",
+      "title": "Change 1018",
+      "author": "william.wilson",
+      "approvers": "william.wilson",
+      "base_branch": "main",
+      "merged_utc": "2026-07-06T15:37:00Z"
+     }
+    },
+    {
+     "source": "github_prs",
+     "record_id": "PR-1300",
+     "record": {
+      "pr_id": "PR-1300",
+      "repo": "ledgerly-web",
+      "title": "Change 1300",
+      "author": "matilda.singh",
+      "approvers": "matilda.singh",
+      "base_branch": "main",
+      "merged_utc": "2026-08-14T16:12:00Z"
+     }
+    },
+    {
+     "source": "github_prs",
+     "record_id": "PR-1265",
+     "record": {
+      "pr_id": "PR-1265",
+      "repo": "billing-worker",
+      "title": "Change 1265",
+      "author": "ivy.sato",
+      "approvers": "ivy.sato",
+      "base_branch": "main",
+      "merged_utc": "2026-09-10T02:52:00Z"
+     }
+    }
+   ],
+   "verdicts": [],
+   "decision": null
+  },
+  {
+   "finding_id": "C7-ticketed",
+   "control_id": "C7",
+   "test_step": "ticketed",
+   "gap_type": "population_completeness",
+   "exceptions": 2,
+   "tested": 8,
+   "condition": "2 of 8 items failed: D-00389, D-00851. Emergency deploy has no linked change ticket. Emergency deploy has no linked change ticket.",
+   "criteria": "Every emergency deploy links an emergency change ticket",
+   "cause": null,
+   "effect": "The control 'Emergency changes are approved retroactively within 2 business days' did not operate as designed for these items.",
+   "recommendation": "Investigate each exception with the control owner and remediate.",
+   "citations": [
+    {
+     "source": "deploys",
+     "record_id": "D-00389"
+    },
+    {
+     "source": "deploys",
+     "record_id": "D-00851"
+    }
+   ],
+   "severity": "moderate",
+   "severity_rule": 6,
+   "status": "kept",
+   "reasoning": [
+    {
+     "kind": "check",
+     "text": "unticketed_deploys: 2 of 8 failed"
+    },
+    {
+     "kind": "rule",
+     "text": "severity rule 6: population_completeness, 2/8, moderate-risk control → moderate"
+    }
+   ],
+   "group": "findings",
+   "cited": [
+    {
+     "source": "deploys",
+     "record_id": "D-00389",
+     "record": {
+      "deploy_id": "D-00389",
+      "deployed_utc": "2026-02-23T18:43:00Z",
+      "service": "ledgerly-web",
+      "change_type": "emergency",
+      "pr_id": "",
+      "ticket": "",
+      "deployer": "ivy.sato"
+     }
+    },
+    {
+     "source": "deploys",
+     "record_id": "D-00851",
+     "record": {
+      "deploy_id": "D-00851",
+      "deployed_utc": "2026-09-11T19:27:00Z",
+      "service": "ledgerly-api",
+      "change_type": "emergency",
+      "pr_id": "",
+      "ticket": "",
+      "deployer": "noah.harris"
+     }
+    }
+   ],
+   "verdicts": [],
+   "decision": null
+  },
+  {
+   "finding_id": "C8-critical_sla",
+   "control_id": "C8",
+   "test_step": "critical_sla",
+   "gap_type": "sla_breach",
+   "exceptions": 2,
+   "tested": 9,
+   "condition": "2 of 9 items failed: VULN-0003, VULN-0028. 47 days (limit 30). 60 days (limit 30).",
+   "criteria": "Critical vulnerabilities are closed within 30 calendar days of being opened",
+   "cause": null,
+   "effect": "The control 'Vulnerability scans run weekly and critical findings are fixed within 30 days' did not operate as designed for these items.",
+   "recommendation": "Investigate each exception with the control owner and remediate.",
+   "citations": [
+    {
+     "source": "vulnerabilities",
+     "record_id": "VULN-0003"
+    },
+    {
+     "source": "vulnerabilities",
+     "record_id": "VULN-0028"
+    }
+   ],
+   "severity": "moderate",
+   "severity_rule": 6,
+   "status": "kept",
+   "reasoning": [
+    {
+     "kind": "check",
+     "text": "sla_days: 2 of 9 failed"
+    },
+    {
+     "kind": "rule",
+     "text": "severity rule 6: sla_breach, 2/9, moderate-risk control → moderate"
+    }
+   ],
+   "group": "findings",
+   "cited": [
+    {
+     "source": "vulnerabilities",
+     "record_id": "VULN-0003",
+     "record": {
+      "vuln_id": "VULN-0003",
+      "cve": "CVE-2026-29275",
+      "severity": "critical",
+      "asset": "api",
+      "opened_utc": "2025-11-01T08:00:00Z",
+      "closed_utc": "2025-12-18T11:00:00Z",
+      "status": "closed",
+      "risk_acceptance": ""
+     }
+    },
+    {
+     "source": "vulnerabilities",
+     "record_id": "VULN-0028",
+     "record": {
+      "vuln_id": "VULN-0028",
+      "cve": "CVE-2026-40619",
+      "severity": "critical",
+      "asset": "web",
+      "opened_utc": "2026-04-05T09:00:00Z",
+      "closed_utc": "2026-06-04T10:00:00Z",
+      "status": "closed",
+      "risk_acceptance": "RISK-7"
+     }
+    }
+   ],
+   "verdicts": [],
+   "decision": null
+  },
+  {
+   "finding_id": "C8-weekly_scan",
+   "control_id": "C8",
+   "test_step": "weekly_scan",
+   "gap_type": "frequency_gap",
+   "exceptions": 3,
+   "tested": 53,
+   "condition": "3 of 53 items failed: 2026-W32, 2026-W33, 2026-W34. No scanner_runs occurrence for 2026-W32. No scanner_runs occurrence for 2026-W33. No scanner_runs occurrence for 2026-W34.",
+   "criteria": "Each ISO week in the period has at least one completed scan",
+   "cause": null,
+   "effect": "The control 'Vulnerability scans run weekly and critical findings are fixed within 30 days' did not operate as designed for these items.",
+   "recommendation": "Investigate each exception with the control owner and remediate.",
+   "citations": [
+    {
+     "source": "scanner_runs",
+     "record_id": "SCAN-2026-W31"
+    },
+    {
+     "source": "scanner_runs",
+     "record_id": "SCAN-2026-W35"
+    }
+   ],
+   "severity": "moderate",
+   "severity_rule": 6,
+   "status": "kept",
+   "reasoning": [
+    {
+     "kind": "check",
+     "text": "periodic_occurrence: 3 of 53 failed"
+    },
+    {
+     "kind": "rule",
+     "text": "severity rule 6: frequency_gap, 3/53, moderate-risk control → moderate"
+    }
+   ],
+   "group": "findings",
+   "cited": [
+    {
+     "source": "scanner_runs",
+     "record_id": "SCAN-2026-W31",
+     "record": {
+      "scan_id": "SCAN-2026-W31",
+      "started_utc": "2026-07-29T02:00:00Z",
+      "scanner": "Nessus",
+      "target": "prod",
+      "status": "completed",
+      "critical": "2",
+      "high": "2"
+     }
+    },
+    {
+     "source": "scanner_runs",
+     "record_id": "SCAN-2026-W35",
+     "record": {
+      "scan_id": "SCAN-2026-W35",
+      "started_utc": "2026-08-26T02:00:00Z",
+      "scanner": "Nessus",
+      "target": "prod",
+      "status": "completed",
+      "critical": "2",
+      "high": "2"
+     }
+    }
+   ],
+   "verdicts": [],
+   "decision": null
+  },
+  {
+   "finding_id": "C9-pir",
+   "control_id": "C9",
+   "test_step": "pir",
+   "gap_type": "missing_evidence",
+   "exceptions": 1,
+   "tested": 7,
+   "condition": "1 of 7 items failed: INC-22. No linked post_incident_reviews document.",
+   "criteria": "Every Incident ticket links a post-incident review document",
+   "cause": null,
+   "effect": "The control 'Security incidents are logged and get a post-incident review' did not operate as designed for these items.",
+   "recommendation": "Investigate each exception with the control owner and remediate.",
+   "citations": [
+    {
+     "source": "jira_tickets",
+     "record_id": "INC-22"
+    }
+   ],
+   "severity": "moderate",
+   "severity_rule": 6,
+   "status": "kept",
+   "reasoning": [
+    {
+     "kind": "check",
+     "text": "required_link: 1 of 7 failed"
+    },
+    {
+     "kind": "rule",
+     "text": "severity rule 6: missing_evidence, 1/7, moderate-risk control → moderate"
+    }
+   ],
+   "group": "findings",
+   "cited": [
+    {
+     "source": "jira_tickets",
+     "record_id": "INC-22",
+     "record": {
+      "key": "INC-22",
+      "issue_type": "Incident",
+      "summary": "GuardDuty alert: unusual API calls from CI runner",
+      "created_utc": "2026-01-05T04:26:00Z",
+      "resolved_utc": "2026-01-06T03:26:00Z",
+      "status": "Done",
+      "resolution": "Not an incident (false positive)",
+      "approver": "",
+      "approved_utc": "",
+      "expires_utc": "",
+      "linked_deploy": "",
+      "linked_doc": ""
+     }
+    }
+   ],
+   "verdicts": [],
+   "decision": null
+  },
+  {
+   "finding_id": "C10-new_hire",
+   "control_id": "C10",
+   "test_step": "new_hire",
+   "gap_type": "operating",
+   "exceptions": 3,
+   "tested": 30,
+   "condition": "3 of 30 items failed: E1136, E1138, E1141. Completed 58 days after the event (limit 30). Completed 31 days after the event (limit 30). Completed 44 days after the event (limit 30).",
+   "criteria": "New hires complete new-hire security training within 30 days of their hire date",
+   "cause": null,
+   "effect": "The control 'Security training is completed within 30 days of hire and annually' did not operate as designed for these items.",
+   "recommendation": "Investigate each exception with the control owner and remediate.",
+   "citations": [
+    {
+     "source": "hr_roster",
+     "record_id": "E1136"
+    },
+    {
+     "source": "lms_completions",
+     "record_id": "LMS-00109"
+    },
+    {
+     "source": "hr_roster",
+     "record_id": "E1138"
+    },
+    {
+     "source": "lms_completions",
+     "record_id": "LMS-00073"
+    },
+    {
+     "source": "hr_roster",
+     "record_id": "E1141"
+    },
+    {
+     "source": "lms_completions",
+     "record_id": "LMS-00142"
+    }
+   ],
+   "severity": "moderate",
+   "severity_rule": 6,
+   "status": "kept",
+   "reasoning": [
+    {
+     "kind": "check",
+     "text": "days_after_event: 3 of 30 failed"
+    },
+    {
+     "kind": "rule",
+     "text": "severity rule 6: operating, 3/30, moderate-risk control → moderate"
+    }
+   ],
+   "group": "findings",
+   "cited": [
+    {
+     "source": "hr_roster",
+     "record_id": "E1136",
+     "record": {
+      "employee_id": "E1136",
+      "name": "Sato, Ravi",
+      "email": "ravi.sato@ledgerly.io",
+      "worker_type": "employee",
+      "department": "Engineering",
+      "title": "Software Engineer",
+      "hire_local": "2026-03-12 09:00",
+      "termination_local": "",
+      "timezone": "Australia/Sydney",
+      "status": "active",
+      "termination_reason": "",
+      "prior_employee_id": ""
+     }
+    },
+    {
+     "source": "lms_completions",
+     "record_id": "LMS-00109",
+     "record": {
+      "completion_id": "LMS-00109",
+      "employee_id": "E1136",
+      "course": "Security Awareness - New Hire",
+      "completed_local": "2026-05-09",
+      "score": "100"
+     }
+    },
+    {
+     "source": "hr_roster",
+     "record_id": "E1138",
+     "record": {
+      "employee_id": "E1138",
+      "name": "Fischer, Finn",
+      "email": "finn.fischer@ledgerly.io",
+      "worker_type": "employee",
+      "department": "Product",
+      "title": "Product Manager",
+      "hire_local": "2026-03-16 09:00",
+      "termination_local": "",
+      "timezone": "Australia/Sydney",
+      "status": "active",
+      "termination_reason": "",
+      "prior_employee_id": ""
+     }
+    },
+    {
+     "source": "lms_completions",
+     "record_id": "LMS-00073",
+     "record": {
+      "completion_id": "LMS-00073",
+      "employee_id": "E1138",
+      "course": "Security Awareness - New Hire",
+      "completed_local": "2026-04-16",
+      "score": "91"
+     }
+    },
+    {
+     "source": "hr_roster",
+     "record_id": "E1141",
+     "record": {
+      "employee_id": "E1141",
+      "name": "Taylor, Hugo",
+      "email": "hugo.taylor@ledgerly.io",
+      "worker_type": "employee",
+      "department": "Sales",
+      "title": "Account Executive",
+      "hire_local": "2026-05-01 09:00",
+      "termination_local": "",
+      "timezone": "Australia/Sydney",
+      "status": "active",
+      "termination_reason": "",
+      "prior_employee_id": ""
+     }
+    },
+    {
+     "source": "lms_completions",
+     "record_id": "LMS-00142",
+     "record": {
+      "completion_id": "LMS-00142",
+      "employee_id": "E1141",
+      "course": "Security Awareness - New Hire",
+      "completed_local": "2026-06-14",
+      "score": "84"
+     }
+    }
+   ],
+   "verdicts": [],
+   "decision": null
+  }
+ ],
+ "not_raised": []
+}

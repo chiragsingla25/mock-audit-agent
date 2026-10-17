@@ -1,0 +1,26 @@
+{
+ "run_id": "checks-base-20261017T025631896-e",
+ "variant": "base",
+ "mode": "checks_only",
+ "status": "done",
+ "phase": "done",
+ "error": null,
+ "controls": {
+  "C1": "done",
+  "C2": "done",
+  "C3": "done",
+  "C4": "done",
+  "C5": "done",
+  "C6": "done",
+  "C7": "done",
+  "C8": "done",
+  "C9": "done",
+  "C10": "done",
+  "C11": "done",
+  "C12": "done"
+ },
+ "control_errors": {},
+ "cost_usd": 0.0,
+ "tokens": 0,
+ "llm_calls": 0
+}

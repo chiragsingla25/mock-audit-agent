@@ -1,0 +1,1494 @@
+{
+ "run_id": "audit-base-20261017T025347678-r3",
+ "status": "done",
+ "findings": [
+  {
+   "finding_id": "C2-completeness",
+   "control_id": "C2",
+   "test_step": "completeness",
+   "gap_type": "population_completeness",
+   "exceptions": 1,
+   "tested": 20,
+   "condition": "HR record E1070 shows terminated user Anderson, Ivy with Okta account 00u27ba276404 remaining ACTIVE, but no suspend/deactivate event exists in okta_events",
+   "criteria": "Policy section 4.3: 'IT Operations must suspend or deactivate their Okta account within 24 clock hours of the termination time'",
+   "cause": "Deprovisioning event was not generated for this terminated user; owner confirmed it was missed",
+   "effect": "User retained access to Okta beyond the 24-hour requirement",
+   "recommendation": "Implement controls to ensure all terminated users are deprovisioned within 24 hours and investigate why E1070 was missed",
+   "citations": [
+    {
+     "source": "hr_roster",
+     "record_id": "E1070"
+    },
+    {
+     "source": "okta_users",
+     "record_id": "00u27ba276404"
+    }
+   ],
+   "severity": "high",
+   "severity_rule": 2,
+   "status": "kept",
+   "reasoning": [
+    {
+     "kind": "check",
+     "text": "completeness: E1070 is missing from okta_events."
+    },
+    {
+     "kind": "check",
+     "text": "timeliness: First suspend/deactivate 219.0 h after termination (limit 24 h)."
+    },
+    {
+     "kind": "check",
+     "text": "timeliness: First suspend/deactivate 1826.0 h after termination (limit 24 h)."
+    },
+    {
+     "kind": "check",
+     "text": "timeliness: First suspend/deactivate 63.0 h after termination (limit 24 h)."
+    },
+    {
+     "kind": "tool",
+     "text": "read_policy(name='access_control')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='hr_roster', record_id='E1070')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='okta_users', record_id='00u27ba276404')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='hr_roster', record_id='E1055')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='okta_events', record_id='OK-000099')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='hr_roster', record_id='E1083')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='okta_events', record_id='OK-000263')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='hr_roster', record_id='E1109')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='okta_events', record_id='OK-000261')"
+    },
+    {
+     "kind": "owner",
+     "text": "ask_owner(question='Regarding candidate C2-completeness-E1070: HR record E1070 shows Anderson, Ivy was terminated on 2026-04-25, but there is no suspend/deactivate event in okta_events. The Okta user "
+    },
+    {
+     "kind": "llm",
+     "text": "tester decided and wrote the finding (structured output)"
+    },
+    {
+     "kind": "llm",
+     "text": "skeptic round 0: keep — The cited records directly support the finding. HR record E1070 documents termination on 2026-04-25 (within the review period). Okta user record 00u27ba276404 shows status \"ACTIVE,\" confirming the account was never suspended/deactivated. Although the finding references \"no su"
+    },
+    {
+     "kind": "rule",
+     "text": "severity rule 2: population_completeness, 1/20, high-risk control → high"
+    }
+   ],
+   "group": "findings",
+   "cited": [
+    {
+     "source": "hr_roster",
+     "record_id": "E1070",
+     "record": {
+      "employee_id": "E1070",
+      "name": "Anderson, Ivy",
+      "email": "ivy.anderson@ledgerly.io",
+      "worker_type": "employee",
+      "department": "Sales",
+      "title": "Account Executive",
+      "hire_local": "2022-08-20 09:00",
+      "termination_local": "2026-04-25 16:45",
+      "timezone": "Australia/Sydney",
+      "status": "terminated",
+      "termination_reason": "Involuntary",
+      "prior_employee_id": ""
+     }
+    },
+    {
+     "source": "okta_users",
+     "record_id": "00u27ba276404",
+     "record": {
+      "user_id": "00u27ba276404",
+      "login": "ivy.anderson@ledgerly.io",
+      "display_name": "Ivy Anderson",
+      "status": "ACTIVE",
+      "created_utc": "2022-08-17T23:00:00Z",
+      "groups": "Everyone;Sales"
+     }
+    }
+   ],
+   "verdicts": [
+    {
+     "finding_id": "C2-completeness",
+     "decision": "keep",
+     "reason": "The cited records directly support the finding. HR record E1070 documents termination on 2026-04-25 (within the review period). Okta user record 00u27ba276404 shows status \"ACTIVE,\" confirming the account was never suspended/deactivated. Although the finding references \"no suspend/deactivate event exists in okta_events\" without a citation, this is a reasonable inference from the ACTIVE status — if a deactivation event had occurred, the status would not be ACTIVE. The termination reason \"Involuntary\" and empty prior_employee_id rule out the contractor-conversion exception under policy 4.4. No innocent explanation or logic error is present.",
+     "checks_failed": [],
+     "reviewer": "skeptic:deepseek/deepseek-v4-flash",
+     "answered_by": "primary",
+     "round": 0
+    }
+   ],
+   "decision": null
+  },
+  {
+   "finding_id": "C2-timeliness",
+   "control_id": "C2",
+   "test_step": "timeliness",
+   "gap_type": "operating",
+   "exceptions": 2,
+   "tested": 18,
+   "condition": "Users E1055 (Young, Evie) and E1109 (Ryan, Harper) had first suspend/deactivate events occurring 219.0 hours and 63.0 hours respectively after termination, exceeding the 24-hour limit",
+   "criteria": "Policy section 4.3: 'IT Operations must suspend or deactivate their Okta account within 24 clock hours of the termination time'",
+   "cause": "Deprovisioning workflows failed to execute within the required 24-hour window",
+   "effect": "Users retained access to Okta systems beyond the allowed 24-hour period post-termination",
+   "recommendation": "Review and remediate deprovisioning processes to ensure compliance with the 24-hour requirement; investigate root causes of delays",
+   "citations": [
+    {
+     "source": "hr_roster",
+     "record_id": "E1055"
+    },
+    {
+     "source": "okta_events",
+     "record_id": "OK-000099"
+    },
+    {
+     "source": "hr_roster",
+     "record_id": "E1109"
+    },
+    {
+     "source": "okta_events",
+     "record_id": "OK-000261"
+    }
+   ],
+   "severity": "high",
+   "severity_rule": 4,
+   "status": "kept",
+   "reasoning": [
+    {
+     "kind": "check",
+     "text": "completeness: E1070 is missing from okta_events."
+    },
+    {
+     "kind": "check",
+     "text": "timeliness: First suspend/deactivate 219.0 h after termination (limit 24 h)."
+    },
+    {
+     "kind": "check",
+     "text": "timeliness: First suspend/deactivate 1826.0 h after termination (limit 24 h)."
+    },
+    {
+     "kind": "check",
+     "text": "timeliness: First suspend/deactivate 63.0 h after termination (limit 24 h)."
+    },
+    {
+     "kind": "tool",
+     "text": "read_policy(name='access_control')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='hr_roster', record_id='E1070')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='okta_users', record_id='00u27ba276404')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='hr_roster', record_id='E1055')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='okta_events', record_id='OK-000099')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='hr_roster', record_id='E1083')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='okta_events', record_id='OK-000263')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='hr_roster', record_id='E1109')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='okta_events', record_id='OK-000261')"
+    },
+    {
+     "kind": "owner",
+     "text": "ask_owner(question='Regarding candidate C2-completeness-E1070: HR record E1070 shows Anderson, Ivy was terminated on 2026-04-25, but there is no suspend/deactivate event in okta_events. The Okta user "
+    },
+    {
+     "kind": "llm",
+     "text": "tester decided and wrote the finding (structured output)"
+    },
+    {
+     "kind": "llm",
+     "text": "skeptic round 0: keep — All cited records support the finding. For E1055 (Young, Evie): termination 2026-01-27 17:00 AEDT (06:00 UTC) and suspend event 2026-02-05 09:00 UTC yields 219 hours — well beyond 24. For E1109 (Ryan, Harper): termination 2026-08-28 18:00 AEST (08:00 UTC) and suspend event 20"
+    },
+    {
+     "kind": "rule",
+     "text": "severity rule 4: operating, 2/18, high-risk control → high"
+    }
+   ],
+   "group": "findings",
+   "cited": [
+    {
+     "source": "hr_roster",
+     "record_id": "E1055",
+     "record": {
+      "employee_id": "E1055",
+      "name": "Young, Evie",
+      "email": "evie.young@ledgerly.io",
+      "worker_type": "employee",
+      "department": "Engineering",
+      "title": "Software Engineer",
+      "hire_local": "2021-12-03 09:00",
+      "termination_local": "2026-01-27 17:00",
+      "timezone": "Australia/Sydney",
+      "status": "terminated",
+      "termination_reason": "Involuntary",
+      "prior_employee_id": ""
+     }
+    },
+    {
+     "source": "okta_events",
+     "record_id": "OK-000099",
+     "record": {
+      "event_id": "OK-000099",
+      "published_utc": "2026-02-05T09:00:00Z",
+      "event_type": "user.lifecycle.suspend",
+      "target_login": "evie.young@ledgerly.io",
+      "target_user_id": "00udd56b99e95",
+      "actor": "okta-workflows",
+      "detail": ""
+     }
+    },
+    {
+     "source": "hr_roster",
+     "record_id": "E1109",
+     "record": {
+      "employee_id": "E1109",
+      "name": "Ryan, Harper",
+      "email": "harper.ryan@ledgerly.io",
+      "worker_type": "employee",
+      "department": "Security",
+      "title": "Security Engineer",
+      "hire_local": "2024-12-28 09:00",
+      "termination_local": "2026-08-28 18:00",
+      "timezone": "Australia/Sydney",
+      "status": "terminated",
+      "termination_reason": "Resignation",
+      "prior_employee_id": ""
+     }
+    },
+    {
+     "source": "okta_events",
+     "record_id": "OK-000261",
+     "record": {
+      "event_id": "OK-000261",
+      "published_utc": "2026-08-30T23:00:00Z",
+      "event_type": "user.lifecycle.suspend",
+      "target_login": "harper.ryan@ledgerly.io",
+      "target_user_id": "00u9e7e10450d",
+      "actor": "okta-workflows",
+      "detail": ""
+     }
+    }
+   ],
+   "verdicts": [
+    {
+     "finding_id": "C2-timeliness",
+     "decision": "keep",
+     "reason": "All cited records support the finding. For E1055 (Young, Evie): termination 2026-01-27 17:00 AEDT (06:00 UTC) and suspend event 2026-02-05 09:00 UTC yields 219 hours — well beyond 24. For E1109 (Ryan, Harper): termination 2026-08-28 18:00 AEST (08:00 UTC) and suspend event 2026-08-30 23:00 UTC yields 63 hours — also beyond 24. Both events fall inside the audit period and are documented with no innocent explanation in the records or policy (no conversion per §4.4, no weekend/holiday exclusion per §4.3). The counts, severity, and reasoning are consistent with the evidence.",
+     "checks_failed": [],
+     "reviewer": "skeptic:deepseek/deepseek-v4-flash",
+     "answered_by": "primary",
+     "round": 0
+    }
+   ],
+   "decision": null
+  },
+  {
+   "finding_id": "C3-signoff",
+   "control_id": "C3",
+   "test_step": "signoff",
+   "gap_type": "missing_evidence",
+   "exceptions": 1,
+   "tested": 4,
+   "condition": "Review UAR-2026Q3 for quarter ending 2026-09-30 was performed on 2026-10-07 but was not signed by reviewer Dana Whitfield as of evidence collection date 2026-10-30; the 10 business day deadline of 2026-10-14 had passed",
+   "criteria": "Section 4.6 of access_control policy: 'Each review is signed and dated by the reviewer no later than 10 business days (Mon-Fri) after quarter end'",
+   "cause": "Reviewer did not complete the required sign-off within the mandated timeframe; no documented exception or approval for delay exists",
+   "effect": "Control C3 failed for Q3 2026 - user access review was not properly completed with required reviewer sign-off, leaving potential unauthorized access unverified",
+   "recommendation": "Obtain immediate sign-off from Dana Whitfield for UAR-2026Q3 if still valid, implement reminder process to ensure timely sign-offs, and document any exceptions with proper approval",
+   "citations": [
+    {
+     "source": "user_access_reviews",
+     "record_id": "UAR-2026Q3"
+    }
+   ],
+   "severity": "high",
+   "severity_rule": 3,
+   "status": "kept",
+   "reasoning": [
+    {
+     "kind": "tool",
+     "text": "get_record(source='user_access_reviews', record_id='UAR-2025Q4')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='user_access_reviews', record_id='UAR-2026Q1')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='user_access_reviews', record_id='UAR-2026Q2')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='user_access_reviews', record_id='UAR-2026Q3')"
+    },
+    {
+     "kind": "tool",
+     "text": "read_policy(name='access_control')"
+    },
+    {
+     "kind": "llm",
+     "text": "tester decided and wrote the finding (structured output)"
+    },
+    {
+     "kind": "llm",
+     "text": "skeptic round 0: keep — The cited record UAR-2026Q3 clearly shows the review was performed on 2026-10-07 (within the 10 business day window) but the \"Signed\" field is \"(not signed)\". The 10-business-day deadline computed as 2026-10-14 is correct (counting from quarter end 2026-09-30). Evidence colle"
+    },
+    {
+     "kind": "rule",
+     "text": "severity rule 3: missing_evidence, 1/4, high-risk control → high"
+    }
+   ],
+   "group": "findings",
+   "cited": [
+    {
+     "source": "user_access_reviews",
+     "record_id": "UAR-2026Q3",
+     "record": {
+      "ID": "UAR-2026Q3",
+      "System": "Okta (all active users)",
+      "Quarter end": "2026-09-30",
+      "Review performed": "2026-10-07",
+      "Evidence collected": "2026-10-30",
+      "Population reviewed": "131 active users",
+      "Reviewer": "Dana Whitfield, IT Operations Manager",
+      "Signed": "(not signed)",
+      "text": "# User Access Review 2026Q3\nID: UAR-2026Q3\nSystem: Okta (all active users)\nQuarter end: 2026-09-30\nReview performed: 2026-10-07\nEvidence collected: 2026-10-30\nPopulation reviewed: 131 active users\n\n| User | Department | Decision | Note |\n|---|---|---|---|\n| Lily Hall | Engineering | Keep | Role matches job |\n| Max Rossi | Security | Keep | Role matches job |\n| Finn O'Brien | Customer Success | Keep | Role matches job |\n| Ethan Silva | Sales | Keep | Role matches job |\n| Max Brown | Sales | Keep | Role matches job |\n| Amelia Silva | Sales | Keep | Role matches job |\n\nReviewer: Dana Whitfield, IT Operations Manager\nSigned: (not signed)\n"
+     }
+    }
+   ],
+   "verdicts": [
+    {
+     "finding_id": "C3-signoff",
+     "decision": "keep",
+     "reason": "The cited record UAR-2026Q3 clearly shows the review was performed on 2026-10-07 (within the 10 business day window) but the \"Signed\" field is \"(not signed)\". The 10-business-day deadline computed as 2026-10-14 is correct (counting from quarter end 2026-09-30). Evidence collected on 2026-10-30 confirms the sign-off was still missing after the deadline. No documented exception or explanation appears in the record or the policy. The finding is within the observation period (Q3 2026 ends on 2026-09-30, the last day of the period) and the policy explicitly allows the final quarter's review to be signed after period end within the 10-day window — which was missed. All checks pass: no citation mismatch, no innocent explanation, no logic error, and sufficient evidence supports the finding.",
+     "checks_failed": [],
+     "reviewer": "skeptic:deepseek/deepseek-v4-flash",
+     "answered_by": "primary",
+     "round": 0
+    }
+   ],
+   "decision": null
+  },
+  {
+   "finding_id": "C5-completeness",
+   "control_id": "C5",
+   "test_step": "completeness",
+   "gap_type": "population_completeness",
+   "exceptions": 1,
+   "tested": 30,
+   "condition": "1 of 30 items failed: AIDAFCB2757B1F7F@PAR-2026Q3. AIDAFCB2757B1F7F existed on 2026-10-07 but is not in PAR-2026Q3.",
+   "criteria": "Every AWS admin that existed at the review date is on that quarter's reviewed list",
+   "cause": null,
+   "effect": "The control 'Privileged access is reviewed quarterly' did not operate as designed for these items.",
+   "recommendation": "Investigate each exception with the control owner and remediate.",
+   "citations": [
+    {
+     "source": "aws_iam_admins",
+     "record_id": "AIDAFCB2757B1F7F"
+    },
+    {
+     "source": "privileged_access_reviews",
+     "record_id": "PAR-2026Q3"
+    }
+   ],
+   "severity": "high",
+   "severity_rule": 2,
+   "status": "kept",
+   "reasoning": [
+    {
+     "kind": "check",
+     "text": "completeness: AIDAFCB2757B1F7F existed on 2026-10-07 but is not in PAR-2026Q3."
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='aws_iam_admins', record_id='AIDAFCB2757B1F7F')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='privileged_access_reviews', record_id='PAR-2026Q3')"
+    },
+    {
+     "kind": "tool",
+     "text": "read_policy(name='access_control')"
+    },
+    {
+     "kind": "llm",
+     "text": "tester decided and wrote the finding (structured output)"
+    },
+    {
+     "kind": "rule",
+     "text": "raised by default: no tester write-up"
+    },
+    {
+     "kind": "llm",
+     "text": "skeptic round 0: keep — The finding is valid and well-supported. The cited records confirm that AIDAFCB2757B1F7F (security-audit role, created 2026-03-13, with AdministratorAccess policy) existed as an AWS admin principal at the review date (2026-10-07) but is not listed in the PAR-2026Q3 review tab"
+    },
+    {
+     "kind": "rule",
+     "text": "severity rule 2: population_completeness, 1/30, high-risk control → high"
+    }
+   ],
+   "group": "findings",
+   "cited": [
+    {
+     "source": "aws_iam_admins",
+     "record_id": "AIDAFCB2757B1F7F",
+     "record": {
+      "principal_id": "AIDAFCB2757B1F7F",
+      "name": "security-audit",
+      "arn": "arn:aws:iam::418295730012:role/security-audit",
+      "policy": "AdministratorAccess",
+      "created_utc": "2026-03-13T04:00:00Z"
+     }
+    },
+    {
+     "source": "privileged_access_reviews",
+     "record_id": "PAR-2026Q3",
+     "record": {
+      "ID": "PAR-2026Q3",
+      "System": "AWS IAM principals with AdministratorAccess",
+      "Quarter end": "2026-09-30",
+      "Review date": "2026-10-07",
+      "Evidence collected": "2026-10-30",
+      "Reviewer": "Elena Petrov, Head of Platform",
+      "Signed": "2026-10-08",
+      "text": "# Privileged Access Review 2026Q3\nID: PAR-2026Q3\nSystem: AWS IAM principals with AdministratorAccess\nQuarter end: 2026-09-30\nReview date: 2026-10-07\nEvidence collected: 2026-10-30\n\n| Principal | Name | Decision |\n|---|---|---|\n| AIDA9E7FA9AC41D2 | platform-admin | Keep |\n| AIDA0AAD38CCA3BE | break-glass | Keep |\n| AIDA349244FEAF23 | terraform-ci | Keep |\n| AIDACBA89CE7D8D2 | sre-oncall | Keep |\n| AIDAF2124F2F0B0C | elena.petrov | Keep |\n| AIDAB32A3BFE4924 | marcus.bell | Keep |\n| AIDA9FB60030A967 | data-migration | Keep |\n\nReviewer: Elena Petrov, Head of Platform\nSigned: 2026-10-08\n"
+     }
+    }
+   ],
+   "verdicts": [
+    {
+     "finding_id": "C5-completeness",
+     "decision": "keep",
+     "reason": "The finding is valid and well-supported. The cited records confirm that AIDAFCB2757B1F7F (security-audit role, created 2026-03-13, with AdministratorAccess policy) existed as an AWS admin principal at the review date (2026-10-07) but is not listed in the PAR-2026Q3 review table. The review was for Q3 2026 (quarter end 2026-09-30, the last day of the observation period); the policy allows the final quarter review to be signed after the period ends within the 10-business-day window, and the review was signed on-time (2026-10-08, due 2026-10-14). No innocent explanation appears in the records or policy — the role is an IAM principal with AdministratorAccess and should be captured by the review scope (\"AWS IAM principals with AdministratorAccess\"). The exception is genuine and correctly identified.",
+     "checks_failed": [],
+     "reviewer": "skeptic:deepseek/deepseek-v4-flash",
+     "answered_by": "primary",
+     "round": 0
+    }
+   ],
+   "decision": null
+  },
+  {
+   "finding_id": "C6-segregation",
+   "control_id": "C6",
+   "test_step": "segregation",
+   "gap_type": "segregation_of_duties",
+   "exceptions": 4,
+   "tested": 320,
+   "condition": "Four PRs (PR-1230, PR-1018, PR-1300, PR-1265) were merged to main with only the author as the sole approver, violating segregation of duties requirements.",
+   "criteria": "Policy Section 3.1: 'At least one approver other than the author must approve the pull request before it is merged.'",
+   "cause": "Pull requests were merged without independent review/approval from someone other than the author.",
+   "effect": "Production changes were deployed without proper segregation of duties, increasing risk of unauthorized or unreviewed code entering production.",
+   "recommendation": "Enforce branch protection rules to require at least one approver other than the author before allowing merges to main. Implement automated checks to prevent self-approval.",
+   "citations": [
+    {
+     "source": "github_prs",
+     "record_id": "PR-1230"
+    },
+    {
+     "source": "github_prs",
+     "record_id": "PR-1018"
+    },
+    {
+     "source": "github_prs",
+     "record_id": "PR-1300"
+    },
+    {
+     "source": "github_prs",
+     "record_id": "PR-1265"
+    }
+   ],
+   "severity": "high",
+   "severity_rule": 1,
+   "status": "kept",
+   "reasoning": [
+    {
+     "kind": "check",
+     "text": "segregation: Merged with no approver other than the author (matilda.taylor)."
+    },
+    {
+     "kind": "check",
+     "text": "segregation: Merged with no approver other than the author (william.wilson)."
+    },
+    {
+     "kind": "check",
+     "text": "segregation: Merged with no approver other than the author (matilda.singh)."
+    },
+    {
+     "kind": "check",
+     "text": "segregation: Merged with no approver other than the author (ivy.sato)."
+    },
+    {
+     "kind": "tool",
+     "text": "read_policy(name='change_management')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='github_prs', record_id='PR-1230')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='github_prs', record_id='PR-1018')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='github_prs', record_id='PR-1300')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='github_prs', record_id='PR-1265')"
+    },
+    {
+     "kind": "llm",
+     "text": "tester decided and wrote the finding (structured output)"
+    },
+    {
+     "kind": "llm",
+     "text": "skeptic round 0: keep — All four cited PR records clearly show the author as the sole approver (approver field matches author field in each case), which directly contradicts Policy Section 3.1 requiring at least one approver other than the author. All four merge dates fall within the audit period (2"
+    },
+    {
+     "kind": "rule",
+     "text": "severity rule 1: segregation_of_duties, 4/320, high-risk control → high"
+    }
+   ],
+   "group": "findings",
+   "cited": [
+    {
+     "source": "github_prs",
+     "record_id": "PR-1230",
+     "record": {
+      "pr_id": "PR-1230",
+      "repo": "ledgerly-web",
+      "title": "Change 1230",
+      "author": "matilda.taylor",
+      "approvers": "matilda.taylor",
+      "base_branch": "main",
+      "merged_utc": "2026-01-09T21:58:00Z"
+     }
+    },
+    {
+     "source": "github_prs",
+     "record_id": "PR-1018",
+     "record": {
+      "pr_id": "PR-1018",
+      "repo": "ledgerly-web",
+      "title": "Change 1018",
+      "author": "william.wilson",
+      "approvers": "william.wilson",
+      "base_branch": "main",
+      "merged_utc": "2026-07-06T15:37:00Z"
+     }
+    },
+    {
+     "source": "github_prs",
+     "record_id": "PR-1300",
+     "record": {
+      "pr_id": "PR-1300",
+      "repo": "ledgerly-web",
+      "title": "Change 1300",
+      "author": "matilda.singh",
+      "approvers": "matilda.singh",
+      "base_branch": "main",
+      "merged_utc": "2026-08-14T16:12:00Z"
+     }
+    },
+    {
+     "source": "github_prs",
+     "record_id": "PR-1265",
+     "record": {
+      "pr_id": "PR-1265",
+      "repo": "billing-worker",
+      "title": "Change 1265",
+      "author": "ivy.sato",
+      "approvers": "ivy.sato",
+      "base_branch": "main",
+      "merged_utc": "2026-09-10T02:52:00Z"
+     }
+    }
+   ],
+   "verdicts": [
+    {
+     "finding_id": "C6-segregation",
+     "decision": "keep",
+     "reason": "All four cited PR records clearly show the author as the sole approver (approver field matches author field in each case), which directly contradicts Policy Section 3.1 requiring at least one approver other than the author. All four merge dates fall within the audit period (2025-10-01 to 2026-09-30). There is no indication in any record that these were emergency changes under Section 3.2 (no linked Emergency Change tickets, no retroactive approvals noted). The evidence fully supports the finding's condition, cause, and effect.",
+     "checks_failed": [],
+     "reviewer": "skeptic:deepseek/deepseek-v4-flash",
+     "answered_by": "primary",
+     "round": 0
+    }
+   ],
+   "decision": null
+  },
+  {
+   "finding_id": "C7-ticketed",
+   "control_id": "C7",
+   "test_step": "ticketed",
+   "gap_type": "population_completeness",
+   "exceptions": 2,
+   "tested": 8,
+   "condition": "Two emergency deploys (D-00389, D-00851) have no linked change ticket (ticket field is empty)",
+   "criteria": "Policy section 3.2: 'An emergency change may be deployed before approval to restore service. It must be recorded in an Emergency Change ticket linked from the deploy'",
+   "cause": "Emergency deploys were executed without creating or linking an Emergency Change ticket",
+   "effect": "Cannot verify retroactive approval was obtained; control objective for emergency change tracking not met",
+   "recommendation": "Implement process controls to ensure all emergency deploys are linked to an Emergency Change ticket before or immediately after deployment",
+   "citations": [
+    {
+     "source": "deploys",
+     "record_id": "D-00389"
+    },
+    {
+     "source": "deploys",
+     "record_id": "D-00851"
+    }
+   ],
+   "severity": "moderate",
+   "severity_rule": 6,
+   "status": "kept",
+   "reasoning": [
+    {
+     "kind": "check",
+     "text": "ticketed: Emergency deploy has no linked change ticket."
+    },
+    {
+     "kind": "check",
+     "text": "ticketed: Emergency deploy has no linked change ticket."
+    },
+    {
+     "kind": "tool",
+     "text": "read_policy(name='change_management')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='deploys', record_id='D-00389')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='deploys', record_id='D-00851')"
+    },
+    {
+     "kind": "llm",
+     "text": "tester decided and wrote the finding (structured output)"
+    },
+    {
+     "kind": "llm",
+     "text": "skeptic round 0: keep — Both cited records (D-00389, D-00851) are inside the audit period, show change_type = \"emergency\", and have an empty ticket field, directly matching the condition stated. The policy at section 3.2 requires an Emergency Change ticket to be linked from the deploy. No innocent e"
+    },
+    {
+     "kind": "rule",
+     "text": "severity rule 6: population_completeness, 2/8, moderate-risk control → moderate"
+    }
+   ],
+   "group": "findings",
+   "cited": [
+    {
+     "source": "deploys",
+     "record_id": "D-00389",
+     "record": {
+      "deploy_id": "D-00389",
+      "deployed_utc": "2026-02-23T18:43:00Z",
+      "service": "ledgerly-web",
+      "change_type": "emergency",
+      "pr_id": "",
+      "ticket": "",
+      "deployer": "ivy.sato"
+     }
+    },
+    {
+     "source": "deploys",
+     "record_id": "D-00851",
+     "record": {
+      "deploy_id": "D-00851",
+      "deployed_utc": "2026-09-11T19:27:00Z",
+      "service": "ledgerly-api",
+      "change_type": "emergency",
+      "pr_id": "",
+      "ticket": "",
+      "deployer": "noah.harris"
+     }
+    }
+   ],
+   "verdicts": [
+    {
+     "finding_id": "C7-ticketed",
+     "decision": "keep",
+     "reason": "Both cited records (D-00389, D-00851) are inside the audit period, show change_type = \"emergency\", and have an empty ticket field, directly matching the condition stated. The policy at section 3.2 requires an Emergency Change ticket to be linked from the deploy. No innocent explanation is present in the records or policy: both deploys occurred months before evidence collection (2026-10-30), leaving ample time to link a ticket, yet none was provided. The finding correctly identifies a population completeness gap that prevents verification of the retroactive-approval control objective.",
+     "checks_failed": [],
+     "reviewer": "skeptic:deepseek/deepseek-v4-flash",
+     "answered_by": "primary",
+     "round": 0
+    }
+   ],
+   "decision": null
+  },
+  {
+   "finding_id": "C8-critical_sla",
+   "control_id": "C8",
+   "test_step": "critical_sla",
+   "gap_type": "sla_breach",
+   "exceptions": 1,
+   "tested": 9,
+   "condition": "Critical vulnerability VULN-0003 (CVE-2026-29275) was opened on 2025-11-01 and closed on 2025-12-18, taking 47 days to remediate. The vulnerability record shows no risk acceptance was documented.",
+   "criteria": "Section 2.2 of vulnerability_management policy: 'Critical vulnerabilities are remediated within 30 calendar days of being opened.' Section 2.3 states exceptions require an approved, unexpired risk acceptance ticket.",
+   "cause": "No risk acceptance was obtained for this critical vulnerability, and remediation exceeded the 30-day SLA without documented approval.",
+   "effect": "The organization failed to meet its vulnerability management SLA for critical vulnerabilities, potentially leaving systems exposed to known security risks beyond acceptable thresholds.",
+   "recommendation": "Implement processes to ensure all critical vulnerabilities are either remediated within 30 days or have approved risk acceptances in place before the deadline. Review VULN-0003 to understand why no risk acceptance was obtained and prevent similar SLA breaches.",
+   "citations": [
+    {
+     "source": "vulnerabilities",
+     "record_id": "VULN-0003"
+    }
+   ],
+   "severity": "moderate",
+   "severity_rule": 6,
+   "status": "kept",
+   "reasoning": [
+    {
+     "kind": "check",
+     "text": "critical_sla: 47 days (limit 30)."
+    },
+    {
+     "kind": "check",
+     "text": "critical_sla: 60 days (limit 30)."
+    },
+    {
+     "kind": "tool",
+     "text": "read_policy(name='vulnerability_management')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='vulnerabilities', record_id='VULN-0003')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='vulnerabilities', record_id='VULN-0028')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='jira_tickets', record_id='RISK-7')"
+    },
+    {
+     "kind": "llm",
+     "text": "tester decided and wrote the finding (structured output)"
+    },
+    {
+     "kind": "llm",
+     "text": "skeptic round 0: keep — The cited record VULN-0003 falls entirely within the audit period (opened 2025-11-01, closed 2025-12-18). It is a critical vulnerability with no risk acceptance documented (risk_acceptance field is empty), and the 47-day remediation period exceeds the 30-calendar-day SLA in p"
+    },
+    {
+     "kind": "rule",
+     "text": "severity rule 6: sla_breach, 1/9, moderate-risk control → moderate"
+    }
+   ],
+   "group": "findings",
+   "cited": [
+    {
+     "source": "vulnerabilities",
+     "record_id": "VULN-0003",
+     "record": {
+      "vuln_id": "VULN-0003",
+      "cve": "CVE-2026-29275",
+      "severity": "critical",
+      "asset": "api",
+      "opened_utc": "2025-11-01T08:00:00Z",
+      "closed_utc": "2025-12-18T11:00:00Z",
+      "status": "closed",
+      "risk_acceptance": ""
+     }
+    }
+   ],
+   "verdicts": [
+    {
+     "finding_id": "C8-critical_sla",
+     "decision": "keep",
+     "reason": "The cited record VULN-0003 falls entirely within the audit period (opened 2025-11-01, closed 2025-12-18). It is a critical vulnerability with no risk acceptance documented (risk_acceptance field is empty), and the 47-day remediation period exceeds the 30-calendar-day SLA in policy Section 2.2 by 17 days. No innocent explanation exists in either the record or the policy — the policy explicitly requires an approved, unexpired risk acceptance ticket (Section 2.3) to avoid an exception, and none is present. The evidence supports the finding as drafted.",
+     "checks_failed": [],
+     "reviewer": "skeptic:deepseek/deepseek-v4-flash",
+     "answered_by": "primary",
+     "round": 0
+    }
+   ],
+   "decision": null
+  },
+  {
+   "finding_id": "C8-weekly_scan",
+   "control_id": "C8",
+   "test_step": "weekly_scan",
+   "gap_type": "frequency_gap",
+   "exceptions": 3,
+   "tested": 53,
+   "condition": "3 of 53 items failed: 2026-W32, 2026-W33, 2026-W34. No scanner_runs occurrence for 2026-W32. No scanner_runs occurrence for 2026-W33. No scanner_runs occurrence for 2026-W34.",
+   "criteria": "Each ISO week in the period has at least one completed scan",
+   "cause": null,
+   "effect": "The control 'Vulnerability scans run weekly and critical findings are fixed within 30 days' did not operate as designed for these items.",
+   "recommendation": "Investigate each exception with the control owner and remediate.",
+   "citations": [
+    {
+     "source": "scanner_runs",
+     "record_id": "SCAN-2026-W31"
+    },
+    {
+     "source": "scanner_runs",
+     "record_id": "SCAN-2026-W35"
+    }
+   ],
+   "severity": "moderate",
+   "severity_rule": 6,
+   "status": "kept",
+   "reasoning": [
+    {
+     "kind": "check",
+     "text": "periodic_occurrence: 3 of 53 failed"
+    },
+    {
+     "kind": "llm",
+     "text": "skeptic round 0: keep — The cited records (SCAN-2026-W31, SCAN-2026-W35) are correctly inside the audit period and show scans completed in W31 and W35. The finding identifies a three-week gap (W32–W34) with no scanner runs. The computed counts (3 exceptions out of 53 tested) are accepted as correct "
+    },
+    {
+     "kind": "rule",
+     "text": "severity rule 6: frequency_gap, 3/53, moderate-risk control → moderate"
+    }
+   ],
+   "group": "findings",
+   "cited": [
+    {
+     "source": "scanner_runs",
+     "record_id": "SCAN-2026-W31",
+     "record": {
+      "scan_id": "SCAN-2026-W31",
+      "started_utc": "2026-07-29T02:00:00Z",
+      "scanner": "Nessus",
+      "target": "prod",
+      "status": "completed",
+      "critical": "2",
+      "high": "2"
+     }
+    },
+    {
+     "source": "scanner_runs",
+     "record_id": "SCAN-2026-W35",
+     "record": {
+      "scan_id": "SCAN-2026-W35",
+      "started_utc": "2026-08-26T02:00:00Z",
+      "scanner": "Nessus",
+      "target": "prod",
+      "status": "completed",
+      "critical": "2",
+      "high": "2"
+     }
+    }
+   ],
+   "verdicts": [
+    {
+     "finding_id": "C8-weekly_scan",
+     "decision": "keep",
+     "reason": "The cited records (SCAN-2026-W31, SCAN-2026-W35) are correctly inside the audit period and show scans completed in W31 and W35. The finding identifies a three-week gap (W32–W34) with no scanner runs. The computed counts (3 exceptions out of 53 tested) are accepted as correct per instructions. The policy requires a scan in every ISO week and contains no exception or risk-acceptance provision that would excuse missing scans; no documented explanation for the gap exists in the records or policy. The citations appropriately support the finding by showing scans before and after the gap, and the inference that no scans occurred in the missing weeks is properly drawn from the absence of records for those weeks.",
+     "checks_failed": [],
+     "reviewer": "skeptic:deepseek/deepseek-v4-flash",
+     "answered_by": "primary",
+     "round": 0
+    }
+   ],
+   "decision": null
+  },
+  {
+   "finding_id": "C10-new_hire",
+   "control_id": "C10",
+   "test_step": "new_hire",
+   "gap_type": "operating",
+   "exceptions": 3,
+   "tested": 30,
+   "condition": "Three employees (E1136, E1138, E1141) completed Security Awareness - New Hire training 58, 31, and 44 days respectively after their hire dates, exceeding the 30-day requirement",
+   "criteria": "Section 2.1: New employees must complete 'Security Awareness - New Hire' within 30 calendar days of their hire date",
+   "cause": "Training completion was delayed beyond the 30-day window; no approved exceptions were documented for these delays",
+   "effect": "Employees worked for extended periods without completing mandatory security training, creating exposure to security risks",
+   "recommendation": "Implement automated tracking and reminder systems to ensure new hires complete security training within 30 days; establish escalation procedures for managers when training is overdue; review whether any delays had legitimate business reasons requiring formal exception approval",
+   "citations": [
+    {
+     "source": "hr_roster",
+     "record_id": "E1136"
+    },
+    {
+     "source": "lms_completions",
+     "record_id": "LMS-00109"
+    },
+    {
+     "source": "hr_roster",
+     "record_id": "E1138"
+    },
+    {
+     "source": "lms_completions",
+     "record_id": "LMS-00073"
+    },
+    {
+     "source": "hr_roster",
+     "record_id": "E1141"
+    },
+    {
+     "source": "lms_completions",
+     "record_id": "LMS-00142"
+    }
+   ],
+   "severity": "moderate",
+   "severity_rule": 6,
+   "status": "kept",
+   "reasoning": [
+    {
+     "kind": "check",
+     "text": "new_hire: Completed 58 days after the event (limit 30)."
+    },
+    {
+     "kind": "check",
+     "text": "new_hire: Completed 31 days after the event (limit 30)."
+    },
+    {
+     "kind": "check",
+     "text": "new_hire: Completed 44 days after the event (limit 30)."
+    },
+    {
+     "kind": "tool",
+     "text": "read_policy(name='security_training')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='hr_roster', record_id='E1136')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='lms_completions', record_id='LMS-00109')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='hr_roster', record_id='E1138')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='lms_completions', record_id='LMS-00073')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='hr_roster', record_id='E1141')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='lms_completions', record_id='LMS-00142')"
+    },
+    {
+     "kind": "llm",
+     "text": "tester decided and wrote the finding (structured output)"
+    },
+    {
+     "kind": "llm",
+     "text": "skeptic round 0: keep — All three cited employees (E1136, E1138, E1141) are verified as active employees (not contractors) whose hire dates and completion dates fall within the audit period (2025-10-01 to 2026-09-30). The computed day counts (58, 31, and 44 days) correctly exceed the 30‑day requirem"
+    },
+    {
+     "kind": "rule",
+     "text": "severity rule 6: operating, 3/30, moderate-risk control → moderate"
+    }
+   ],
+   "group": "findings",
+   "cited": [
+    {
+     "source": "hr_roster",
+     "record_id": "E1136",
+     "record": {
+      "employee_id": "E1136",
+      "name": "Sato, Ravi",
+      "email": "ravi.sato@ledgerly.io",
+      "worker_type": "employee",
+      "department": "Engineering",
+      "title": "Software Engineer",
+      "hire_local": "2026-03-12 09:00",
+      "termination_local": "",
+      "timezone": "Australia/Sydney",
+      "status": "active",
+      "termination_reason": "",
+      "prior_employee_id": ""
+     }
+    },
+    {
+     "source": "lms_completions",
+     "record_id": "LMS-00109",
+     "record": {
+      "completion_id": "LMS-00109",
+      "employee_id": "E1136",
+      "course": "Security Awareness - New Hire",
+      "completed_local": "2026-05-09",
+      "score": "100"
+     }
+    },
+    {
+     "source": "hr_roster",
+     "record_id": "E1138",
+     "record": {
+      "employee_id": "E1138",
+      "name": "Fischer, Finn",
+      "email": "finn.fischer@ledgerly.io",
+      "worker_type": "employee",
+      "department": "Product",
+      "title": "Product Manager",
+      "hire_local": "2026-03-16 09:00",
+      "termination_local": "",
+      "timezone": "Australia/Sydney",
+      "status": "active",
+      "termination_reason": "",
+      "prior_employee_id": ""
+     }
+    },
+    {
+     "source": "lms_completions",
+     "record_id": "LMS-00073",
+     "record": {
+      "completion_id": "LMS-00073",
+      "employee_id": "E1138",
+      "course": "Security Awareness - New Hire",
+      "completed_local": "2026-04-16",
+      "score": "91"
+     }
+    },
+    {
+     "source": "hr_roster",
+     "record_id": "E1141",
+     "record": {
+      "employee_id": "E1141",
+      "name": "Taylor, Hugo",
+      "email": "hugo.taylor@ledgerly.io",
+      "worker_type": "employee",
+      "department": "Sales",
+      "title": "Account Executive",
+      "hire_local": "2026-05-01 09:00",
+      "termination_local": "",
+      "timezone": "Australia/Sydney",
+      "status": "active",
+      "termination_reason": "",
+      "prior_employee_id": ""
+     }
+    },
+    {
+     "source": "lms_completions",
+     "record_id": "LMS-00142",
+     "record": {
+      "completion_id": "LMS-00142",
+      "employee_id": "E1141",
+      "course": "Security Awareness - New Hire",
+      "completed_local": "2026-06-14",
+      "score": "84"
+     }
+    }
+   ],
+   "verdicts": [
+    {
+     "finding_id": "C10-new_hire",
+     "decision": "keep",
+     "reason": "All three cited employees (E1136, E1138, E1141) are verified as active employees (not contractors) whose hire dates and completion dates fall within the audit period (2025-10-01 to 2026-09-30). The computed day counts (58, 31, and 44 days) correctly exceed the 30‑day requirement under Section 2.1 of the Security Training Policy. No approved exceptions, documented business reasons, or policy‑based innocent explanations appear in any of the cited records. The citations properly link each employee's HR roster record to the corresponding LMS completion record, and the severity (moderate, 3/30 = 10%) is appropriately assigned. The finding is fully supported by the evidence.",
+     "checks_failed": [],
+     "reviewer": "skeptic:deepseek/deepseek-v4-flash",
+     "answered_by": "primary",
+     "round": 0
+    }
+   ],
+   "decision": null
+  },
+  {
+   "finding_id": "C12-restore_test",
+   "control_id": "C12",
+   "test_step": "restore_test",
+   "gap_type": "evidence_out_of_period",
+   "exceptions": 1,
+   "tested": 1,
+   "condition": "The only restore test record (RST-2025-09) has test date 2025-09-12, which is before the observation period start date of 2025-10-01",
+   "criteria": "Policy section 4.1: 'A restore of the production database from backup is tested at least once in every observation period'",
+   "cause": "No restore test was performed within the observation period 2025-10-01 to 2026-09-30",
+   "effect": "Control C12 'Backup restore is tested annually' is not satisfied for this observation period",
+   "recommendation": "Perform and document a restore test within the observation period 2025-10-01 to 2026-09-30",
+   "citations": [
+    {
+     "source": "restore_tests",
+     "record_id": "RST-2025-09"
+    }
+   ],
+   "severity": "moderate",
+   "severity_rule": 6,
+   "status": "kept",
+   "reasoning": [
+    {
+     "kind": "tool",
+     "text": "read_policy(name='backup_recovery')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='restore_tests', record_id='RST-2025-09')"
+    },
+    {
+     "kind": "llm",
+     "text": "tester decided and wrote the finding (structured output)"
+    },
+    {
+     "kind": "llm",
+     "text": "skeptic round 0: keep — The cited record RST-2025-09 shows a test date of 2025-09-12, which is clearly before the observation period of 2025-10-01 to 2026-09-30. The record confirms the condition (test happened outside the period). There is no innocent, documented explanation in the record or the po"
+    },
+    {
+     "kind": "rule",
+     "text": "severity rule 6: evidence_out_of_period, 1/1, moderate-risk control → moderate"
+    }
+   ],
+   "group": "findings",
+   "cited": [
+    {
+     "source": "restore_tests",
+     "record_id": "RST-2025-09",
+     "record": {
+      "ID": "RST-2025-09",
+      "System": "ledgerly-prod PostgreSQL (RDS)",
+      "Test date": "2025-09-12",
+      "Backup restored": "automated snapshot from 2025-09-11",
+      "Result": "restore completed in 42 minutes; row counts reconciled; RTO (4 h) met.",
+      "Performed by": "Elena Petrov, Head of Platform",
+      "Signed": "2025-09-12",
+      "text": "# Backup Restore Test Report\nID: RST-2025-09\nSystem: ledgerly-prod PostgreSQL (RDS)\nTest date: 2025-09-12\nBackup restored: automated snapshot from 2025-09-11\nResult: restore completed in 42 minutes; row counts reconciled; RTO (4 h) met.\n\nPerformed by: Elena Petrov, Head of Platform\nSigned: 2025-09-12\n"
+     }
+    }
+   ],
+   "verdicts": [
+    {
+     "finding_id": "C12-restore_test",
+     "decision": "keep",
+     "reason": "The cited record RST-2025-09 shows a test date of 2025-09-12, which is clearly before the observation period of 2025-10-01 to 2026-09-30. The record confirms the condition (test happened outside the period). There is no innocent, documented explanation in the record or the policy that would excuse the absence of an in-period test. The gap_type 'evidence_out_of_period' is appropriate. The finding accurately identifies the control gap and should be kept as drafted.",
+     "checks_failed": [],
+     "reviewer": "skeptic:deepseek/deepseek-v4-flash",
+     "answered_by": "primary",
+     "round": 0
+    }
+   ],
+   "decision": null
+  }
+ ],
+ "not_raised": [
+  {
+   "candidate_id": "C1-approval-AR-0031",
+   "control_id": "C1",
+   "reason": "This is a birthright role (Employee-Base) per policy section 4.2, which explicitly states 'A request record created for a birthright role is for tracking only; its approval time may be after the grant.' The record shows role='Employee-Base' and granted_by='hr-provisioning', confirming it falls under the birthright exception.",
+   "citations": [
+    {
+     "source": "access_requests",
+     "record_id": "AR-0031"
+    }
+   ],
+   "reasoning": [
+    {
+     "kind": "check",
+     "text": "approval: Granted 49.0 h before it was approved."
+    },
+    {
+     "kind": "tool",
+     "text": "read_policy(name='access_control')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='access_requests', record_id='AR-0031')"
+    },
+    {
+     "kind": "llm",
+     "text": "tester decided and wrote the finding (structured output)"
+    }
+   ],
+   "cited": [
+    {
+     "source": "access_requests",
+     "record_id": "AR-0031",
+     "record": {
+      "request_id": "AR-0031",
+      "user_employee_id": "E1141",
+      "user_email": "hugo.taylor@ledgerly.io",
+      "application": "Okta",
+      "role": "Employee-Base",
+      "requested_utc": "2026-05-02T23:00:00Z",
+      "approver": "Grace Okafor",
+      "approved_utc": "2026-05-03T00:00:00Z",
+      "granted_utc": "2026-04-30T23:00:00Z",
+      "granted_by": "hr-provisioning"
+     }
+    }
+   ]
+  },
+  {
+   "candidate_id": "C2-timeliness-E1083",
+   "control_id": "C2",
+   "reason": "This is an employee-to-contractor conversion scenario per policy section 4.4. The account was retained and updated (OK-000199), and deprovisioning applies when contractor engagement ends, not at employee termination. The deactivate event OK-000263 corresponds to the contractor C2017 ending.",
+   "citations": [
+    {
+     "source": "hr_roster",
+     "record_id": "E1083"
+    },
+    {
+     "source": "okta_events",
+     "record_id": "OK-000263"
+    }
+   ],
+   "reasoning": [
+    {
+     "kind": "check",
+     "text": "completeness: E1070 is missing from okta_events."
+    },
+    {
+     "kind": "check",
+     "text": "timeliness: First suspend/deactivate 219.0 h after termination (limit 24 h)."
+    },
+    {
+     "kind": "check",
+     "text": "timeliness: First suspend/deactivate 1826.0 h after termination (limit 24 h)."
+    },
+    {
+     "kind": "check",
+     "text": "timeliness: First suspend/deactivate 63.0 h after termination (limit 24 h)."
+    },
+    {
+     "kind": "tool",
+     "text": "read_policy(name='access_control')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='hr_roster', record_id='E1070')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='okta_users', record_id='00u27ba276404')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='hr_roster', record_id='E1055')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='okta_events', record_id='OK-000099')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='hr_roster', record_id='E1083')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='okta_events', record_id='OK-000263')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='hr_roster', record_id='E1109')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='okta_events', record_id='OK-000261')"
+    },
+    {
+     "kind": "owner",
+     "text": "ask_owner(question='Regarding candidate C2-completeness-E1070: HR record E1070 shows Anderson, Ivy was terminated on 2026-04-25, but there is no suspend/deactivate event in okta_events. The Okta user "
+    },
+    {
+     "kind": "llm",
+     "text": "tester decided and wrote the finding (structured output)"
+    }
+   ],
+   "cited": [
+    {
+     "source": "hr_roster",
+     "record_id": "E1083",
+     "record": {
+      "employee_id": "E1083",
+      "name": "Khan, Noah",
+      "email": "noah.khan@ledgerly.io",
+      "worker_type": "employee",
+      "department": "Finance",
+      "title": "Financial Analyst",
+      "hire_local": "2023-07-24 09:00",
+      "termination_local": "2026-06-17 12:00",
+      "timezone": "Australia/Sydney",
+      "status": "terminated",
+      "termination_reason": "Conversion to contractor",
+      "prior_employee_id": ""
+     }
+    },
+    {
+     "source": "okta_events",
+     "record_id": "OK-000263",
+     "record": {
+      "event_id": "OK-000263",
+      "published_utc": "2026-09-01T04:00:00Z",
+      "event_type": "user.lifecycle.deactivate",
+      "target_login": "noah.khan@ledgerly.io",
+      "target_user_id": "00ub6da594d73",
+      "actor": "okta-workflows",
+      "detail": ""
+     }
+    }
+   ]
+  },
+  {
+   "candidate_id": "C8-critical_sla-VULN-0028",
+   "control_id": "C8",
+   "reason": "Critical vulnerability VULN-0028 had an approved risk acceptance (RISK-7) that was valid at the time of closure. The risk acceptance was approved on 2026-04-11 and expires on 2026-07-04. The vulnerability was closed on 2026-06-04, which is before the expiry date. Per policy Section 2.3, 'A critical covered by an approved, unexpired risk acceptance is not a remediation exception.'",
+   "citations": [
+    {
+     "source": "vulnerabilities",
+     "record_id": "VULN-0028"
+    },
+    {
+     "source": "jira_tickets",
+     "record_id": "RISK-7"
+    }
+   ],
+   "reasoning": [
+    {
+     "kind": "check",
+     "text": "critical_sla: 47 days (limit 30)."
+    },
+    {
+     "kind": "check",
+     "text": "critical_sla: 60 days (limit 30)."
+    },
+    {
+     "kind": "tool",
+     "text": "read_policy(name='vulnerability_management')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='vulnerabilities', record_id='VULN-0003')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='vulnerabilities', record_id='VULN-0028')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='jira_tickets', record_id='RISK-7')"
+    },
+    {
+     "kind": "llm",
+     "text": "tester decided and wrote the finding (structured output)"
+    }
+   ],
+   "cited": [
+    {
+     "source": "vulnerabilities",
+     "record_id": "VULN-0028",
+     "record": {
+      "vuln_id": "VULN-0028",
+      "cve": "CVE-2026-40619",
+      "severity": "critical",
+      "asset": "web",
+      "opened_utc": "2026-04-05T09:00:00Z",
+      "closed_utc": "2026-06-04T10:00:00Z",
+      "status": "closed",
+      "risk_acceptance": "RISK-7"
+     }
+    },
+    {
+     "source": "jira_tickets",
+     "record_id": "RISK-7",
+     "record": {
+      "key": "RISK-7",
+      "issue_type": "Risk Acceptance",
+      "summary": "Accept risk on legacy PDF renderer until vendor patch (WAF rule compensates)",
+      "created_utc": "2026-04-10T09:00:00Z",
+      "resolved_utc": "2026-04-11T09:00:00Z",
+      "status": "Done",
+      "resolution": "Approved",
+      "approver": "Anika Rao; Jonah Price",
+      "approved_utc": "2026-04-11T09:00:00Z",
+      "expires_utc": "2026-07-04T09:00:00Z",
+      "linked_deploy": "",
+      "linked_doc": ""
+     }
+    }
+   ]
+  },
+  {
+   "candidate_id": "C9-pir-INC-22",
+   "control_id": "C9",
+   "reason": "The incident INC-22 was resolved as 'Not an incident (false positive)'. Per the incident_response policy section 5.2, tickets resolved as 'Not an incident' (e.g., false positives) are closed with a triage note and do not need a PIR. This is a valid policy exemption.",
+   "citations": [
+    {
+     "source": "jira_tickets",
+     "record_id": "INC-22"
+    }
+   ],
+   "reasoning": [
+    {
+     "kind": "check",
+     "text": "pir: No linked post_incident_reviews document."
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='jira_tickets', record_id='INC-22')"
+    },
+    {
+     "kind": "tool",
+     "text": "read_policy(name='incident_response')"
+    },
+    {
+     "kind": "llm",
+     "text": "tester decided and wrote the finding (structured output)"
+    }
+   ],
+   "cited": [
+    {
+     "source": "jira_tickets",
+     "record_id": "INC-22",
+     "record": {
+      "key": "INC-22",
+      "issue_type": "Incident",
+      "summary": "GuardDuty alert: unusual API calls from CI runner",
+      "created_utc": "2026-01-05T04:26:00Z",
+      "resolved_utc": "2026-01-06T03:26:00Z",
+      "status": "Done",
+      "resolution": "Not an incident (false positive)",
+      "approver": "",
+      "approved_utc": "",
+      "expires_utc": "",
+      "linked_deploy": "",
+      "linked_doc": ""
+     }
+    }
+   ]
+  }
+ ]
+}

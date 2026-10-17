@@ -67,6 +67,16 @@ def main(argv: list[str] | None = None) -> int:
     sc = sub.add_parser("schema", help="write the JSON Schema of the API/showcase types (for TypeScript generation)")
     sc.add_argument("--out", type=Path, default=REPO_ROOT / "frontend" / "schema.json")
 
+    ex = sub.add_parser("export-showcase", help="write the static showcase JSON for GitHub Pages")
+    ex.add_argument("run_ids", nargs="+")
+    ex.add_argument("--eval", dest="eval_id", default=None, help="evaluation id whose summary goes in index.json")
+    ex.add_argument("--out", type=Path, default=REPO_ROOT / "frontend" / "public" / "data")
+    ex.add_argument("--data-root", type=Path, default=DATA_ROOT)
+    ex.add_argument("--runs-dir", type=Path, default=RUNS_DIR)
+
+    vs = sub.add_parser("validate-showcase", help="validate the committed showcase JSON (CI)")
+    vs.add_argument("--dir", type=Path, default=REPO_ROOT / "frontend" / "public" / "data")
+
     ev = sub.add_parser("eval", help="score a run against its answer key")
     ev.add_argument("--run", default="latest", help="run id, or 'latest'")
     ev.add_argument("--all", action="store_true", help="full evaluation: agent on base/a/b + stability, checks-only, skeptic-off")
@@ -124,6 +134,13 @@ def main(argv: list[str] | None = None) -> int:
         from mockaudit.schemas import write_json_schema
         write_json_schema(args.out)
         print(f"wrote {args.out}")
+    elif args.cmd == "export-showcase":
+        from mockaudit.showcase import export_showcase, validate_showcase
+        out = export_showcase(args.run_ids, args.runs_dir, args.data_root, args.out, args.eval_id)
+        print(f"wrote {out} ({validate_showcase(out)} files, all valid)")
+    elif args.cmd == "validate-showcase":
+        from mockaudit.showcase import validate_showcase
+        print(f"{validate_showcase(args.dir)} showcase files valid")
     elif args.cmd == "eval" and args.rescore:
         from mockaudit.evaluation import render, rescore
         print(render(rescore(args.runs_dir, args.rescore, args.data_root)))

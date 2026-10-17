@@ -536,7 +536,8 @@ def human_review(state: AuditState, runtime: Runtime[AuditContext]) -> dict:
     if not req.exists():                # interrupt() re-runs this node on resume; don't clobber the edited file
         req.write_text(json.dumps(request, indent=2))
     answer = interrupt(request)
-    decisions = {d["finding_id"]: d for d in (answer.get("decisions", []) if isinstance(answer, dict) else answer)}
+    decisions = {d["finding_id"]: {"finding_id": d["finding_id"], "decision": d.get("decision", ""), "note": d.get("note", "")}
+                 for d in (answer.get("decisions", []) if isinstance(answer, dict) else answer)}
     updates = {}
     for fid, d in decisions.items():
         if fid in state["findings"] and d.get("decision") in ("approve", "dismiss"):

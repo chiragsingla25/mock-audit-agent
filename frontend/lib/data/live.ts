@@ -41,5 +41,6 @@ export function liveSource(base: string, fetchImpl: typeof fetch = (...a) => fet
     },
     getReport: (id) => json<Report>(`/audits/${encodeURIComponent(id)}/report`),
     getReportMarkdown: async (id) => (await call(`/audits/${encodeURIComponent(id)}/report?format=md`)).text(),
+    getIndex: async () => null,
   };
 }

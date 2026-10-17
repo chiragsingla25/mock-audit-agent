@@ -4,7 +4,7 @@
 !.env.example
 
 # runtime output
-runs/
+/runs/
 *.db
 *.db-journal
 

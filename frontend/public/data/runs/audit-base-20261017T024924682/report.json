@@ -1,0 +1,465 @@
+{
+ "run_id": "audit-base-20261017T024924682",
+ "variant": "base",
+ "mode": "agent",
+ "review_mode": "human",
+ "statement": "Readiness forecast from synthetic evidence. Not an audit opinion.",
+ "findings": [
+  {
+   "finding_id": "C2-completeness",
+   "control_id": "C2",
+   "test_step": "completeness",
+   "gap_type": "population_completeness",
+   "exceptions": 1,
+   "tested": 20,
+   "condition": "E1070 (hr_roster) shows terminated user with no corresponding suspend/deactivate event in okta_events; okta_users record 00u27ba276404 shows status ACTIVE",
+   "criteria": "Section 4.3 requires 'suspend or deactivate their Okta account within 24 clock hours of the termination time'",
+   "cause": "No deprovisioning event was recorded for this terminated user; owner confirmed deactivation was missed",
+   "effect": "User retained access without proper deprovisioning beyond observation period",
+   "recommendation": "Implement controls to ensure all terminated users have corresponding suspend/deactivate events within 24 hours and verify completion",
+   "citations": [
+    {
+     "source": "hr_roster",
+     "record_id": "E1070"
+    },
+    {
+     "source": "okta_users",
+     "record_id": "00u27ba276404"
+    }
+   ],
+   "severity": "high",
+   "severity_rule": 2,
+   "status": "approved",
+   "reasoning": [
+    {
+     "kind": "check",
+     "text": "completeness: E1070 is missing from okta_events."
+    },
+    {
+     "kind": "check",
+     "text": "timeliness: First suspend/deactivate 219.0 h after termination (limit 24 h)."
+    },
+    {
+     "kind": "check",
+     "text": "timeliness: First suspend/deactivate 1826.0 h after termination (limit 24 h)."
+    },
+    {
+     "kind": "check",
+     "text": "timeliness: First suspend/deactivate 63.0 h after termination (limit 24 h)."
+    },
+    {
+     "kind": "tool",
+     "text": "read_policy(name='access_control')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='hr_roster', record_id='E1070')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='okta_users', record_id='00u27ba276404')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='hr_roster', record_id='E1055')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='okta_events', record_id='OK-000099')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='hr_roster', record_id='E1083')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='okta_events', record_id='OK-000263')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='hr_roster', record_id='E1109')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='okta_events', record_id='OK-000261')"
+    },
+    {
+     "kind": "owner",
+     "text": "ask_owner(question='Regarding candidate C2-completeness-E1070 (Anderson, Ivy): The user was terminated on 2026-04-25 but has no suspend/deactivate event in okta_events and remains ACTIVE in okta_users"
+    },
+    {
+     "kind": "llm",
+     "text": "tester decided and wrote the finding (structured output)"
+    },
+    {
+     "kind": "llm",
+     "text": "skeptic round 0: keep — The cited records support the condition: hr_roster E1070 shows termination on 2026-04-25 16:45 AET (inside the audit period 2025-10-01 to 2026-09-30), and okta_users 00u27ba276404 shows status ACTIVE with no corresponding deprovisioning event. Policy section 4.3 requires susp"
+    },
+    {
+     "kind": "rule",
+     "text": "severity rule 2: population_completeness, 1/20, high-risk control → high"
+    }
+   ],
+   "review_note": ""
+  },
+  {
+   "finding_id": "C2-timeliness",
+   "control_id": "C2",
+   "test_step": "timeliness",
+   "gap_type": "operating",
+   "exceptions": 2,
+   "tested": 18,
+   "condition": "E1055 had first suspend event 219.0 hours after termination (OK-000099); E1109 had first suspend event 63.0 hours after termination (OK-000261); both exceed 24-hour limit",
+   "criteria": "Section 4.3 requires 'suspend or deactivate their Okta account within 24 clock hours of the termination time'",
+   "cause": "Offboarding tickets were actioned late for both users; no approved exceptions exist",
+   "effect": "Users retained access beyond the allowed 24-hour period after termination",
+   "recommendation": "Review and improve deprovisioning processes to meet 24-hour SLA and implement monitoring for timely completion",
+   "citations": [
+    {
+     "source": "hr_roster",
+     "record_id": "E1055"
+    },
+    {
+     "source": "okta_events",
+     "record_id": "OK-000099"
+    },
+    {
+     "source": "hr_roster",
+     "record_id": "E1109"
+    },
+    {
+     "source": "okta_events",
+     "record_id": "OK-000261"
+    }
+   ],
+   "severity": "high",
+   "severity_rule": 4,
+   "status": "approved",
+   "reasoning": [
+    {
+     "kind": "check",
+     "text": "completeness: E1070 is missing from okta_events."
+    },
+    {
+     "kind": "check",
+     "text": "timeliness: First suspend/deactivate 219.0 h after termination (limit 24 h)."
+    },
+    {
+     "kind": "check",
+     "text": "timeliness: First suspend/deactivate 1826.0 h after termination (limit 24 h)."
+    },
+    {
+     "kind": "check",
+     "text": "timeliness: First suspend/deactivate 63.0 h after termination (limit 24 h)."
+    },
+    {
+     "kind": "tool",
+     "text": "read_policy(name='access_control')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='hr_roster', record_id='E1070')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='okta_users', record_id='00u27ba276404')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='hr_roster', record_id='E1055')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='okta_events', record_id='OK-000099')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='hr_roster', record_id='E1083')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='okta_events', record_id='OK-000263')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='hr_roster', record_id='E1109')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='okta_events', record_id='OK-000261')"
+    },
+    {
+     "kind": "owner",
+     "text": "ask_owner(question='Regarding candidate C2-completeness-E1070 (Anderson, Ivy): The user was terminated on 2026-04-25 but has no suspend/deactivate event in okta_events and remains ACTIVE in okta_users"
+    },
+    {
+     "kind": "llm",
+     "text": "tester decided and wrote the finding (structured output)"
+    },
+    {
+     "kind": "llm",
+     "text": "skeptic round 0: keep — All checks pass. (1) The cited records clearly show the condition: E1055 terminated 2026-01-27 17:00 AEDT → suspended 2026-02-05 09:00 UTC (219 hours); E1109 terminated 2026-08-28 18:00 AEST → suspended 2026-08-30 23:00 UTC (63 hours). Both far exceed the 24-hour limit in Sec"
+    },
+    {
+     "kind": "rule",
+     "text": "severity rule 4: operating, 2/18, high-risk control → high"
+    }
+   ],
+   "review_note": ""
+  },
+  {
+   "finding_id": "C5-completeness",
+   "control_id": "C5",
+   "test_step": "completeness",
+   "gap_type": "population_completeness",
+   "exceptions": 1,
+   "tested": 30,
+   "condition": "1 of 30 items failed: AIDAFCB2757B1F7F@PAR-2026Q3. AIDAFCB2757B1F7F existed on 2026-10-07 but is not in PAR-2026Q3.",
+   "criteria": "Every AWS admin that existed at the review date is on that quarter's reviewed list",
+   "cause": null,
+   "effect": "The control 'Privileged access is reviewed quarterly' did not operate as designed for these items.",
+   "recommendation": "Investigate each exception with the control owner and remediate.",
+   "citations": [
+    {
+     "source": "aws_iam_admins",
+     "record_id": "AIDAFCB2757B1F7F"
+    },
+    {
+     "source": "privileged_access_reviews",
+     "record_id": "PAR-2026Q3"
+    }
+   ],
+   "severity": "high",
+   "severity_rule": 2,
+   "status": "approved",
+   "reasoning": [
+    {
+     "kind": "check",
+     "text": "completeness: AIDAFCB2757B1F7F existed on 2026-10-07 but is not in PAR-2026Q3."
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='aws_iam_admins', record_id='AIDAFCB2757B1F7F')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='privileged_access_reviews', record_id='PAR-2026Q3')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='privileged_access_reviews', record_id='PAR-2025Q4')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='privileged_access_reviews', record_id='PAR-2026Q1')"
+    },
+    {
+     "kind": "tool",
+     "text": "get_record(source='privileged_access_reviews', record_id='PAR-2026Q2')"
+    },
+    {
+     "kind": "tool",
+     "text": "read_policy(name='access_control')"
+    },
+    {
+     "kind": "llm",
+     "text": "tester decided and wrote the finding (structured output)"
+    },
+    {
+     "kind": "rule",
+     "text": "raised by default: no tester write-up"
+    },
+    {
+     "kind": "llm",
+     "text": "skeptic round 0: keep — The cited records support the finding. AIDAFCB2757B1F7F (security-audit, with AdministratorAccess, created 2026-03-13) clearly existed at Q3 2026 quarter-end (2026-09-30) and at the review date (2026-10-07), but is absent from the PAR-2026Q3 review list. The policy requires q"
+    },
+    {
+     "kind": "rule",
+     "text": "severity rule 2: population_completeness, 1/30, high-risk control → high"
+    }
+   ],
+   "review_note": ""
+  }
+ ],
+ "rejected_by_skeptic": [],
+ "coverage": [
+  {
+   "control_id": "C1",
+   "status": "pass",
+   "error": null,
+   "tested": [
+    "approval"
+   ],
+   "not_tested": [],
+   "population_size": 61,
+   "notes": []
+  },
+  {
+   "control_id": "C2",
+   "status": "exceptions",
+   "error": null,
+   "tested": [
+    "completeness",
+    "timeliness"
+   ],
+   "not_tested": [],
+   "population_size": 20,
+   "notes": [
+    "X3001: no okta_users record, so nothing to check (not an exception)."
+   ]
+  },
+  {
+   "control_id": "C3",
+   "status": "pass",
+   "error": null,
+   "tested": [
+    "occurrence",
+    "signoff"
+   ],
+   "not_tested": [],
+   "population_size": 4,
+   "notes": [
+    "1 finding(s) dismissed in review"
+   ]
+  },
+  {
+   "control_id": "C4",
+   "status": "pass",
+   "error": null,
+   "tested": [
+    "coverage"
+   ],
+   "not_tested": [],
+   "population_size": 10,
+   "notes": []
+  },
+  {
+   "control_id": "C5",
+   "status": "exceptions",
+   "error": null,
+   "tested": [
+    "occurrence",
+    "completeness",
+    "signoff"
+   ],
+   "not_tested": [],
+   "population_size": 30,
+   "notes": []
+  },
+  {
+   "control_id": "C6",
+   "status": "pass",
+   "error": null,
+   "tested": [
+    "segregation"
+   ],
+   "not_tested": [],
+   "population_size": 320,
+   "notes": [
+    "1 finding(s) dismissed in review"
+   ]
+  },
+  {
+   "control_id": "C7",
+   "status": "pass",
+   "error": null,
+   "tested": [
+    "ticketed",
+    "retro_approval"
+   ],
+   "not_tested": [],
+   "population_size": 8,
+   "notes": [
+    "1 finding(s) dismissed in review"
+   ]
+  },
+  {
+   "control_id": "C8",
+   "status": "pass",
+   "error": null,
+   "tested": [
+    "weekly_scan",
+    "critical_sla"
+   ],
+   "not_tested": [],
+   "population_size": 53,
+   "notes": [
+    "2 finding(s) dismissed in review"
+   ]
+  },
+  {
+   "control_id": "C9",
+   "status": "pass",
+   "error": null,
+   "tested": [
+    "pir"
+   ],
+   "not_tested": [],
+   "population_size": 7,
+   "notes": []
+  },
+  {
+   "control_id": "C10",
+   "status": "pass",
+   "error": null,
+   "tested": [
+    "new_hire",
+    "annual"
+   ],
+   "not_tested": [],
+   "population_size": 119,
+   "notes": [
+    "1 finding(s) dismissed in review"
+   ]
+  },
+  {
+   "control_id": "C11",
+   "status": "pass",
+   "error": null,
+   "tested": [
+    "review_in_period"
+   ],
+   "not_tested": [],
+   "population_size": 5,
+   "notes": []
+  },
+  {
+   "control_id": "C12",
+   "status": "pass",
+   "error": null,
+   "tested": [
+    "restore_test"
+   ],
+   "not_tested": [],
+   "population_size": 1,
+   "notes": [
+    "1 finding(s) dismissed in review"
+   ]
+  }
+ ],
+ "remediation_tasks": [
+  {
+   "finding_id": "C2-completeness",
+   "owner_control": "C2",
+   "task": "Implement controls to ensure all terminated users have corresponding suspend/deactivate events within 24 hours and verify completion",
+   "severity": "high"
+  },
+  {
+   "finding_id": "C2-timeliness",
+   "owner_control": "C2",
+   "task": "Review and improve deprovisioning processes to meet 24-hour SLA and implement monitoring for timely completion",
+   "severity": "high"
+  },
+  {
+   "finding_id": "C5-completeness",
+   "owner_control": "C5",
+   "task": "Investigate each exception with the control owner and remediate.",
+   "severity": "high"
+  }
+ ],
+ "totals": {
+  "cost_usd": 0.015616,
+  "tokens": 124350,
+  "llm_calls": 34
+ }
+}

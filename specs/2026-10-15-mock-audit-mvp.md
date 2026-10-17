@@ -187,11 +187,24 @@ Clarified 2026-10-17 (Phase 5 clarify pass, ruled by Chirag):
 Verify: start an audit in the browser → 12 cards finish → open G1 → the step list shows → approve → export Markdown.
 
 ### Phase 6: Showcase and ship (end of Milestone 2)
-- [ ] `mockaudit export-showcase <run_ids>` writes the showcase JSON (cited records only, not full exports), and it validates against the schemas.
-- [ ] A static export (`output: 'export'`, `basePath`, `generateStaticParams`) builds; the Pages site has no start button and shows recorded review decisions.
+- [x] `mockaudit export-showcase <run_ids>` writes the showcase JSON (cited records only, not full exports), and it validates against the schemas.
+- [x] A static export (`output: 'export'`, `basePath`, `generateStaticParams`) builds; the Pages site has no start button and shows recorded review decisions.
 - [ ] `.github/workflows/pages.yml` deploys on push to `main`.
-- [ ] README: what it is, the diagram, evaluation results (including agent vs checks-only), cost, how to run locally, the roadmap, and the note on synthetic data and practitioner review.
-- [ ] A 2-minute video script is in `docs/video-script.md`.
+- [x] README: what it is, the diagram, evaluation results (including agent vs checks-only), cost, how to run locally, the roadmap, and the note on synthetic data and practitioner review.
+- [x] A 2-minute video script is in `docs/video-script.md`.
+
+Clarified 2026-10-17 (Phase 6 clarify pass, ruled by Chirag):
+- **Reviewed run:** a fresh base agent run (about US$0.03) that Chirag reviews in the local app, so the published decisions are a practitioner's. The eval runs are published alongside, marked unreviewed.
+- **Comparison:** the showcase home lists every published run with its headline metrics in one table from eval.json (agent, skeptic-off view, checks-only, for base/a/b), and any run can be opened. There is no separate evaluation screen (still roadmap).
+- **Fresh eval:** re-run `eval --all` (about US$0.15) so the README, eval.json and published runs all come from the shipped code.
+- **Pages:** I enable Pages (source: GitHub Actions) on chiragsingla25/mock-audit-agent with one `gh api` call once pages.yml is ready.
+- Defaults (builder, stated):
+  - **Data shapes:** showcase JSON mirrors the API's shapes, so `lib/data/showcase.ts` reads static files where `live.ts` calls the API:
+    - `public/data/index.json`: runs plus the eval summary;
+    - `public/data/runs/<id>/audit.json`, `findings.json` (cited records only) and `report.json`.
+  - **Validation:** `mockaudit export-showcase` validates everything it writes against Pydantic models, and CI re-validates the committed JSON (the step moved here from Phase 4).
+  - **Static build:** `NEXT_PUBLIC_MODE=showcase` builds with `output: 'export'` and `basePath: '/mock-audit-agent'`. Query-string routes (Phase 5) mean no `generateStaticParams` is needed.
+  - **No start button in showcase:** the Start screen becomes the run browser, and the Findings screen shows recorded decisions read-only.
 
 Verify: push to `main` → the Pages URL shows the runs, findings with step lists, and the comparison.
 
@@ -287,3 +300,10 @@ Golden answer key with code-scored metrics (proposal §7), unit tests per criter
   - A finding's step list holds every tool call of its control's tester run, not only the calls about that finding.
   - In the live run the skeptic misquoted policy 4.3 ("excludes weekends"), though its verdict was correct.
   - Both are LLM/presentation quality issues for the roadmap.
+- [phase 6] Fresh eval `eval-20261017T024416Z` (after all fixes), as quoted in the README: every agent run perfect (base 10/10 ×3, variants 7/7), clean controls clean, no traps raised, stability 100%, US$0.014 per audit, eval total US$0.07. Checks-only is unchanged.
+- [phase 6] Chirag's human review of `audit-base-20261017T024924682`: 3 approved, 7 dismissed, no notes. Published as is at his explicit instruction. The showcase labels its scores as counting only approved findings. The first submit attempt never reached the API: no POST was logged, the pane was closed and the dev server stopped, so it was redone.
+- [phase 6] Static export: the template's `cacheComponents` / `partialPrefetching` enable partial prerendering, which `output: 'export'` rejects ("PPR cannot be enabled in export mode") — framework constraint — they're now live-mode only.
+- [phase 6] Thanks to Phase 5's query-string routes, no `generateStaticParams` was needed, which differs from this phase's wording — recorded in phase 5.
+- [phase 6] Recorded review decisions are now stored as `{finding_id, decision, note}`. They used to carry the whole review-request row.
+- [phase 6] All eval agent runs are published, the stability runs included, so every comparison row opens a run (the validator enforces this). Each run also ships `report.md` for the Markdown export.
+- [phase 6] The root `.gitignore` entry `runs/` also matched `frontend/public/data/runs/`, so the per-run showcase JSON would never have been committed. Caught before committing; CI's `validate-showcase` would have failed on it too — scaffold bug — anchored to `/runs/`.

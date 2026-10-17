@@ -80,7 +80,11 @@ export function FindingsScreen() {
             {groups.findings.map((f) => (
               <ListItem key={f.finding_id} active={selected?.id === f.finding_id} onClick={() => setSelected({ kind: "finding", id: f.finding_id })}
                 title={f.finding_id} right={<>
-                  {decisions[f.finding_id] && <Badge tone={decisions[f.finding_id].decision === "approve" ? "green" : "neutral"}>{decisions[f.finding_id].decision === "approve" ? "approved" : "dismissed"}</Badge>}
+                  {(decisions[f.finding_id] ?? f.decision) && (
+                    <Badge tone={(decisions[f.finding_id] ?? f.decision)?.decision === "approve" ? "green" : "neutral"}>
+                      {(decisions[f.finding_id] ?? f.decision)?.decision === "approve" ? "approved" : "dismissed"}
+                    </Badge>
+                  )}
                   <Badge tone={severityTone(f.severity)}>{f.severity}</Badge>
                 </>} sub={f.status === "unresolved" ? "unresolved" : `${f.exceptions} of ${f.tested}`} />
             ))}

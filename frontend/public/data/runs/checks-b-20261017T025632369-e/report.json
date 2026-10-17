@@ -1,0 +1,562 @@
+{
+ "run_id": "checks-b-20261017T025632369-e",
+ "variant": "b",
+ "mode": "checks_only",
+ "review_mode": "skip",
+ "statement": "Readiness forecast from synthetic evidence. Not an audit opinion.",
+ "findings": [
+  {
+   "finding_id": "C2-completeness",
+   "control_id": "C2",
+   "test_step": "completeness",
+   "gap_type": "population_completeness",
+   "exceptions": 1,
+   "tested": 20,
+   "condition": "1 of 20 items failed: E1028. E1028 is missing from okta_events.",
+   "criteria": "Every HR termination with an Okta account appears in the deprovisioning population",
+   "cause": null,
+   "effect": "The control 'Terminated users lose access within 24 hours' did not operate as designed for these items.",
+   "recommendation": "Investigate each exception with the control owner and remediate.",
+   "citations": [
+    {
+     "source": "hr_roster",
+     "record_id": "E1028"
+    },
+    {
+     "source": "okta_users",
+     "record_id": "00u5e7b85b559"
+    }
+   ],
+   "severity": "high",
+   "severity_rule": 2,
+   "status": "kept",
+   "reasoning": [
+    {
+     "kind": "check",
+     "text": "population_diff: 1 of 20 failed"
+    },
+    {
+     "kind": "rule",
+     "text": "severity rule 2: population_completeness, 1/20, high-risk control → high"
+    }
+   ],
+   "review_note": ""
+  },
+  {
+   "finding_id": "C5-completeness",
+   "control_id": "C5",
+   "test_step": "completeness",
+   "gap_type": "population_completeness",
+   "exceptions": 1,
+   "tested": 30,
+   "condition": "1 of 30 items failed: AIDAB886960EB41A@PAR-2026Q1. AIDAB886960EB41A existed on 2026-04-01 but is not in PAR-2026Q1.",
+   "criteria": "Every AWS admin that existed at the review date is on that quarter's reviewed list",
+   "cause": null,
+   "effect": "The control 'Privileged access is reviewed quarterly' did not operate as designed for these items.",
+   "recommendation": "Investigate each exception with the control owner and remediate.",
+   "citations": [
+    {
+     "source": "aws_iam_admins",
+     "record_id": "AIDAB886960EB41A"
+    },
+    {
+     "source": "privileged_access_reviews",
+     "record_id": "PAR-2026Q1"
+    }
+   ],
+   "severity": "high",
+   "severity_rule": 2,
+   "status": "kept",
+   "reasoning": [
+    {
+     "kind": "check",
+     "text": "set_mismatch: 1 of 30 failed"
+    },
+    {
+     "kind": "rule",
+     "text": "severity rule 2: population_completeness, 1/30, high-risk control → high"
+    }
+   ],
+   "review_note": ""
+  },
+  {
+   "finding_id": "C1-approval",
+   "control_id": "C1",
+   "test_step": "approval",
+   "gap_type": "operating",
+   "exceptions": 1,
+   "tested": 63,
+   "condition": "1 of 63 items failed: AR-0003. Granted 49.0 h before it was approved.",
+   "criteria": "Each access grant has an approval timestamp at or before the grant",
+   "cause": null,
+   "effect": "The control 'New access is approved before it is granted' did not operate as designed for these items.",
+   "recommendation": "Investigate each exception with the control owner and remediate.",
+   "citations": [
+    {
+     "source": "access_requests",
+     "record_id": "AR-0003"
+    }
+   ],
+   "severity": "moderate",
+   "severity_rule": 5,
+   "status": "kept",
+   "reasoning": [
+    {
+     "kind": "check",
+     "text": "approval_before_grant: 1 of 63 failed"
+    },
+    {
+     "kind": "rule",
+     "text": "severity rule 5: operating, 1/63, high-risk control → moderate"
+    }
+   ],
+   "review_note": ""
+  },
+  {
+   "finding_id": "C10-new_hire",
+   "control_id": "C10",
+   "test_step": "new_hire",
+   "gap_type": "operating",
+   "exceptions": 3,
+   "tested": 30,
+   "condition": "3 of 30 items failed: E1125, E1140, E1145. Completed 49 days after the event (limit 30). Completed 52 days after the event (limit 30). Completed 56 days after the event (limit 30).",
+   "criteria": "New hires complete new-hire security training within 30 days of their hire date",
+   "cause": null,
+   "effect": "The control 'Security training is completed within 30 days of hire and annually' did not operate as designed for these items.",
+   "recommendation": "Investigate each exception with the control owner and remediate.",
+   "citations": [
+    {
+     "source": "hr_roster",
+     "record_id": "E1125"
+    },
+    {
+     "source": "lms_completions",
+     "record_id": "LMS-00010"
+    },
+    {
+     "source": "hr_roster",
+     "record_id": "E1140"
+    },
+    {
+     "source": "lms_completions",
+     "record_id": "LMS-00109"
+    },
+    {
+     "source": "hr_roster",
+     "record_id": "E1145"
+    },
+    {
+     "source": "lms_completions",
+     "record_id": "LMS-00149"
+    }
+   ],
+   "severity": "moderate",
+   "severity_rule": 6,
+   "status": "kept",
+   "reasoning": [
+    {
+     "kind": "check",
+     "text": "days_after_event: 3 of 30 failed"
+    },
+    {
+     "kind": "rule",
+     "text": "severity rule 6: operating, 3/30, moderate-risk control → moderate"
+    }
+   ],
+   "review_note": ""
+  },
+  {
+   "finding_id": "C2-timeliness",
+   "control_id": "C2",
+   "test_step": "timeliness",
+   "gap_type": "operating",
+   "exceptions": 1,
+   "tested": 18,
+   "condition": "1 of 18 items failed: E1010. First suspend/deactivate 1658.0 h after termination (limit 24 h).",
+   "criteria": "First suspend or deactivate event within 24 clock hours of termination",
+   "cause": null,
+   "effect": "The control 'Terminated users lose access within 24 hours' did not operate as designed for these items.",
+   "recommendation": "Investigate each exception with the control owner and remediate.",
+   "citations": [
+    {
+     "source": "hr_roster",
+     "record_id": "E1010"
+    },
+    {
+     "source": "okta_events",
+     "record_id": "OK-000085"
+    }
+   ],
+   "severity": "moderate",
+   "severity_rule": 5,
+   "status": "kept",
+   "reasoning": [
+    {
+     "kind": "check",
+     "text": "revocation_delay: 1 of 18 failed"
+    },
+    {
+     "kind": "rule",
+     "text": "severity rule 5: operating, 1/18, high-risk control → moderate"
+    }
+   ],
+   "review_note": ""
+  },
+  {
+   "finding_id": "C7-ticketed",
+   "control_id": "C7",
+   "test_step": "ticketed",
+   "gap_type": "population_completeness",
+   "exceptions": 1,
+   "tested": 8,
+   "condition": "1 of 8 items failed: D-00875. Emergency deploy has no linked change ticket.",
+   "criteria": "Every emergency deploy links an emergency change ticket",
+   "cause": null,
+   "effect": "The control 'Emergency changes are approved retroactively within 2 business days' did not operate as designed for these items.",
+   "recommendation": "Investigate each exception with the control owner and remediate.",
+   "citations": [
+    {
+     "source": "deploys",
+     "record_id": "D-00875"
+    }
+   ],
+   "severity": "moderate",
+   "severity_rule": 6,
+   "status": "kept",
+   "reasoning": [
+    {
+     "kind": "check",
+     "text": "unticketed_deploys: 1 of 8 failed"
+    },
+    {
+     "kind": "rule",
+     "text": "severity rule 6: population_completeness, 1/8, moderate-risk control → moderate"
+    }
+   ],
+   "review_note": ""
+  },
+  {
+   "finding_id": "C8-critical_sla",
+   "control_id": "C8",
+   "test_step": "critical_sla",
+   "gap_type": "sla_breach",
+   "exceptions": 2,
+   "tested": 9,
+   "condition": "2 of 9 items failed: VULN-0031, VULN-0037. 60 days (limit 30). 50 days (limit 30).",
+   "criteria": "Critical vulnerabilities are closed within 30 calendar days of being opened",
+   "cause": null,
+   "effect": "The control 'Vulnerability scans run weekly and critical findings are fixed within 30 days' did not operate as designed for these items.",
+   "recommendation": "Investigate each exception with the control owner and remediate.",
+   "citations": [
+    {
+     "source": "vulnerabilities",
+     "record_id": "VULN-0031"
+    },
+    {
+     "source": "vulnerabilities",
+     "record_id": "VULN-0037"
+    }
+   ],
+   "severity": "moderate",
+   "severity_rule": 6,
+   "status": "kept",
+   "reasoning": [
+    {
+     "kind": "check",
+     "text": "sla_days: 2 of 9 failed"
+    },
+    {
+     "kind": "rule",
+     "text": "severity rule 6: sla_breach, 2/9, moderate-risk control → moderate"
+    }
+   ],
+   "review_note": ""
+  },
+  {
+   "finding_id": "C8-weekly_scan",
+   "control_id": "C8",
+   "test_step": "weekly_scan",
+   "gap_type": "frequency_gap",
+   "exceptions": 3,
+   "tested": 53,
+   "condition": "3 of 53 items failed: 2026-W30, 2026-W31, 2026-W32. No scanner_runs occurrence for 2026-W30. No scanner_runs occurrence for 2026-W31. No scanner_runs occurrence for 2026-W32.",
+   "criteria": "Each ISO week in the period has at least one completed scan",
+   "cause": null,
+   "effect": "The control 'Vulnerability scans run weekly and critical findings are fixed within 30 days' did not operate as designed for these items.",
+   "recommendation": "Investigate each exception with the control owner and remediate.",
+   "citations": [
+    {
+     "source": "scanner_runs",
+     "record_id": "SCAN-2026-W29"
+    },
+    {
+     "source": "scanner_runs",
+     "record_id": "SCAN-2026-W33"
+    }
+   ],
+   "severity": "moderate",
+   "severity_rule": 6,
+   "status": "kept",
+   "reasoning": [
+    {
+     "kind": "check",
+     "text": "periodic_occurrence: 3 of 53 failed"
+    },
+    {
+     "kind": "rule",
+     "text": "severity rule 6: frequency_gap, 3/53, moderate-risk control → moderate"
+    }
+   ],
+   "review_note": ""
+  },
+  {
+   "finding_id": "C9-pir",
+   "control_id": "C9",
+   "test_step": "pir",
+   "gap_type": "missing_evidence",
+   "exceptions": 1,
+   "tested": 7,
+   "condition": "1 of 7 items failed: INC-23. No linked post_incident_reviews document.",
+   "criteria": "Every Incident ticket links a post-incident review document",
+   "cause": null,
+   "effect": "The control 'Security incidents are logged and get a post-incident review' did not operate as designed for these items.",
+   "recommendation": "Investigate each exception with the control owner and remediate.",
+   "citations": [
+    {
+     "source": "jira_tickets",
+     "record_id": "INC-23"
+    }
+   ],
+   "severity": "moderate",
+   "severity_rule": 6,
+   "status": "kept",
+   "reasoning": [
+    {
+     "kind": "check",
+     "text": "required_link: 1 of 7 failed"
+    },
+    {
+     "kind": "rule",
+     "text": "severity rule 6: missing_evidence, 1/7, moderate-risk control → moderate"
+    }
+   ],
+   "review_note": ""
+  }
+ ],
+ "rejected_by_skeptic": [],
+ "coverage": [
+  {
+   "control_id": "C1",
+   "status": "exceptions",
+   "error": null,
+   "tested": [
+    "approval"
+   ],
+   "not_tested": [],
+   "population_size": 63,
+   "notes": []
+  },
+  {
+   "control_id": "C2",
+   "status": "exceptions",
+   "error": null,
+   "tested": [
+    "completeness",
+    "timeliness"
+   ],
+   "not_tested": [],
+   "population_size": 20,
+   "notes": [
+    "X3001: no okta_users record, so nothing to check (not an exception)."
+   ]
+  },
+  {
+   "control_id": "C3",
+   "status": "pass",
+   "error": null,
+   "tested": [
+    "occurrence"
+   ],
+   "not_tested": [
+    {
+     "step_id": "signoff",
+     "reason": "judgment-only step (checks-only mode)"
+    }
+   ],
+   "population_size": 4,
+   "notes": []
+  },
+  {
+   "control_id": "C4",
+   "status": "pass",
+   "error": null,
+   "tested": [
+    "coverage"
+   ],
+   "not_tested": [],
+   "population_size": 10,
+   "notes": []
+  },
+  {
+   "control_id": "C5",
+   "status": "exceptions",
+   "error": null,
+   "tested": [
+    "occurrence",
+    "completeness"
+   ],
+   "not_tested": [
+    {
+     "step_id": "signoff",
+     "reason": "judgment-only step (checks-only mode)"
+    }
+   ],
+   "population_size": 30,
+   "notes": []
+  },
+  {
+   "control_id": "C6",
+   "status": "pass",
+   "error": null,
+   "tested": [
+    "segregation"
+   ],
+   "not_tested": [],
+   "population_size": 320,
+   "notes": []
+  },
+  {
+   "control_id": "C7",
+   "status": "exceptions",
+   "error": null,
+   "tested": [
+    "ticketed",
+    "retro_approval"
+   ],
+   "not_tested": [],
+   "population_size": 8,
+   "notes": []
+  },
+  {
+   "control_id": "C8",
+   "status": "exceptions",
+   "error": null,
+   "tested": [
+    "weekly_scan",
+    "critical_sla"
+   ],
+   "not_tested": [],
+   "population_size": 53,
+   "notes": []
+  },
+  {
+   "control_id": "C9",
+   "status": "exceptions",
+   "error": null,
+   "tested": [
+    "pir"
+   ],
+   "not_tested": [],
+   "population_size": 7,
+   "notes": []
+  },
+  {
+   "control_id": "C10",
+   "status": "exceptions",
+   "error": null,
+   "tested": [
+    "new_hire",
+    "annual"
+   ],
+   "not_tested": [],
+   "population_size": 121,
+   "notes": []
+  },
+  {
+   "control_id": "C11",
+   "status": "pass",
+   "error": null,
+   "tested": [
+    "review_in_period"
+   ],
+   "not_tested": [],
+   "population_size": 5,
+   "notes": []
+  },
+  {
+   "control_id": "C12",
+   "status": "pass",
+   "error": null,
+   "tested": [],
+   "not_tested": [
+    {
+     "step_id": "restore_test",
+     "reason": "judgment-only step (checks-only mode)"
+    }
+   ],
+   "population_size": 1,
+   "notes": []
+  }
+ ],
+ "remediation_tasks": [
+  {
+   "finding_id": "C2-completeness",
+   "owner_control": "C2",
+   "task": "Investigate each exception with the control owner and remediate.",
+   "severity": "high"
+  },
+  {
+   "finding_id": "C5-completeness",
+   "owner_control": "C5",
+   "task": "Investigate each exception with the control owner and remediate.",
+   "severity": "high"
+  },
+  {
+   "finding_id": "C1-approval",
+   "owner_control": "C1",
+   "task": "Investigate each exception with the control owner and remediate.",
+   "severity": "moderate"
+  },
+  {
+   "finding_id": "C10-new_hire",
+   "owner_control": "C10",
+   "task": "Investigate each exception with the control owner and remediate.",
+   "severity": "moderate"
+  },
+  {
+   "finding_id": "C2-timeliness",
+   "owner_control": "C2",
+   "task": "Investigate each exception with the control owner and remediate.",
+   "severity": "moderate"
+  },
+  {
+   "finding_id": "C7-ticketed",
+   "owner_control": "C7",
+   "task": "Investigate each exception with the control owner and remediate.",
+   "severity": "moderate"
+  },
+  {
+   "finding_id": "C8-critical_sla",
+   "owner_control": "C8",
+   "task": "Investigate each exception with the control owner and remediate.",
+   "severity": "moderate"
+  },
+  {
+   "finding_id": "C8-weekly_scan",
+   "owner_control": "C8",
+   "task": "Investigate each exception with the control owner and remediate.",
+   "severity": "moderate"
+  },
+  {
+   "finding_id": "C9-pir",
+   "owner_control": "C9",
+   "task": "Investigate each exception with the control owner and remediate.",
+   "severity": "moderate"
+  }
+ ],
+ "totals": {
+  "cost_usd": 0.0,
+  "tokens": 0,
+  "llm_calls": 0
+ }
+}

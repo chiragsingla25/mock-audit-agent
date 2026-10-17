@@ -84,3 +84,32 @@ export interface Report {
   remediation_tasks: { finding_id: string; owner_control: string; task: string; severity: string | null }[];
   totals: { cost_usd: number; tokens: number; llm_calls: number };
 }
+
+export interface Ratio {
+  n: number;
+  of: number;
+  value: number | null;
+}
+
+export interface RunMetrics {
+  recall: Ratio;
+  precision: Ratio;
+  clean_control_accuracy: Ratio;
+  citation_validity: Ratio;
+  severity_agreement: Ratio;
+  traps_raised: Ratio;
+}
+
+/** frontend/public/data/index.json, written by `mockaudit export-showcase`. */
+export interface ShowcaseIndex {
+  generated: string;
+  statement: string;
+  runs: (AuditSummary & { reviewed: boolean; label: string; metrics: RunMetrics | null; cost_usd: number; tokens: number })[];
+  eval: {
+    eval_id: string;
+    rows: { run_id: string; variant: string; mode: Mode; repeat: number; metrics: RunMetrics; cost_usd: number; tokens: number }[];
+    targets: { metric: string; base: number | null; variant_mean: number | null; target: number; met: boolean }[];
+    stability: { runs: string[]; pairwise: number[]; value: number | null; recall_per_run: number[] };
+    cost: { per_audit_usd: number | null; per_audit_tokens: number | null; eval_total_usd: number; eval_cap_usd: number };
+  } | null;
+}

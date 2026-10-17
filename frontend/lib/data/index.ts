@@ -8,5 +8,5 @@ export type { DataSource } from "./source";
 
 export const data: DataSource =
   process.env.NEXT_PUBLIC_MODE === "showcase"
-    ? showcaseSource()
+    ? showcaseSource(process.env.NEXT_PUBLIC_BASE_PATH ?? "")
     : liveSource(process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000");

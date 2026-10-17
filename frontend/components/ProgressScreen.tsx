@@ -42,7 +42,7 @@ export function ProgressScreen() {
 
   return (
     <div>
-      <PageTitle title="Audit progress" sub={<>{runId} · {audit ? `${audit.variant} · ${audit.mode}` : "loading…"}</>} />
+      <PageTitle title={data.mode === "showcase" ? "Run overview" : "Audit progress"} sub={<>{runId} · {audit ? `${audit.variant} · ${audit.mode}` : "loading…"}</>} />
       {error && <div className="mb-4"><ErrorBanner message={error} /></div>}
       {audit?.error && <div className="mb-4"><ErrorBanner message={`The audit stopped: ${audit.error}`} /></div>}
       <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">

@@ -18,10 +18,10 @@ from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel
 
 from mockaudit.datagen.ledgerly import VARIANT_SEEDS
-from mockaudit.evidence import Evidence
-from mockaudit.runner import load_state, new_run_id, resume_audit, run_audit
-from mockaudit.schemas import ControlSpec, Finding, RunConfig
+from mockaudit.runner import new_run_id, resume_audit, run_audit
+from mockaudit.schemas import RunConfig
 from mockaudit.specs import load_controls
+from mockaudit.views import findings_view
 
 
 class StartAudit(BaseModel):
@@ -202,35 +202,7 @@ def create_app(data_root: Path, runs_dir: Path, models_factory=None, spend_path:
         d = run_dir(run_id)
         if status(run_id) == "running":
             raise HTTPException(409, "the audit is still running")
-        state = await load_state(d)
-        specs = {s["control_id"]: ControlSpec.model_validate(s) for s in state.get("specs", [])}
-        evidence: dict[str, Evidence] = {}
-        cfg = run_meta(run_id)
-
-        def ev(cid):
-            if cid not in evidence:
-                evidence[cid] = Evidence.load(specs[cid], data_root / cfg["variant"])
-            return evidence[cid]
-
-        def cited(control_id, citations):
-            out = []
-            for c in citations:
-                rec = ev(control_id).get(c["source"], c["record_id"])
-                out.append({**c, "record": {k: v for k, v in (rec or {}).items() if k != "file"} if rec else None})
-            return out
-
-        verdicts = state.get("verdicts", {})
-        decisions = state.get("decisions") or {}
-        items = []
-        for f in sorted(state.get("findings", {}).values(), key=lambda f: (int(f["control_id"][1:]), f["finding_id"])):
-            fv = sorted((v for k, v in verdicts.items() if k.split("#")[0] == f["finding_id"]), key=lambda v: v["round"])
-            group = "rejected" if f["status"] == "rejected" else "dismissed_on_revision" if f["status"] == "dismissed" and \
-                f["finding_id"] not in decisions else "findings"
-            items.append({**Finding.model_validate(f).model_dump(), "group": group, "cited": cited(f["control_id"], f["citations"]),
-                          "verdicts": fv, "decision": decisions.get(f["finding_id"])})
-        not_raised = [{**x, "cited": cited(x["control_id"], x["citations"])}
-                      for x in sorted(state.get("dismissals", {}).values(), key=lambda x: x["candidate_id"])]
-        return {"run_id": run_id, "status": status(run_id), "findings": items, "not_raised": not_raised}
+        return await findings_view(d, data_root, status(run_id))
 
     @app.post("/audits/{run_id}/review", status_code=202)
     async def review(run_id: str, body: Review) -> dict:

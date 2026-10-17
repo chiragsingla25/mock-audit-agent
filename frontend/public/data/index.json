@@ -1,0 +1,987 @@
+{
+ "generated": "2026-10-17T02:58:11+00:00",
+ "statement": "Readiness forecast from synthetic evidence (Ledgerly is fictional). Not an audit opinion.",
+ "runs": [
+  {
+   "run_id": "audit-base-20261017T024924682",
+   "variant": "base",
+   "mode": "agent",
+   "review_mode": "human",
+   "status": "done",
+   "reviewed": true,
+   "label": "Ledgerly base · agent · human-reviewed",
+   "metrics": {
+    "recall": {
+     "n": 3,
+     "of": 10,
+     "value": 0.3
+    },
+    "precision": {
+     "n": 3,
+     "of": 3,
+     "value": 1.0
+    },
+    "clean_control_accuracy": {
+     "n": 4,
+     "of": 4,
+     "value": 1.0
+    },
+    "citation_validity": {
+     "n": 8,
+     "of": 8,
+     "value": 1.0
+    },
+    "severity_agreement": {
+     "n": 3,
+     "of": 3,
+     "value": 1.0
+    },
+    "traps_raised": {
+     "n": 0,
+     "of": 4,
+     "value": 0.0
+    }
+   },
+   "cost_usd": 0.015616,
+   "tokens": 124350
+  },
+  {
+   "run_id": "audit-base-20261017T024416974-r1",
+   "variant": "base",
+   "mode": "agent",
+   "review_mode": "skip",
+   "status": "done",
+   "reviewed": false,
+   "label": "Ledgerly base · agent",
+   "metrics": {
+    "recall": {
+     "n": 10,
+     "of": 10,
+     "value": 1.0
+    },
+    "precision": {
+     "n": 10,
+     "of": 10,
+     "value": 1.0
+    },
+    "clean_control_accuracy": {
+     "n": 4,
+     "of": 4,
+     "value": 1.0
+    },
+    "citation_validity": {
+     "n": 25,
+     "of": 25,
+     "value": 1.0
+    },
+    "severity_agreement": {
+     "n": 10,
+     "of": 10,
+     "value": 1.0
+    },
+    "traps_raised": {
+     "n": 0,
+     "of": 4,
+     "value": 0.0
+    }
+   },
+   "cost_usd": 0.014681,
+   "tokens": 110399
+  },
+  {
+   "run_id": "audit-a-20261017T024647072-r1",
+   "variant": "a",
+   "mode": "agent",
+   "review_mode": "skip",
+   "status": "done",
+   "reviewed": false,
+   "label": "Variant A · agent",
+   "metrics": {
+    "recall": {
+     "n": 7,
+     "of": 7,
+     "value": 1.0
+    },
+    "precision": {
+     "n": 7,
+     "of": 7,
+     "value": 1.0
+    },
+    "clean_control_accuracy": {
+     "n": 6,
+     "of": 6,
+     "value": 1.0
+    },
+    "citation_validity": {
+     "n": 17,
+     "of": 17,
+     "value": 1.0
+    },
+    "severity_agreement": {
+     "n": 7,
+     "of": 7,
+     "value": 1.0
+    },
+    "traps_raised": {
+     "n": 0,
+     "of": 4,
+     "value": 0.0
+    }
+   },
+   "cost_usd": 0.011865,
+   "tokens": 93817
+  },
+  {
+   "run_id": "audit-b-20261017T024839811-r1",
+   "variant": "b",
+   "mode": "agent",
+   "review_mode": "skip",
+   "status": "done",
+   "reviewed": false,
+   "label": "Variant B · agent",
+   "metrics": {
+    "recall": {
+     "n": 7,
+     "of": 7,
+     "value": 1.0
+    },
+    "precision": {
+     "n": 7,
+     "of": 7,
+     "value": 1.0
+    },
+    "clean_control_accuracy": {
+     "n": 6,
+     "of": 6,
+     "value": 1.0
+    },
+    "citation_validity": {
+     "n": 15,
+     "of": 15,
+     "value": 1.0
+    },
+    "severity_agreement": {
+     "n": 7,
+     "of": 7,
+     "value": 1.0
+    },
+    "traps_raised": {
+     "n": 0,
+     "of": 4,
+     "value": 0.0
+    }
+   },
+   "cost_usd": 0.010728,
+   "tokens": 82648
+  },
+  {
+   "run_id": "audit-base-20261017T025045436-r2",
+   "variant": "base",
+   "mode": "agent",
+   "review_mode": "skip",
+   "status": "done",
+   "reviewed": false,
+   "label": "Ledgerly base · agent · stability run 2",
+   "metrics": {
+    "recall": {
+     "n": 10,
+     "of": 10,
+     "value": 1.0
+    },
+    "precision": {
+     "n": 10,
+     "of": 10,
+     "value": 1.0
+    },
+    "clean_control_accuracy": {
+     "n": 4,
+     "of": 4,
+     "value": 1.0
+    },
+    "citation_validity": {
+     "n": 27,
+     "of": 27,
+     "value": 1.0
+    },
+    "severity_agreement": {
+     "n": 10,
+     "of": 10,
+     "value": 1.0
+    },
+    "traps_raised": {
+     "n": 0,
+     "of": 4,
+     "value": 0.0
+    }
+   },
+   "cost_usd": 0.017046,
+   "tokens": 143842
+  },
+  {
+   "run_id": "audit-base-20261017T025347678-r3",
+   "variant": "base",
+   "mode": "agent",
+   "review_mode": "skip",
+   "status": "done",
+   "reviewed": false,
+   "label": "Ledgerly base · agent · stability run 3",
+   "metrics": {
+    "recall": {
+     "n": 10,
+     "of": 10,
+     "value": 1.0
+    },
+    "precision": {
+     "n": 10,
+     "of": 10,
+     "value": 1.0
+    },
+    "clean_control_accuracy": {
+     "n": 4,
+     "of": 4,
+     "value": 1.0
+    },
+    "citation_validity": {
+     "n": 25,
+     "of": 25,
+     "value": 1.0
+    },
+    "severity_agreement": {
+     "n": 10,
+     "of": 10,
+     "value": 1.0
+    },
+    "traps_raised": {
+     "n": 0,
+     "of": 4,
+     "value": 0.0
+    }
+   },
+   "cost_usd": 0.014748,
+   "tokens": 120319
+  },
+  {
+   "run_id": "checks-base-20261017T025631896-e",
+   "variant": "base",
+   "mode": "checks_only",
+   "review_mode": "skip",
+   "status": "done",
+   "reviewed": false,
+   "label": "Ledgerly base · checks only",
+   "metrics": {
+    "recall": {
+     "n": 8,
+     "of": 10,
+     "value": 0.8
+    },
+    "precision": {
+     "n": 8,
+     "of": 10,
+     "value": 0.8
+    },
+    "clean_control_accuracy": {
+     "n": 2,
+     "of": 4,
+     "value": 0.5
+    },
+    "citation_validity": {
+     "n": 28,
+     "of": 28,
+     "value": 1.0
+    },
+    "severity_agreement": {
+     "n": 8,
+     "of": 8,
+     "value": 1.0
+    },
+    "traps_raised": {
+     "n": 4,
+     "of": 4,
+     "value": 1.0
+    }
+   },
+   "cost_usd": 0.0,
+   "tokens": 0
+  },
+  {
+   "run_id": "checks-a-20261017T025632153-e",
+   "variant": "a",
+   "mode": "checks_only",
+   "review_mode": "skip",
+   "status": "done",
+   "reviewed": false,
+   "label": "Variant A · checks only",
+   "metrics": {
+    "recall": {
+     "n": 6,
+     "of": 7,
+     "value": 0.8571
+    },
+    "precision": {
+     "n": 6,
+     "of": 8,
+     "value": 0.75
+    },
+    "clean_control_accuracy": {
+     "n": 4,
+     "of": 6,
+     "value": 0.6667
+    },
+    "citation_validity": {
+     "n": 21,
+     "of": 21,
+     "value": 1.0
+    },
+    "severity_agreement": {
+     "n": 6,
+     "of": 6,
+     "value": 1.0
+    },
+    "traps_raised": {
+     "n": 4,
+     "of": 4,
+     "value": 1.0
+    }
+   },
+   "cost_usd": 0.0,
+   "tokens": 0
+  },
+  {
+   "run_id": "checks-b-20261017T025632369-e",
+   "variant": "b",
+   "mode": "checks_only",
+   "review_mode": "skip",
+   "status": "done",
+   "reviewed": false,
+   "label": "Variant B · checks only",
+   "metrics": {
+    "recall": {
+     "n": 6,
+     "of": 7,
+     "value": 0.8571
+    },
+    "precision": {
+     "n": 6,
+     "of": 9,
+     "value": 0.6667
+    },
+    "clean_control_accuracy": {
+     "n": 4,
+     "of": 6,
+     "value": 0.6667
+    },
+    "citation_validity": {
+     "n": 19,
+     "of": 19,
+     "value": 1.0
+    },
+    "severity_agreement": {
+     "n": 6,
+     "of": 6,
+     "value": 1.0
+    },
+    "traps_raised": {
+     "n": 4,
+     "of": 4,
+     "value": 1.0
+    }
+   },
+   "cost_usd": 0.0,
+   "tokens": 0
+  }
+ ],
+ "eval": {
+  "eval_id": "eval-20261017T024416Z",
+  "rows": [
+   {
+    "run_id": "audit-base-20261017T024416974-r1",
+    "variant": "base",
+    "mode": "agent",
+    "repeat": 1,
+    "metrics": {
+     "recall": {
+      "n": 10,
+      "of": 10,
+      "value": 1.0
+     },
+     "precision": {
+      "n": 10,
+      "of": 10,
+      "value": 1.0
+     },
+     "clean_control_accuracy": {
+      "n": 4,
+      "of": 4,
+      "value": 1.0
+     },
+     "citation_validity": {
+      "n": 25,
+      "of": 25,
+      "value": 1.0
+     },
+     "severity_agreement": {
+      "n": 10,
+      "of": 10,
+      "value": 1.0
+     },
+     "traps_raised": {
+      "n": 0,
+      "of": 4,
+      "value": 0.0
+     }
+    },
+    "cost_usd": 0.014681,
+    "tokens": 110399
+   },
+   {
+    "run_id": "audit-base-20261017T024416974-r1",
+    "variant": "base",
+    "mode": "skeptic_off",
+    "repeat": 1,
+    "metrics": {
+     "recall": {
+      "n": 10,
+      "of": 10,
+      "value": 1.0
+     },
+     "precision": {
+      "n": 10,
+      "of": 10,
+      "value": 1.0
+     },
+     "clean_control_accuracy": {
+      "n": 4,
+      "of": 4,
+      "value": 1.0
+     },
+     "citation_validity": {
+      "n": 25,
+      "of": 25,
+      "value": 1.0
+     },
+     "severity_agreement": {
+      "n": 10,
+      "of": 10,
+      "value": 1.0
+     },
+     "traps_raised": {
+      "n": 0,
+      "of": 4,
+      "value": 0.0
+     }
+    },
+    "cost_usd": 0.0,
+    "tokens": 0
+   },
+   {
+    "run_id": "audit-a-20261017T024647072-r1",
+    "variant": "a",
+    "mode": "agent",
+    "repeat": 1,
+    "metrics": {
+     "recall": {
+      "n": 7,
+      "of": 7,
+      "value": 1.0
+     },
+     "precision": {
+      "n": 7,
+      "of": 7,
+      "value": 1.0
+     },
+     "clean_control_accuracy": {
+      "n": 6,
+      "of": 6,
+      "value": 1.0
+     },
+     "citation_validity": {
+      "n": 17,
+      "of": 17,
+      "value": 1.0
+     },
+     "severity_agreement": {
+      "n": 7,
+      "of": 7,
+      "value": 1.0
+     },
+     "traps_raised": {
+      "n": 0,
+      "of": 4,
+      "value": 0.0
+     }
+    },
+    "cost_usd": 0.011865,
+    "tokens": 93817
+   },
+   {
+    "run_id": "audit-a-20261017T024647072-r1",
+    "variant": "a",
+    "mode": "skeptic_off",
+    "repeat": 1,
+    "metrics": {
+     "recall": {
+      "n": 7,
+      "of": 7,
+      "value": 1.0
+     },
+     "precision": {
+      "n": 7,
+      "of": 7,
+      "value": 1.0
+     },
+     "clean_control_accuracy": {
+      "n": 6,
+      "of": 6,
+      "value": 1.0
+     },
+     "citation_validity": {
+      "n": 17,
+      "of": 17,
+      "value": 1.0
+     },
+     "severity_agreement": {
+      "n": 7,
+      "of": 7,
+      "value": 1.0
+     },
+     "traps_raised": {
+      "n": 0,
+      "of": 4,
+      "value": 0.0
+     }
+    },
+    "cost_usd": 0.0,
+    "tokens": 0
+   },
+   {
+    "run_id": "audit-b-20261017T024839811-r1",
+    "variant": "b",
+    "mode": "agent",
+    "repeat": 1,
+    "metrics": {
+     "recall": {
+      "n": 7,
+      "of": 7,
+      "value": 1.0
+     },
+     "precision": {
+      "n": 7,
+      "of": 7,
+      "value": 1.0
+     },
+     "clean_control_accuracy": {
+      "n": 6,
+      "of": 6,
+      "value": 1.0
+     },
+     "citation_validity": {
+      "n": 15,
+      "of": 15,
+      "value": 1.0
+     },
+     "severity_agreement": {
+      "n": 7,
+      "of": 7,
+      "value": 1.0
+     },
+     "traps_raised": {
+      "n": 0,
+      "of": 4,
+      "value": 0.0
+     }
+    },
+    "cost_usd": 0.010728,
+    "tokens": 82648
+   },
+   {
+    "run_id": "audit-b-20261017T024839811-r1",
+    "variant": "b",
+    "mode": "skeptic_off",
+    "repeat": 1,
+    "metrics": {
+     "recall": {
+      "n": 7,
+      "of": 7,
+      "value": 1.0
+     },
+     "precision": {
+      "n": 7,
+      "of": 7,
+      "value": 1.0
+     },
+     "clean_control_accuracy": {
+      "n": 6,
+      "of": 6,
+      "value": 1.0
+     },
+     "citation_validity": {
+      "n": 15,
+      "of": 15,
+      "value": 1.0
+     },
+     "severity_agreement": {
+      "n": 7,
+      "of": 7,
+      "value": 1.0
+     },
+     "traps_raised": {
+      "n": 0,
+      "of": 4,
+      "value": 0.0
+     }
+    },
+    "cost_usd": 0.0,
+    "tokens": 0
+   },
+   {
+    "run_id": "audit-base-20261017T025045436-r2",
+    "variant": "base",
+    "mode": "agent",
+    "repeat": 2,
+    "metrics": {
+     "recall": {
+      "n": 10,
+      "of": 10,
+      "value": 1.0
+     },
+     "precision": {
+      "n": 10,
+      "of": 10,
+      "value": 1.0
+     },
+     "clean_control_accuracy": {
+      "n": 4,
+      "of": 4,
+      "value": 1.0
+     },
+     "citation_validity": {
+      "n": 27,
+      "of": 27,
+      "value": 1.0
+     },
+     "severity_agreement": {
+      "n": 10,
+      "of": 10,
+      "value": 1.0
+     },
+     "traps_raised": {
+      "n": 0,
+      "of": 4,
+      "value": 0.0
+     }
+    },
+    "cost_usd": 0.017046,
+    "tokens": 143842
+   },
+   {
+    "run_id": "audit-base-20261017T025045436-r2",
+    "variant": "base",
+    "mode": "skeptic_off",
+    "repeat": 2,
+    "metrics": {
+     "recall": {
+      "n": 10,
+      "of": 10,
+      "value": 1.0
+     },
+     "precision": {
+      "n": 10,
+      "of": 10,
+      "value": 1.0
+     },
+     "clean_control_accuracy": {
+      "n": 4,
+      "of": 4,
+      "value": 1.0
+     },
+     "citation_validity": {
+      "n": 27,
+      "of": 27,
+      "value": 1.0
+     },
+     "severity_agreement": {
+      "n": 10,
+      "of": 10,
+      "value": 1.0
+     },
+     "traps_raised": {
+      "n": 0,
+      "of": 4,
+      "value": 0.0
+     }
+    },
+    "cost_usd": 0.0,
+    "tokens": 0
+   },
+   {
+    "run_id": "audit-base-20261017T025347678-r3",
+    "variant": "base",
+    "mode": "agent",
+    "repeat": 3,
+    "metrics": {
+     "recall": {
+      "n": 10,
+      "of": 10,
+      "value": 1.0
+     },
+     "precision": {
+      "n": 10,
+      "of": 10,
+      "value": 1.0
+     },
+     "clean_control_accuracy": {
+      "n": 4,
+      "of": 4,
+      "value": 1.0
+     },
+     "citation_validity": {
+      "n": 25,
+      "of": 25,
+      "value": 1.0
+     },
+     "severity_agreement": {
+      "n": 10,
+      "of": 10,
+      "value": 1.0
+     },
+     "traps_raised": {
+      "n": 0,
+      "of": 4,
+      "value": 0.0
+     }
+    },
+    "cost_usd": 0.014748,
+    "tokens": 120319
+   },
+   {
+    "run_id": "audit-base-20261017T025347678-r3",
+    "variant": "base",
+    "mode": "skeptic_off",
+    "repeat": 3,
+    "metrics": {
+     "recall": {
+      "n": 10,
+      "of": 10,
+      "value": 1.0
+     },
+     "precision": {
+      "n": 10,
+      "of": 10,
+      "value": 1.0
+     },
+     "clean_control_accuracy": {
+      "n": 4,
+      "of": 4,
+      "value": 1.0
+     },
+     "citation_validity": {
+      "n": 25,
+      "of": 25,
+      "value": 1.0
+     },
+     "severity_agreement": {
+      "n": 10,
+      "of": 10,
+      "value": 1.0
+     },
+     "traps_raised": {
+      "n": 0,
+      "of": 4,
+      "value": 0.0
+     }
+    },
+    "cost_usd": 0.0,
+    "tokens": 0
+   },
+   {
+    "run_id": "checks-base-20261017T025631896-e",
+    "variant": "base",
+    "mode": "checks_only",
+    "repeat": 1,
+    "metrics": {
+     "recall": {
+      "n": 8,
+      "of": 10,
+      "value": 0.8
+     },
+     "precision": {
+      "n": 8,
+      "of": 10,
+      "value": 0.8
+     },
+     "clean_control_accuracy": {
+      "n": 2,
+      "of": 4,
+      "value": 0.5
+     },
+     "citation_validity": {
+      "n": 28,
+      "of": 28,
+      "value": 1.0
+     },
+     "severity_agreement": {
+      "n": 8,
+      "of": 8,
+      "value": 1.0
+     },
+     "traps_raised": {
+      "n": 4,
+      "of": 4,
+      "value": 1.0
+     }
+    },
+    "cost_usd": 0.0,
+    "tokens": 0
+   },
+   {
+    "run_id": "checks-a-20261017T025632153-e",
+    "variant": "a",
+    "mode": "checks_only",
+    "repeat": 1,
+    "metrics": {
+     "recall": {
+      "n": 6,
+      "of": 7,
+      "value": 0.8571
+     },
+     "precision": {
+      "n": 6,
+      "of": 8,
+      "value": 0.75
+     },
+     "clean_control_accuracy": {
+      "n": 4,
+      "of": 6,
+      "value": 0.6667
+     },
+     "citation_validity": {
+      "n": 21,
+      "of": 21,
+      "value": 1.0
+     },
+     "severity_agreement": {
+      "n": 6,
+      "of": 6,
+      "value": 1.0
+     },
+     "traps_raised": {
+      "n": 4,
+      "of": 4,
+      "value": 1.0
+     }
+    },
+    "cost_usd": 0.0,
+    "tokens": 0
+   },
+   {
+    "run_id": "checks-b-20261017T025632369-e",
+    "variant": "b",
+    "mode": "checks_only",
+    "repeat": 1,
+    "metrics": {
+     "recall": {
+      "n": 6,
+      "of": 7,
+      "value": 0.8571
+     },
+     "precision": {
+      "n": 6,
+      "of": 9,
+      "value": 0.6667
+     },
+     "clean_control_accuracy": {
+      "n": 4,
+      "of": 6,
+      "value": 0.6667
+     },
+     "citation_validity": {
+      "n": 19,
+      "of": 19,
+      "value": 1.0
+     },
+     "severity_agreement": {
+      "n": 6,
+      "of": 6,
+      "value": 1.0
+     },
+     "traps_raised": {
+      "n": 4,
+      "of": 4,
+      "value": 1.0
+     }
+    },
+    "cost_usd": 0.0,
+    "tokens": 0
+   }
+  ],
+  "targets": [
+   {
+    "metric": "recall",
+    "base": 1.0,
+    "variant_mean": 1.0,
+    "target": 0.8,
+    "met": true
+   },
+   {
+    "metric": "precision",
+    "base": 1.0,
+    "variant_mean": 1.0,
+    "target": 0.8,
+    "met": true
+   },
+   {
+    "metric": "clean_control_accuracy",
+    "base": 1.0,
+    "variant_mean": 1.0,
+    "target": 1.0,
+    "met": true
+   },
+   {
+    "metric": "citation_validity",
+    "base": 1.0,
+    "variant_mean": 1.0,
+    "target": 1.0,
+    "met": true
+   },
+   {
+    "metric": "severity_agreement",
+    "base": 1.0,
+    "variant_mean": 1.0,
+    "target": 0.8,
+    "met": true
+   },
+   {
+    "metric": "stability",
+    "base": 1.0,
+    "variant_mean": null,
+    "target": 0.9,
+    "met": true
+   }
+  ],
+  "stability": {
+   "runs": [
+    "audit-base-20261017T024416974-r1",
+    "audit-base-20261017T025045436-r2",
+    "audit-base-20261017T025347678-r3"
+   ],
+   "pairwise": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "value": 1.0,
+   "recall_per_run": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "cost": {
+   "per_audit_usd": 0.013814,
+   "per_audit_tokens": 110205,
+   "eval_total_usd": 0.069068,
+   "eval_cap_usd": 2.0,
+   "within_cap": true
+  }
+ }
+}

@@ -1,5 +1,4 @@
 # Lint and tests on every push and PR. No secrets and no LLM calls: tests use stub models (CLAUDE.md).
-# Showcase JSON validation is added in Phase 6, with export-showcase.
 name: ci
 
 on:
@@ -26,6 +25,8 @@ jobs:
       - run: uv sync --frozen
       - run: uv run ruff check .
       - run: uv run pytest -q
+      # the committed GitHub Pages JSON validates against the schemas (moved here from Phase 4)
+      - run: uv run mockaudit validate-showcase
 
   frontend:
     runs-on: ubuntu-latest
