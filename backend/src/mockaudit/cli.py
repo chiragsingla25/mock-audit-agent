@@ -59,6 +59,14 @@ def main(argv: list[str] | None = None) -> int:
     rv.add_argument("--decisions", type=Path, required=True, help="the edited review_request.json")
     rv.add_argument("--runs-dir", type=Path, default=RUNS_DIR)
 
+    sv = sub.add_parser("serve", help="run the local API for the live-mode UI (127.0.0.1 only)")
+    sv.add_argument("--port", type=int, default=8000)
+    sv.add_argument("--data-root", type=Path, default=DATA_ROOT)
+    sv.add_argument("--runs-dir", type=Path, default=RUNS_DIR)
+
+    sc = sub.add_parser("schema", help="write the JSON Schema of the API/showcase types (for TypeScript generation)")
+    sc.add_argument("--out", type=Path, default=REPO_ROOT / "frontend" / "schema.json")
+
     ev = sub.add_parser("eval", help="score a run against its answer key")
     ev.add_argument("--run", default="latest", help="run id, or 'latest'")
     ev.add_argument("--all", action="store_true", help="full evaluation: agent on base/a/b + stability, checks-only, skeptic-off")
@@ -106,6 +114,16 @@ def main(argv: list[str] | None = None) -> int:
             models = OpenRouterModels()
         out = asyncio.run(resume_audit(run_dir, json.loads(args.decisions.read_text()), models))
         print_summary(out, "review")
+    elif args.cmd == "serve":
+        import uvicorn
+
+        from mockaudit.api import create_app
+        load_env()
+        uvicorn.run(create_app(args.data_root, args.runs_dir), host="127.0.0.1", port=args.port)
+    elif args.cmd == "schema":
+        from mockaudit.schemas import write_json_schema
+        write_json_schema(args.out)
+        print(f"wrote {args.out}")
     elif args.cmd == "eval" and args.rescore:
         from mockaudit.evaluation import render, rescore
         print(render(rescore(args.runs_dir, args.rescore, args.data_root)))

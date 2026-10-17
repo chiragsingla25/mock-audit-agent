@@ -36,6 +36,7 @@ Show, with measured numbers, that a cheap two-LLM LangGraph agent finds the plan
 
 Milestone 1 = Phases 0–4. Milestone 2 = Phases 5–6. Record `Milestone N base: <commit>` here when each starts.
 Milestone 1 base: 0bdd115 (scaffold + Phase 0 notebook; the notebook is scratch and is not reviewed). Extra fresh-context review gates come after Phase 1 and Phase 3.
+Milestone 2 base: 03b17b0 (2026-10-17). Release-qa for Milestone 1 was deferred by Chirag ("skip release-qa for now"), so it is still owed before shipping.
 
 ### Phase 0: MVP notebook (validate the idea)
 Delivers `notebooks/mvp.ipynb`: C2 end to end on hand-built rows (about 20 terminations, 2 late, 1 missing, 1 trap), covering population check → checks → tester (tool loop + structured output) → skeptic, for 2 tester models × 3 repeats, with cost measured.
@@ -167,6 +168,21 @@ Four screens, as in the 2026-10-15 mockup:
 - [ ] TypeScript types are generated from the Pydantic JSON Schema.
 - [ ] Submitting the review resumes the paused graph, and the report shows only approved findings.
 - [ ] Failure case: starting an audit with the API down shows "Can't reach the local API. Start it with `uv run mockaudit serve`."
+
+Clarified 2026-10-17 (Phase 5 clarify pass, ruled by Chirag):
+- No 2026-10-15 mockup exists in the repo or the artifacts, so the screens are built from this phase's list and PRD §9. Screenshots are shown at the gate.
+- Audits started from the browser always use `review_mode: human`. `--review skip` stays a CLI/eval option.
+- Styling: Tailwind CSS 4, no component library.
+- Verification: API tests with stub LLMs (FastAPI TestClient), Vitest for the data layer and the API-down message, then the Verify line done by hand in the built-in browser with one real audit (about US$0.03), with screenshots.
+- Defaults (builder, stated):
+  - **API:** `mockaudit serve` on 127.0.0.1:8000, with CORS for localhost:3000.
+  - **Endpoints:** spec §4's five, plus `GET /config` (models, spend so far, variants) and `GET /audits` (recent runs).
+  - **Findings payload:** `GET /audits/{id}/findings` returns each finding with its cited records resolved server-side, so the UI never reads raw files.
+  - **Concurrency:** one audit at a time; a second start gets 409.
+  - **Progress:** per-control state (queued → running → done / error) comes from the graph's own stream. The UI polls every second.
+  - **Frontend:** `frontend/` is Next.js 16.4 (App Router, TypeScript). `lib/data/` is the only code that calls `fetch`, and a test enforces this. Showcase mode is a stub until Phase 6.
+  - **Types:** `mockaudit schema` → `json-schema-to-typescript` → `frontend/lib/types.gen.ts`, and CI fails if they drift.
+  - **No answer key in the live UI:** it shows finding ids such as `C2-timeliness`. "Open G1" in the Verify line means that finding.
 
 Verify: start an audit in the browser → 12 cards finish → open G1 → the step list shows → approve → export Markdown.
 

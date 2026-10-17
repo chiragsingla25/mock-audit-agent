@@ -222,3 +222,22 @@ class SkepticOutput(Strict):
     reason: str
     checks_failed: list[Literal["citation_mismatch", "out_of_period", "out_of_scope", "innocent_explanation",
                                 "logic_error", "insufficient_evidence"]] = []
+
+
+# ---------- JSON Schema for the frontend's generated TypeScript types ----------
+
+def write_json_schema(path) -> None:
+    """One schema whose $defs hold every type the UI reads (frontend/lib/types.gen.ts is generated from it)."""
+    import json
+    from pathlib import Path
+
+    from pydantic.json_schema import models_json_schema
+
+    models = [ControlSpec, Citation, CheckResult, ReasoningStep, Candidate, Finding, Dismissal, Coverage,
+              ControlResult, SkepticVerdict, RunConfig]
+    _, top = models_json_schema([(m, "serialization") for m in models], ref_template="#/$defs/{model}")
+    schema = {"$schema": "https://json-schema.org/draft/2020-12/schema", "title": "MockAudit",
+              "type": "object", "properties": {m.__name__: {"$ref": f"#/$defs/{m.__name__}"} for m in models},
+              "$defs": top.get("$defs", {})}
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    Path(path).write_text(json.dumps(schema, indent=2, sort_keys=True) + "\n")
