@@ -61,7 +61,7 @@ export function ReportScreen() {
               {report.review_mode === "human" ? "Approved findings" : "Findings"} ({report.findings.length})
             </h2>
             {report.review_mode !== "human" && (
-              <p className="mb-2 text-sm text-slate-500">Not reviewed by a person: these are the findings the agent kept (evaluation run).</p>
+              <p className="mb-2 text-sm text-slate-500">Not reviewed by a person: these are the findings this run kept, before any human review.</p>
             )}
             <div className="space-y-3">
               {report.findings.length === 0 && <Card className="text-sm text-slate-500">No findings were approved.</Card>}

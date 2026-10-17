@@ -21,7 +21,7 @@ _Readiness forecast from synthetic evidence. Not an audit opinion._ Mode: agent,
 
 ## Findings (10)
 
-_Not reviewed by a person: these are the findings the agent kept (evaluation run)._
+_Not reviewed by a person: these are the findings this run kept, before any human review._
 
 ### C2-completeness · high · 1 of 20
 

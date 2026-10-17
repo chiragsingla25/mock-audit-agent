@@ -82,7 +82,7 @@ def render_md(rep: dict, results: list[ControlResult] | None = None) -> str:
     reviewed = rep["review_mode"] == "human"
     out += ["", f"## {'Approved findings' if reviewed else 'Findings'} ({len(rep['findings'])})", ""]
     if not reviewed:
-        out += ["_Not reviewed by a person: these are the findings the agent kept (evaluation run)._", ""]
+        out += ["_Not reviewed by a person: these are the findings this run kept, before any human review._", ""]
     for f in rep["findings"]:
         cites = ", ".join(f"{c['source']}/{c['record_id']}" for c in f["citations"][:12])
         failed = any(w in s["text"] for s in f["reasoning"][-2:] for w in ("revision failed", ": error"))

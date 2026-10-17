@@ -308,3 +308,25 @@ Golden answer key with code-scored metrics (proposal §7), unit tests per criter
 - [phase 6] All eval agent runs are published, the stability runs included, so every comparison row opens a run (the validator enforces this). Each run also ships `report.md` for the Markdown export.
 - [phase 6] The root `.gitignore` entry `runs/` also matched `frontend/public/data/runs/`, so the per-run showcase JSON would never have been committed. Caught before committing; CI's `validate-showcase` would have failed on it too — scaffold bug — anchored to `/runs/`.
 - [phase 6] Verify line checked on the live site: the home shows runs and the comparison with no start button, findings show step lists and cited records, and the reviewed run's report holds the 3 approved findings. No console errors.
+- [verify] Release-qa, 2026-10-17. Reviews: `specs/reviews/2026-10-15-mock-audit-mvp-m1-r1.md` (Milestone 1: PASS, 30/30 criteria), `…-m2-r1.md` (Milestone 2: Phase 5 PASS, Phase 6 FAIL), `…-m2-r2.md` (Phase 6 re-check: PASS). One fix round.
+- [verify] Spec-conformance gap, not recorded by the developer: the Phase 6 Clarified rule "eval runs published alongside, marked unreviewed" wasn't met. The site didn't mark them, and every report was headed "Approved findings", including runs nobody reviewed. Fixed in fe5a13d with a "not reviewed" label and badge, plus a neutral heading and caption.
+- [verify] Fixed in the same round from review notes:
+  - **Data loss risk:** `export-showcase` deleted its output folder before validating run ids, and only checked that the folder was named `data`, so `--out data` at the repo root would have deleted the datasets. It now validates first and only replaces `<frontend>/public/data`.
+  - **False confidence:** untested controls now read "not tested", not "no exceptions found".
+  - **Broken table:** multi-line errors no longer break the Markdown coverage table.
+- [verify] Divergences from framework §6, accepted rather than failed, because project rules or the spec's roadmap decide them:
+  - CI runs no LLM evals (CLAUDE.md: never call OpenRouter from CI). The CI regression gate is deterministic: checks-only scoring plus stub-LLM tests. Real evals are run by hand with `eval --all`.
+  - There is no judge-LLM for write-up quality; spec §2 makes it roadmap.
+  - LangSmith traces were not re-inspected by release-qa; the trace and the real revise round rest on recorded evidence.
+- [verify] Open notes (not blocking, roadmap or backlog):
+  - **CLI:** `mockaudit review` ignores decisions other than approve/dismiss; `review --run latest` on a paused run says "no runs yet"; `eval --rescore <unknown>` prints a traceback; `mockaudit serve` always loads `.env`.
+  - **API:** `POST /review` accepts partial decisions, and undecided findings drop out of the report (the UI blocks this).
+  - **Validation:** `controls.yaml` accepts unknown check names, an empty file, or fewer than 12 controls.
+  - **Counts and data:** C2/C5 completeness `tested` counts differ from the answer key's (severity still agrees); a header-only HR roster gives C2 "no exceptions found".
+  - **Frontend:** the API response types (`lib/api-types.ts`) are hand-written, not generated; no frontend unit test covers the new badge or heading.
+  - **Showcase:** the human-reviewed run (recall 3/10, captioned) leads the home table.
+- [verify] User-visible changes in Milestone 2:
+  - **Local app:** the new local app (`mockaudit serve` plus the Next.js UI) with the exact API-down message; browser-started audits always pause for review; coverage wording reads "no exceptions found", "exceptions dismissed in review" or "not tested", never "pass".
+  - **Public site:** the public showcase at https://chiragsingla25.github.io/mock-audit-agent/ (unreviewed runs labelled, reviewed run with recorded decisions, comparison table), and the README rewritten with eval results and cost.
+  - **Commands:** new commands `serve`, `schema`, `export-showcase`, `validate-showcase` and `eval --rescore`.
+  - **Behaviour fixes:** the skeptic falls back to a non-reasoning call when the first returns no answer; a tester with no structured answer is retried once; revised code-only findings are no longer dropped.
